@@ -2,6 +2,8 @@
 -- =========================================================
 -- MySQL DDL
 -- =========================================================
+DROP DATABASE IF EXISTS bank;
+
 CREATE DATABASE IF NOT EXISTS bank;
 
 USE bank;
@@ -29,7 +31,7 @@ CREATE TABLE customers (
     date_of_birth DATE,
     gender ENUM('M', 'F', 'O') NULL,
     job VARCHAR(120) NULL,
-    home_country CHAR(2) NOT NULL DEFAULT 'VN',
+    home_country VARCHAR(2) NOT NULL DEFAULT 'VN',
     latitude DECIMAL(10, 7) NULL,
     longitude DECIMAL(10, 7) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -44,7 +46,7 @@ CREATE TABLE accounts (
     account_number VARCHAR(32) PRIMARY KEY,
     balance DECIMAL(18, 2) NOT NULL DEFAULT 0.00,
     hold_balance DECIMAL(18, 2) NOT NULL DEFAULT 0.00, -- for transfer hold/saga 
-    currency CHAR(3) NOT NULL DEFAULT 'VND',
+    currency VARCHAR(3) NOT NULL DEFAULT 'VND',
     status ENUM('ACTIVE', 'BLOCKED') NOT NULL DEFAULT 'ACTIVE',
     customer_id VARCHAR(32) NOT NULL,
     branch_id BIGINT NOT NULL,
@@ -61,11 +63,11 @@ CREATE INDEX idx_account_branch ON accounts (branch_id);
 -- CARDS
 -- =========================
 CREATE TABLE cards (
-    card_id CHAR(36) PRIMARY KEY, -- UUID
+    card_id VARCHAR(36) PRIMARY KEY, -- UUID
     pan_token VARCHAR(128) NOT NULL UNIQUE, -- token or hash
-    last4 CHAR(4) NOT NULL,
-    exp_month TINYINT NOT NULL,
-    exp_year SMALLINT NOT NULL,
+    last4 VARCHAR(4) NOT NULL,
+    exp_month INT NOT NULL,
+    exp_year INT NOT NULL,
     status ENUM('ACTIVE', 'BLOCKED') NOT NULL DEFAULT 'ACTIVE',
     card_type VARCHAR(40) NULL,
     account_id VARCHAR(32) NOT NULL,
@@ -82,7 +84,7 @@ CREATE TABLE merchants (
     merchant_id VARCHAR(64) PRIMARY KEY,
     merchant_name VARCHAR(160) NOT NULL,
     category VARCHAR(60) NOT NULL,
-    country CHAR(2) NOT NULL,
+    country VARCHAR(2) NOT NULL,
     city_population INT NULL,
     city VARCHAR(120) NULL,
     street VARCHAR(160) NULL,
@@ -100,7 +102,7 @@ CREATE INDEX idx_merchant_country_category ON merchants (country, category);
 -- =========================
 
 CREATE TABLE transactions (
-    transaction_id CHAR(36) PRIMARY KEY, -- UUID 
+    transaction_id VARCHAR(36) PRIMARY KEY, -- UUID 
     idempotency_key VARCHAR(80) NOT NULL UNIQUE,
     channel ENUM('CARD_PAYMENT', 'TRANSFER') NOT NULL,
     status ENUM(
@@ -116,7 +118,7 @@ CREATE TABLE transactions (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- card payment fields (nullable for transfer)
     merchant_id VARCHAR(64) NULL,
-    card_id CHAR(36) NULL,
+    card_id VARCHAR(36) NULL,
     -- fraud output
     risk_score DOUBLE NULL,
     fraud_decision ENUM('PASS', 'REJECT', 'REVIEW') NULL,
@@ -141,7 +143,7 @@ CREATE INDEX idx_tx_merchant_time ON transactions (merchant_id, trans_time);
 
 CREATE TABLE account_transactions (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    transaction_id CHAR(36) NOT NULL UNIQUE,
+    transaction_id VARCHAR(36) NOT NULL UNIQUE,
     account_number_send VARCHAR(32) NOT NULL,
     account_number_receive VARCHAR(32) NULL,
     -- for interbank transfer
@@ -160,10 +162,10 @@ CREATE INDEX idx_acctrans_receive ON account_transactions (account_number_receiv
 -- Optional: a simple ledger table (nice for "banking correctness")
 -- =========================================================
 CREATE TABLE ledger_entries (
-    entry_id CHAR(36) PRIMARY KEY,
+    entry_id VARCHAR(36) PRIMARY KEY,
     account_id VARCHAR(32) NOT NULL,
     ref_type ENUM('CARD_TX', 'TRANSFER') NOT NULL,
-    ref_id CHAR(36) NOT NULL,
+    ref_id VARCHAR(36) NOT NULL,
     entry_type ENUM(
         'HOLD',
         'RELEASE_HOLD',
