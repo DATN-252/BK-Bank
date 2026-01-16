@@ -2,23 +2,26 @@
 -- =========================================================
 -- MySQL DDL
 -- =========================================================
+CREATE DATABASE IF NOT EXISTS bank;
+
+USE bank;
 
 SET NAMES utf8mb4;
 
 SET time_zone = '+00:00';
 
 -- =========================
--- BRANCH
+-- BRANCHES
 -- =========================
-CREATE TABLE branch (
+CREATE TABLE branches (
     branch_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(120) NOT NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 -- =========================
--- CUSTOMER
+-- CUSTOMERS
 -- =========================
-CREATE TABLE customer (
+CREATE TABLE customers (
     citizen_id VARCHAR(32) PRIMARY KEY,
     first_name VARCHAR(80) NOT NULL,
     last_name VARCHAR(80) NOT NULL,
@@ -32,12 +35,12 @@ CREATE TABLE customer (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
-CREATE INDEX idx_customer_phone ON customer (phone);
+CREATE INDEX idx_customer_phone ON customers (phone);
 
 -- =========================
--- ACCOUNT
+-- ACCOUNTS
 -- =========================
-CREATE TABLE account (
+CREATE TABLE accounts (
     account_number VARCHAR(32) PRIMARY KEY,
     balance DECIMAL(18, 2) NOT NULL DEFAULT 0.00,
     hold_balance DECIMAL(18, 2) NOT NULL DEFAULT 0.00, -- for transfer hold/saga 
@@ -46,18 +49,18 @@ CREATE TABLE account (
     customer_id VARCHAR(32) NOT NULL,
     branch_id BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_account_customer FOREIGN KEY (customer_id) REFERENCES customer (citizen_id) ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT fk_account_branch FOREIGN KEY (branch_id) REFERENCES branch (branch_id) ON UPDATE CASCADE ON DELETE RESTRICT
+    CONSTRAINT fk_accounts_customer FOREIGN KEY (customer_id) REFERENCES customers (citizen_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_accounts_branch FOREIGN KEY (branch_id) REFERENCES branches (branch_id) ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
-CREATE INDEX idx_account_customer ON account (customer_id);
+CREATE INDEX idx_account_customer ON accounts (customer_id);
 
-CREATE INDEX idx_account_branch ON account (branch_id);
+CREATE INDEX idx_account_branch ON accounts (branch_id);
 
 -- =========================
--- CARD
+-- CARDS
 -- =========================
-CREATE TABLE card (
+CREATE TABLE cards (
     card_id CHAR(36) PRIMARY KEY, -- UUID
     pan_token VARCHAR(128) NOT NULL UNIQUE, -- token or hash
     last4 CHAR(4) NOT NULL,
@@ -67,15 +70,15 @@ CREATE TABLE card (
     card_type VARCHAR(40) NULL,
     account_id VARCHAR(32) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_card_account FOREIGN KEY (account_id) REFERENCES account (account_number) ON UPDATE CASCADE ON DELETE RESTRICT
+    CONSTRAINT fk_cards_account FOREIGN KEY (account_id) REFERENCES accounts (account_number) ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
-CREATE INDEX idx_card_account ON card (account_id);
+CREATE INDEX idx_card_account ON cards (account_id);
 
 -- =========================
--- MERCHANT
+-- MERCHANTS
 -- =========================
-CREATE TABLE merchant (
+CREATE TABLE merchants (
     merchant_id VARCHAR(64) PRIMARY KEY,
     merchant_name VARCHAR(160) NOT NULL,
     category VARCHAR(60) NOT NULL,
@@ -90,13 +93,13 @@ CREATE TABLE merchant (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
-CREATE INDEX idx_merchant_country_category ON merchant (country, category);
+CREATE INDEX idx_merchant_country_category ON merchants (country, category);
 
 -- =========================
--- TRANSACTION (unified for CARD_PAYMENT and TRANSFER)
+-- TRANSACTIONS (unified for CARD_PAYMENT and TRANSFER)
 -- =========================
 
-CREATE TABLE transaction (
+CREATE TABLE transactions (
     transaction_id CHAR(36) PRIMARY KEY, -- UUID 
     idempotency_key VARCHAR(80) NOT NULL UNIQUE,
     channel ENUM('CARD_PAYMENT', 'TRANSFER') NOT NULL,
@@ -119,24 +122,24 @@ CREATE TABLE transaction (
     fraud_decision ENUM('PASS', 'REJECT', 'REVIEW') NULL,
     model_version VARCHAR(40) NULL,
     reason_code VARCHAR(80) NULL,
-    CONSTRAINT fk_tx_merchant FOREIGN KEY (merchant_id) REFERENCES merchant (merchant_id) ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT fk_tx_card FOREIGN KEY (card_id) REFERENCES card (card_id) ON UPDATE CASCADE ON DELETE RESTRICT
+    CONSTRAINT fk_transactions_merchant FOREIGN KEY (merchant_id) REFERENCES merchants (merchant_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_transactions_card FOREIGN KEY (card_id) REFERENCES cards (card_id) ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
-CREATE INDEX idx_tx_channel_time ON transaction (channel, trans_time);
+CREATE INDEX idx_tx_channel_time ON transactions (channel, trans_time);
 
-CREATE INDEX idx_tx_card_time ON transaction (card_id, trans_time);
+CREATE INDEX idx_tx_card_time ON transactions (card_id, trans_time);
 
-CREATE INDEX idx_tx_merchant_time ON transaction (merchant_id, trans_time);
+CREATE INDEX idx_tx_merchant_time ON transactions (merchant_id, trans_time);
 
 -- =========================
--- ACC_TRANS (maps transaction to sender/receiver accounts)
+-- ACCOUNT_TRANSACTIONS (maps transaction to sender/receiver accounts)
 -- - For CARD_PAYMENT: receiver can be NULL (or merchant settlement account if you simulate)
 -- - For TRANSFER internal: both send & receive in same DB
 -- - For TRANSFER interbank: receive is NULL, use to_bank_id + to_account_no_external
 -- =========================
 
-CREATE TABLE acc_trans (
+CREATE TABLE account_transactions (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     transaction_id CHAR(36) NOT NULL UNIQUE,
     account_number_send VARCHAR(32) NOT NULL,
@@ -144,19 +147,19 @@ CREATE TABLE acc_trans (
     -- for interbank transfer
     to_bank_id VARCHAR(20) NULL,
     to_account_no_external VARCHAR(32) NULL,
-    CONSTRAINT fk_acctrans_tx FOREIGN KEY (transaction_id) REFERENCES transaction (transaction_id) ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_acctrans_send FOREIGN KEY (account_number_send) REFERENCES account (account_number) ON UPDATE CASCADE ON DELETE RESTRICT,
-    CONSTRAINT fk_acctrans_receive FOREIGN KEY (account_number_receive) REFERENCES account (account_number) ON UPDATE CASCADE ON DELETE RESTRICT
+    CONSTRAINT fk_account_trans_tx FOREIGN KEY (transaction_id) REFERENCES transactions (transaction_id) ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_account_trans_send FOREIGN KEY (account_number_send) REFERENCES accounts (account_number) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_account_trans_receive FOREIGN KEY (account_number_receive) REFERENCES accounts (account_number) ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
-CREATE INDEX idx_acctrans_send ON acc_trans (account_number_send);
+CREATE INDEX idx_acctrans_send ON account_transactions (account_number_send);
 
-CREATE INDEX idx_acctrans_receive ON acc_trans (account_number_receive);
+CREATE INDEX idx_acctrans_receive ON account_transactions (account_number_receive);
 
 -- =========================================================
 -- Optional: a simple ledger table (nice for "banking correctness")
 -- =========================================================
-CREATE TABLE ledger_entry (
+CREATE TABLE ledger_entries (
     entry_id CHAR(36) PRIMARY KEY,
     account_id VARCHAR(32) NOT NULL,
     ref_type ENUM('CARD_TX', 'TRANSFER') NOT NULL,
@@ -169,9 +172,9 @@ CREATE TABLE ledger_entry (
     ) NOT NULL,
     amount DECIMAL(18, 2) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_ledger_account FOREIGN KEY (account_id) REFERENCES account (account_number) ON UPDATE CASCADE ON DELETE RESTRICT
+    CONSTRAINT fk_ledger_entries_account FOREIGN KEY (account_id) REFERENCES accounts (account_number) ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
-CREATE INDEX idx_ledger_account_time ON ledger_entry (account_id, created_at);
+CREATE INDEX idx_ledger_account_time ON ledger_entries (account_id, created_at);
 
-CREATE INDEX idx_ledger_ref ON ledger_entry (ref_type, ref_id);
+CREATE INDEX idx_ledger_ref ON ledger_entries (ref_type, ref_id);
