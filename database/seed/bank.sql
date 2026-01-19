@@ -1,0 +1,1 @@
+INSERT INTO branches (branch_id, name) VALUES (1, "HCM Main Branch")

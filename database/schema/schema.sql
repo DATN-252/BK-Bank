@@ -114,7 +114,10 @@ CREATE TABLE transactions (
         'REFUNDED'
     ) NOT NULL DEFAULT 'PENDING',
     amount DECIMAL(18, 2) NOT NULL,
+    trans_date DATE NULL,
     trans_time TIMESTAMP NOT NULL, -- use one time field
+    unix_time BIGINT NULL,
+    trans_num VARCHAR(64) NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- card payment fields (nullable for transfer)
     merchant_id VARCHAR(64) NULL,

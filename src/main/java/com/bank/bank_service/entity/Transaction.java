@@ -1,6 +1,7 @@
 package com.bank.bank_service.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 import jakarta.persistence.Column;
@@ -45,8 +46,17 @@ public class Transaction {
     @Column(nullable = false, precision = 18, scale = 2)
     private BigDecimal amount;
 
+    @Column(name = "trans_date")
+    private LocalDate transDate;
+
     @Column(name = "trans_time", nullable = false)
     private OffsetDateTime transTime;
+
+    @Column(name = "unix_time")
+    private Long unixTime;
+
+    @Column(name = "trans_num", length = 64)
+    private String transNum;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "merchant_id")
