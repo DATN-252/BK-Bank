@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TransactionDetailDto {
+public class TransactionDetailResponse {
     private String transactionId;
     private String channel;
     private String status;
