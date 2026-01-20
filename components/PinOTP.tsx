@@ -19,13 +19,20 @@ export default function PinOTP({ numberPin, setOnForgotPw }: PinOTPProps) {
     const refInputs = React.useRef<(TextInput | null)[]>([]);
 
     // initialState là rỗng
-    const [pinArray, setPinArray] = React.useState<number[]>(Array(numberPin).fill(''));
+    const [pinArray, setPinArray] = React.useState<string[]>(Array(numberPin).fill(''));
 
     // resend code
     const [isResendDisabled, setIsResendDisabled] = React.useState<boolean>(false);
     const [countdown, setCountdown] = React.useState<number>(30);
 
-    const onSubmit = (pin: string) => {
+    React.useEffect(() => {
+        refInputs.current[0]?.focus();
+    }, []);
+
+    const onSubmit = (ArrPin: string[]) => {
+        const pin = ArrPin.join('');
+        console.log('PIN entered:', pin);
+        //todo verify pin
         if (pin === numberPin.toString().repeat(numberPin)) {
             // handleRegisterSubmit(handleRegister)();
             setOnForgotPw(false);
@@ -38,7 +45,6 @@ export default function PinOTP({ numberPin, setOnForgotPw }: PinOTPProps) {
 
     return (
         <>
-            <ThemedText style={{ color: 'white' }}>Xác thực OTP</ThemedText>
             <ThemedView style={{
                 width: '100%',
                 minHeight: '7%',
@@ -61,26 +67,32 @@ export default function PinOTP({ numberPin, setOnForgotPw }: PinOTPProps) {
                             }
                         }}
                         onChangeText={(text) => {
+                            if (text.length === 2) text = text.charAt(1);
+
                             const newPin = [...pinArray];
-                            newPin[item] = Number(text);
+                            newPin[item] = text;
                             setPinArray(newPin);
 
+                            // length === 1 nghĩa là đã nhập ký tự
                             if (text.length === 1) {
-                                if (item < numberPin - 1) refInputs.current[item + 1]?.focus();
+                                if (item < numberPin - 1) {
+                                    newPin[item + 1] = '';
+                                    refInputs.current[item + 1]?.focus();
+                                }
                                 else {
-                                    const pin = newPin.join('');
-                                    onSubmit(pin);
+                                    onSubmit(newPin);
+                                    return;
                                 }
                             }
                         }}
                         style={styles.inputPin}
-                        maxLength={1}
+                        maxLength={2}
                         keyboardType="number-pad"
                     />
                 ))}
             </ThemedView>
             <TouchableOpacity
-                style={[styles.buttonLogin, isResendDisabled && { backgroundColor: '#ccc' }]}
+                style={[styles.buttonSendAgain, { opacity: isResendDisabled ? 0.7 : 1 }]}
                 disabled={isResendDisabled}
                 onPress={() => {
                     setCountdown(30);
@@ -99,8 +111,8 @@ export default function PinOTP({ numberPin, setOnForgotPw }: PinOTPProps) {
                     }, 1000);
                 }}
             >
-                <ThemedText type="subtitle" style={{ color: Colors.light.tint }}>
-                    {isResendDisabled ? `Wait ${countdown}s` : 'Resend Code'}
+                <ThemedText style={{ color: Colors.light.text }}>
+                    {isResendDisabled ? `Vui lòng đợi ${countdown}s` : 'Gửi lại?'}
                 </ThemedText>
             </TouchableOpacity>
         </>
@@ -116,11 +128,19 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         fontSize: 25,
         marginHorizontal: 2,
+        color: Colors.light.text,
     },
 
-    buttonLogin: {
-        borderRadius: 65,
-        backgroundColor: 'white',
+    buttonSendAgain: {
+        height: 45,
+        backgroundColor: Colors.light.tint,
+        borderRadius: 20,
+        justifyContent: 'center',
         alignItems: 'center',
+        marginTop: 20,
+        shadowColor: '#000',
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 10,
     },
 });

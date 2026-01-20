@@ -25,7 +25,7 @@ export default function LoginScreen() {
   const [showPicker, setShowPicker] = React.useState<boolean>(false);
 
 
-  const scrollX = React.useRef(new Animated.Value(1)).current;
+  const scrollX = React.useRef(new Animated.Value(0)).current;
   const refScroll = React.useRef<ScrollView>(null);
   const switchPageLogin = (page: number) => {
     Animated.timing(scrollX, {
@@ -40,7 +40,7 @@ export default function LoginScreen() {
   };
 
   const { control: loginControl, handleSubmit: handleLoginSubmit, formState: { errors: loginErrors }, reset: resetLogin } = useForm<LoginType>();
-  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const handleLogin = (data: LoginType) => {
     //todo
     console.log(data);
@@ -67,6 +67,8 @@ export default function LoginScreen() {
   };
 
   const buttonBack = () => {
+    //todo
+    resetForgotPassword();
     switchPageLogin(0);
     setOnForgotPw(false);
   };
@@ -107,8 +109,8 @@ export default function LoginScreen() {
 
               <ThemedView style={styles.form}>
                 {loginErrors.nameAcc ?
-                  <ThemedText style={{ color: 'red' }}>{loginErrors.nameAcc.message}</ThemedText>
-                  : <ThemedText style={{ color: 'white' }}>Tên đăng nhập:</ThemedText>
+                  <ThemedText style={{ color: Colors.light.warning }}>{loginErrors.nameAcc.message}</ThemedText>
+                  : <ThemedText style={{ color: Colors.light.text }}>Tên đăng nhập:</ThemedText>
                 }
                 <Controller
                   control={loginControl}
@@ -124,22 +126,34 @@ export default function LoginScreen() {
                   )}
                 />
                 {loginErrors.password ?
-                  <ThemedText style={{ color: 'red' }}>{loginErrors.password.message}</ThemedText>
-                  : <ThemedText style={{ color: 'white' }}>Mật khẩu:</ThemedText>
+                  <ThemedText style={{ color: Colors.light.warning }}>{loginErrors.password.message}</ThemedText>
+                  : <ThemedText style={{ color: Colors.light.text }}>Mật khẩu:</ThemedText>
                 }
                 <Controller
                   rules={{ required: '*Mật khẩu là bắt buộc!' }}
                   control={loginControl}
                   name="password"
                   render={({ field: { onChange, value } }) => (
-                    <TextInput
-                      placeholder="Tối thiểu 8 ký tự"
-                      secureTextEntry={!showPassword}
-                      onChangeText={onChange}
-                      value={value}
-                      style={styles.input}
-                    />
-                    
+                    <ThemedView style={styles.input}>
+                      <ThemedView style={styles.inputHaveIcon}>
+                        <TextInput
+                          placeholder="Tối thiểu 8 ký tự"
+                          secureTextEntry={!showPassword}
+                          onChangeText={onChange}
+                          value={value}
+                          style={{ flex: 1, color: Colors.light.text, fontSize: 17 }}
+                        />
+                        {showPassword ?
+                          <TouchableOpacity onPress={() => setShowPassword(false)}>
+                            <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
+                          </TouchableOpacity>
+                          :
+                          <TouchableOpacity onPress={() => setShowPassword(true)}>
+                            <FontAwesome name="eye" size={24} color={Colors.light.icon} />
+                          </TouchableOpacity>
+                        }
+                      </ThemedView>
+                    </ThemedView>
                   )}
                 />
 
@@ -160,8 +174,8 @@ export default function LoginScreen() {
             <ThemedText style={styles.welcome}>Lấy lại mật khẩu</ThemedText>
             <ThemedView style={styles.containerCenter}>
               {forgotErrors.phone ?
-                <ThemedText style={{ color: 'red' }}>{forgotErrors.phone.message}</ThemedText>
-                : <ThemedText style={{ color: 'white' }}>Số điện thoại:</ThemedText>
+                <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.phone.message}</ThemedText>
+                : <ThemedText style={{ color: Colors.light.text }}>Số điện thoại:</ThemedText>
               }
               <Controller
                 rules={{ required: '*Số điện thoại là bắt buộc!' }}
@@ -178,8 +192,8 @@ export default function LoginScreen() {
                 )}
               />
               {forgotErrors.citizenId ?
-                <ThemedText style={{ color: 'red' }}>{forgotErrors.citizenId.message}</ThemedText>
-                : <ThemedText style={{ color: 'white' }}>Căn cước công dân:</ThemedText>
+                <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.citizenId.message}</ThemedText>
+                : <ThemedText style={{ color: Colors.light.text }}>Căn cước công dân:</ThemedText>
               }
               <Controller
                 rules={{ required: '*Căn cước công dân là bắt buộc!' }}
@@ -196,8 +210,8 @@ export default function LoginScreen() {
                 )}
               />
               {forgotErrors.dateExp ?
-                <ThemedText style={{ color: 'red' }}>{forgotErrors.dateExp.message}</ThemedText>
-                : <ThemedText style={{ color: 'white' }}>Ngày hết hạn:</ThemedText>
+                <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.dateExp.message}</ThemedText>
+                : <ThemedText style={{ color: Colors.light.text }}>Ngày hết hạn:</ThemedText>
               }
               <Controller
                 control={forgotControl}
@@ -208,9 +222,9 @@ export default function LoginScreen() {
                     <TouchableOpacity
                       onPress={() => setShowPicker(true)}
                       style={styles.input}>
-                      <ThemedView style={{ justifyContent: 'space-between', backgroundColor: 'transparent', flexDirection: 'row', alignItems: 'center', flex: 1 }}>
-                        <ThemedText style={{ color: 'white' }}>{value}</ThemedText>
-                        <FontAwesome name="calendar" size={24} color="white" />
+                      <ThemedView style={styles.inputHaveIcon}>
+                        <ThemedText style={{ color: Colors.light.text }}>{value}</ThemedText>
+                        <FontAwesome name="calendar" size={24} color={Colors.light.text} />
                       </ThemedView>
                     </TouchableOpacity>
 
@@ -244,7 +258,7 @@ export default function LoginScreen() {
               <TouchableOpacity
                 style={styles.buttonBack}
                 onPress={buttonBack}>
-                <ThemedText type='subtitle' style={{ color: 'white' }}>Back</ThemedText>
+                <ThemedText type='subtitle' style={{ color: Colors.light.text }}>Trở lại</ThemedText>
               </TouchableOpacity>
             </ThemedView>
           </ThemedView>
@@ -253,11 +267,18 @@ export default function LoginScreen() {
           <ThemedView style={styles.container}>
             <ThemedView style={styles.containerCenter}>
               {onForgotPw ?
-                <PinOTP numberPin={6} setOnForgotPw={setOnForgotPw} />
+                <>
+                  <PinOTP numberPin={6} setOnForgotPw={setOnForgotPw} />
+                  <TouchableOpacity
+                    style={styles.buttonBack}
+                    onPress={buttonBack}>
+                    <ThemedText type='subtitle' style={{ color: Colors.light.text }}>Trở lại</ThemedText>
+                  </TouchableOpacity>
+                </>
                 : <>
                   {resetErrors.password ?
-                    <ThemedText style={{ color: 'red' }}>{resetErrors.password.message}</ThemedText>
-                    : <ThemedText style={{ color: 'white' }}>Mật khẩu:</ThemedText>
+                    <ThemedText style={{ color: Colors.light.warning }}>{resetErrors.password.message}</ThemedText>
+                    : <ThemedText style={{ color: Colors.light.text }}>Mật khẩu:</ThemedText>
                   }
                   <Controller
                     rules={{ required: '*Vui lòng nhập mật khẩu mới!' }}
@@ -274,8 +295,8 @@ export default function LoginScreen() {
                     )}
                   />
                   {resetErrors.confirmPassword ?
-                    <ThemedText style={{ color: 'red' }}>{resetErrors.confirmPassword.message}</ThemedText>
-                    : <ThemedText style={{ color: 'white' }}>Xác nhận mật khẩu:</ThemedText>
+                    <ThemedText style={{ color: Colors.light.warning }}>{resetErrors.confirmPassword.message}</ThemedText>
+                    : <ThemedText style={{ color: Colors.light.text }}>Xác nhận mật khẩu:</ThemedText>
                   }
                   <Controller
                     rules={{
@@ -345,18 +366,25 @@ const styles = StyleSheet.create({
 
   input: {
     height: 45,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: Colors.light.background,
     borderRadius: 20,
     paddingHorizontal: 10,
     marginBottom: 30,
     color: 'white',
     fontSize: 17,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.2)',
+    borderColor: Colors.dark.icon,
+  },
+  inputHaveIcon: {
+    justifyContent: 'space-between',
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   loginButton: {
     height: 45,
-    backgroundColor: '#2567F9',
+    backgroundColor: Colors.light.tint,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -367,11 +395,11 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   loginThemedText: {
-    color: Colors.dark.text,
+    color: Colors.light.text,
     fontSize: 20,
   },
   forgot: {
-    color: 'rgba(255,255,255,0.8)',
+    color: Colors.light.text,
     textAlign: 'center',
     marginTop: 16,
     fontSize: 16,
