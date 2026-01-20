@@ -3,7 +3,7 @@
 export interface ForgotPasswordType {
     phone: string;
     citizenId: string;
-    dateExp: Date;
+    dateExp: string;
 };
 
 export interface ResetPasswordType {
