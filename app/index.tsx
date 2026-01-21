@@ -12,8 +12,8 @@ import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import { LoginType } from '@/types/login';
 import { ForgotPasswordType, ResetPasswordType } from '@/types/resetPassword';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -104,8 +104,12 @@ export default function LoginScreen() {
           {/* form login */}
           <ThemedView style={styles.container}>
             <ThemedView style={styles.containerCenter}>
-              <Image source={require('../assets/images/logo-bank.png')} style={styles.logoContainer} />
-              <ThemedText style={styles.welcome}>Chào mừng trở lại!</ThemedText>
+              <ThemedView style={styles.header}>
+                <Image source={require('../assets/images/logo-bank.png')} style={styles.logoContainer} />
+                <ThemedText style={styles.textHeader}>
+                  Chào mừng trở lại!
+                </ThemedText>
+              </ThemedView>
 
               <ThemedView style={styles.form}>
                 {loginErrors.nameAcc ?
@@ -171,103 +175,114 @@ export default function LoginScreen() {
 
           {/* form xác minh thông tin */}
           <ThemedView style={styles.container}>
-            <ThemedText style={styles.welcome}>Lấy lại mật khẩu</ThemedText>
             <ThemedView style={styles.containerCenter}>
-              {forgotErrors.phone ?
-                <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.phone.message}</ThemedText>
-                : <ThemedText style={{ color: Colors.light.text }}>Số điện thoại:</ThemedText>
-              }
-              <Controller
-                rules={{ required: '*Số điện thoại là bắt buộc!' }}
-                control={forgotControl}
-                name="phone"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    placeholder=""
-                    keyboardType="phone-pad"
-                    onChangeText={onChange}
-                    value={value}
-                    style={styles.input}
-                  />
-                )}
-              />
-              {forgotErrors.citizenId ?
-                <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.citizenId.message}</ThemedText>
-                : <ThemedText style={{ color: Colors.light.text }}>Căn cước công dân:</ThemedText>
-              }
-              <Controller
-                rules={{ required: '*Căn cước công dân là bắt buộc!' }}
-                control={forgotControl}
-                name="citizenId"
-                render={({ field: { onChange, value } }) => (
-                  <TextInput
-                    placeholder=""
-                    keyboardType="number-pad"
-                    onChangeText={onChange}
-                    value={value}
-                    style={styles.input}
-                  />
-                )}
-              />
-              {forgotErrors.dateExp ?
-                <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.dateExp.message}</ThemedText>
-                : <ThemedText style={{ color: Colors.light.text }}>Ngày hết hạn:</ThemedText>
-              }
-              <Controller
-                control={forgotControl}
-                name="dateExp"
-                rules={{ required: '*Ngày hết hạn là bắt buộc!' }}
-                render={({ field: { onChange, value } }) => (
-                  <>
-                    <TouchableOpacity
-                      onPress={() => setShowPicker(true)}
-                      style={styles.input}>
-                      <ThemedView style={styles.inputHaveIcon}>
-                        <ThemedText style={{ color: Colors.light.text }}>{value}</ThemedText>
-                        <FontAwesome name="calendar" size={24} color={Colors.light.text} />
-                      </ThemedView>
-                    </TouchableOpacity>
+              <ThemedView style={[styles.header, { height: '5%', marginBottom: 60 }]}>
+                <ThemedText style={styles.textHeader}>Lấy lại mật khẩu</ThemedText>
+              </ThemedView>
 
-                    {showPicker && (
-                      <DateTimePicker
-                        value={value ? new Date(value) : new Date()}
-                        mode="date"
-                        display="spinner"
-                        onChange={(event, selectedDate) => {
-                          setShowPicker(false);
-                          if (selectedDate) {
-                            const d =
-                              selectedDate.getDate().toString().padStart(2, '0') + "/" +
-                              (selectedDate.getMonth() + 1).toString().padStart(2, '0') + "/" +
-                              selectedDate.getFullYear();
+              <ThemedView style={styles.form}>
+                {forgotErrors.phone ?
+                  <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.phone.message}</ThemedText>
+                  : <ThemedText style={{ color: Colors.light.text }}>Số điện thoại:</ThemedText>
+                }
+                <Controller
+                  rules={{ required: '*Số điện thoại là bắt buộc!' }}
+                  control={forgotControl}
+                  name="phone"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      placeholder=""
+                      keyboardType="phone-pad"
+                      onChangeText={onChange}
+                      value={value}
+                      style={styles.input}
+                    />
+                  )}
+                />
+                {forgotErrors.citizenId ?
+                  <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.citizenId.message}</ThemedText>
+                  : <ThemedText style={{ color: Colors.light.text }}>Căn cước công dân:</ThemedText>
+                }
+                <Controller
+                  rules={{ required: '*Căn cước công dân là bắt buộc!' }}
+                  control={forgotControl}
+                  name="citizenId"
+                  render={({ field: { onChange, value } }) => (
+                    <TextInput
+                      placeholder=""
+                      keyboardType="number-pad"
+                      onChangeText={onChange}
+                      value={value}
+                      style={styles.input}
+                    />
+                  )}
+                />
+                {forgotErrors.dateExp ?
+                  <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.dateExp.message}</ThemedText>
+                  : <ThemedText style={{ color: Colors.light.text }}>Ngày hết hạn:</ThemedText>
+                }
+                <Controller
+                  control={forgotControl}
+                  name="dateExp"
+                  rules={{ required: '*Ngày hết hạn là bắt buộc!' }}
+                  render={({ field: { onChange, value } }) => (
+                    <>
+                      <TouchableOpacity
+                        onPress={() => setShowPicker(true)}
+                        style={styles.input}>
+                        <ThemedView style={styles.inputHaveIcon}>
+                          <ThemedText style={{ color: Colors.light.text }}>{value}</ThemedText>
+                          <FontAwesome name="calendar" size={24} color={Colors.light.text} />
+                        </ThemedView>
+                      </TouchableOpacity>
 
-                            if (d[0] !== 'N') onChange(d);
-                          }
-                        }}
-                      />
-                    )}
-                  </>
-                )}
-              />
+                      {showPicker && (
+                        <DateTimePicker
+                          value={value ? new Date(value) : new Date()}
+                          mode="date"
+                          display="spinner"
+                          onChange={(event, selectedDate) => {
+                            setShowPicker(false);
+                            if (selectedDate) {
+                              const d =
+                                selectedDate.getDate().toString().padStart(2, '0') + "/" +
+                                (selectedDate.getMonth() + 1).toString().padStart(2, '0') + "/" +
+                                selectedDate.getFullYear();
 
-              <TouchableOpacity
-                style={styles.loginButton}
-                onPress={handleForgotSubmit(handleForgotPw)}>
-                <ThemedText type="subtitle" style={styles.loginThemedText}>Xác nhận</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.buttonBack}
-                onPress={buttonBack}>
-                <ThemedText type='subtitle' style={{ color: Colors.light.text }}>Trở lại</ThemedText>
-              </TouchableOpacity>
+                              if (d[0] !== 'N') onChange(d);
+                            }
+                          }}
+                        />
+                      )}
+                    </>
+                  )}
+                />
+
+                <TouchableOpacity
+                  style={styles.loginButton}
+                  onPress={handleForgotSubmit(handleForgotPw)}>
+                  <ThemedText type="subtitle" style={styles.loginThemedText}>Xác nhận</ThemedText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.buttonBack}
+                  onPress={buttonBack}>
+                  <ThemedText type='subtitle' style={{ color: Colors.light.text }}>Trở lại</ThemedText>
+                </TouchableOpacity>
+              </ThemedView>
             </ThemedView>
           </ThemedView>
 
           {/* reset password */}
           <ThemedView style={styles.container}>
-            <ThemedView style={styles.containerCenter}>
+            {/* set width 80 vì 6 ô otp quá to */}
+            <ThemedView style={[styles.containerCenter, { width: '80%' }]}>
+              <ThemedView style={[styles.header, { height: '5%' }]}>
+                <ThemedText style={styles.textHeader}>Xác thực OTP</ThemedText>
+              </ThemedView>
+
               {onForgotPw ?
                 <>
+                  <ThemedText>Quý khách vui lòng nhập mã OTP gửi về số điện thoại ******6789.</ThemedText>
                   <PinOTP numberPin={6} setOnForgotPw={setOnForgotPw} />
                   <TouchableOpacity
                     style={styles.buttonBack}
@@ -343,21 +358,28 @@ const styles = StyleSheet.create({
   },
 
   containerCenter: {
+    height: '72%',
     width: '70%',
     backgroundColor: 'transparent',
   },
 
+  header: {
+    height: '25%',
+    alignItems: 'center',
+    marginBottom: 30,
+    backgroundColor: 'transparent',
+    justifyContent: 'center'
+  },
   logoContainer: {
-    width: '100%',
-    height: '24%',
+    width: '90%',
+    height: '90%',
     resizeMode: 'contain',
   },
-  welcome: {
-    fontSize: 24,
+  textHeader: {
+    fontSize: 22,
     fontWeight: 'bold',
-    color: 'white',
     textAlign: 'center',
-    marginBottom: 20,
+    color: 'white'
   },
   form: {
     width: '100%',
@@ -371,7 +393,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     marginBottom: 30,
     color: 'white',
-    fontSize: 17,
+    fontSize: 16,
     borderWidth: 1,
     borderColor: Colors.dark.icon,
   },
@@ -388,7 +410,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
     shadowColor: '#000',
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -396,13 +417,13 @@ const styles = StyleSheet.create({
   },
   loginThemedText: {
     color: Colors.light.text,
-    fontSize: 20,
+    fontSize: 16,
   },
   forgot: {
     color: Colors.light.text,
     textAlign: 'center',
     marginTop: 16,
-    fontSize: 16,
+    fontSize: 14,
   },
 
   buttonBack: {

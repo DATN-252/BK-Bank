@@ -44,15 +44,15 @@ export default function PinOTP({ numberPin, setOnForgotPw }: PinOTPProps) {
     };
 
     return (
-        <>
+        <ThemedView style={{ alignItems: 'center', backgroundColor: 'transparent' }}>
             <ThemedView style={{
-                width: '100%',
                 minHeight: '7%',
                 backgroundColor: 'transparent',
                 marginBottom: 40,
                 justifyContent: 'space-around',
                 alignItems: 'center',
                 flexDirection: 'row',
+                marginTop: 10,
             }}
             >
                 {Array.from({ length: numberPin }, (_, i) => i).map((item) => (
@@ -91,6 +91,8 @@ export default function PinOTP({ numberPin, setOnForgotPw }: PinOTPProps) {
                     />
                 ))}
             </ThemedView>
+
+            {/* button resend code */}
             <TouchableOpacity
                 style={[styles.buttonSendAgain, { opacity: isResendDisabled ? 0.7 : 1 }]}
                 disabled={isResendDisabled}
@@ -115,7 +117,7 @@ export default function PinOTP({ numberPin, setOnForgotPw }: PinOTPProps) {
                     {isResendDisabled ? `Vui lòng đợi ${countdown}s` : 'Gửi lại?'}
                 </ThemedText>
             </TouchableOpacity>
-        </>
+        </ThemedView>
     );
 };
 
@@ -142,5 +144,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 10,
         elevation: 10,
+        width: '100%',
     },
 });
