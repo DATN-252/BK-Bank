@@ -24,7 +24,7 @@ export default function LoginScreen() {
 
   const [showPicker, setShowPicker] = React.useState<boolean>(false);
 
-
+  // xử lý scroll ngang
   const scrollX = React.useRef(new Animated.Value(0)).current;
   const refScroll = React.useRef<ScrollView>(null);
   const switchPageLogin = (page: number) => {
@@ -39,11 +39,13 @@ export default function LoginScreen() {
     });
   };
 
+  // xử lý screen 1: login
   const { control: loginControl, handleSubmit: handleLoginSubmit, formState: { errors: loginErrors }, reset: resetLogin } = useForm<LoginType>();
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const handleLogin = (data: LoginType) => {
     //todo
     console.log(data);
+    router.push('/home');
   };
   const buttonForgotPw = () => {
     //todo
@@ -51,6 +53,7 @@ export default function LoginScreen() {
     switchPageLogin(1);
   };
 
+  // xử lý screen 2: forgPw
   const [onForgotPw, setOnForgotPw] = React.useState<boolean>(false);
   const { control: forgotControl, handleSubmit: handleForgotSubmit, formState: { errors: forgotErrors }, reset: resetForgotPassword } = useForm<ForgotPasswordType>();
   const handleForgotPw = (data: ForgotPasswordType) => {
@@ -73,11 +76,14 @@ export default function LoginScreen() {
     setOnForgotPw(false);
   };
 
+  // xử lý screen 3: resetPw
   const { control: resetPasswordControl, handleSubmit: handleResetSubmit, formState: { errors: resetErrors }, reset: resetResetPassword } = useForm<ResetPasswordType>();
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState<boolean>(false);
   const handleResetPw = () => {
     //todo
     setOnForgotPw(false);
     switchPageLogin(0);
+    resetResetPassword();
   };
 
   return (
@@ -293,25 +299,38 @@ export default function LoginScreen() {
                 : <>
                   {resetErrors.password ?
                     <ThemedText style={{ color: Colors.light.warning }}>{resetErrors.password.message}</ThemedText>
-                    : <ThemedText style={{ color: Colors.light.text }}>Mật khẩu:</ThemedText>
+                    : <ThemedText style={{ color: Colors.light.text }}>Mật khẩu mới:</ThemedText>
                   }
                   <Controller
                     rules={{ required: '*Vui lòng nhập mật khẩu mới!' }}
                     control={resetPasswordControl}
                     name="password"
                     render={({ field: { onChange, value } }) => (
-                      <TextInput
-                        placeholder="Nhập mật khẩu mới của bạn"
-                        secureTextEntry
-                        onChangeText={onChange}
-                        value={value}
-                        style={styles.input}
-                      />
+                      <ThemedView style={styles.input}>
+                        <ThemedView style={styles.inputHaveIcon}>
+                          <TextInput
+                            // placeholder="Nhập mật khẩu mới của bạn"
+                            secureTextEntry={!showPassword}
+                            onChangeText={onChange}
+                            value={value}
+                            style={{ flex: 1, color: Colors.light.text, fontSize: 17 }}
+                          />
+                          {showPassword ?
+                            <TouchableOpacity onPress={() => setShowPassword(false)}>
+                              <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
+                            </TouchableOpacity>
+                            :
+                            <TouchableOpacity onPress={() => setShowPassword(true)}>
+                              <FontAwesome name="eye" size={24} color={Colors.light.icon} />
+                            </TouchableOpacity>
+                          }
+                        </ThemedView>
+                      </ThemedView>
                     )}
                   />
                   {resetErrors.confirmPassword ?
                     <ThemedText style={{ color: Colors.light.warning }}>{resetErrors.confirmPassword.message}</ThemedText>
-                    : <ThemedText style={{ color: Colors.light.text }}>Xác nhận mật khẩu:</ThemedText>
+                    : <ThemedText style={{ color: Colors.light.text }}>Xác nhận mật khẩu mới:</ThemedText>
                   }
                   <Controller
                     rules={{
@@ -321,13 +340,26 @@ export default function LoginScreen() {
                     control={resetPasswordControl}
                     name="confirmPassword"
                     render={({ field: { onChange, value } }) => (
-                      <TextInput
-                        placeholder="Xác nhận mật khẩu mới của bạn"
-                        secureTextEntry
-                        onChangeText={onChange}
-                        value={value}
-                        style={styles.input}
-                      />
+                      <ThemedView style={styles.input}>
+                        <ThemedView style={styles.inputHaveIcon}>
+                          <TextInput
+                            // placeholder="Xác nhận mật khẩu mới của bạn"
+                            secureTextEntry={!showConfirmPassword}
+                            onChangeText={onChange}
+                            value={value}
+                            style={{ flex: 1, color: Colors.light.text, fontSize: 17 }}
+                          />
+                          {showConfirmPassword ?
+                            <TouchableOpacity onPress={() => setShowConfirmPassword(false)}>
+                              <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
+                            </TouchableOpacity>
+                            :
+                            <TouchableOpacity onPress={() => setShowConfirmPassword(true)}>
+                              <FontAwesome name="eye" size={24} color={Colors.light.icon} />
+                            </TouchableOpacity>
+                          }
+                        </ThemedView>
+                      </ThemedView>
                     )}
                   />
 
