@@ -5,8 +5,8 @@ import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -14,6 +14,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tabIconSelected,
         headerShown: false,
         tabBarButton: HapticTab,
@@ -41,9 +42,9 @@ export default function TabLayout() {
           tabBarIcon: ({ color, focused }) => (
             <ThemedView
               style={{
-                width: '170%',
+                width: '180%',
                 aspectRatio: 1,
-                borderRadius: 5,
+                borderRadius: 10,
                 backgroundColor: Colors.light.icon,
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -56,8 +57,8 @@ export default function TabLayout() {
                 elevation: 3,
               }}
             >
-              <FontAwesome
-                name="qrcode"
+              <MaterialIcons
+                name="qr-code-scanner"
                 size={40}
                 color={color}
               />
@@ -65,7 +66,6 @@ export default function TabLayout() {
           ),
         }}
       />
-
       <Tabs.Screen
         name="notification"
         options={{

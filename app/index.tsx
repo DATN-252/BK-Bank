@@ -1,5 +1,4 @@
 import { Image, ImageBackground } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Controller, useForm } from "react-hook-form";
@@ -14,6 +13,7 @@ import { LoginType } from '@/types/login';
 import { ForgotPasswordType, ResetPasswordType } from '@/types/resetPassword';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { BackgroundView } from '@/components/background-view';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -86,16 +86,18 @@ export default function LoginScreen() {
     resetResetPassword();
   };
 
+  // fetch API lấy background login view
+  const sourceImgBackground = () => {
+    // todo: fetch from API
+
+    return require('../assets/images/bg-login.png');
+  };
+
   return (
     // bản web sẽ không thấy
-    <LinearGradient
-      colors={['#36ADFF', '#030391']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={StyleSheet.absoluteFill}
-    >
+    <BackgroundView>
       <ImageBackground
-        source={require('../assets/images/bg-login.png')}
+        source={sourceImgBackground()}
         style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
         contentFit="contain"
       >
@@ -375,7 +377,7 @@ export default function LoginScreen() {
 
         </ScrollView >
       </ImageBackground>
-    </LinearGradient>
+    </BackgroundView>
   );
 };
 
