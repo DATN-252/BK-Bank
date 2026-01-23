@@ -162,7 +162,7 @@ CREATE INDEX idx_acctrans_send ON account_transactions (account_number_send);
 CREATE INDEX idx_acctrans_receive ON account_transactions (account_number_receive);
 
 -- =========================================================
--- Optional: a simple ledger table (nice for "banking correctness")
+-- Optional: a simple ledger table
 -- =========================================================
 CREATE TABLE ledger_entries (
     entry_id VARCHAR(36) PRIMARY KEY,
@@ -183,3 +183,84 @@ CREATE TABLE ledger_entries (
 CREATE INDEX idx_ledger_account_time ON ledger_entries (account_id, created_at);
 
 CREATE INDEX idx_ledger_ref ON ledger_entries (ref_type, ref_id);
+
+-- =========================================================
+-- ALTER CARDS TABLE - Thêm credit card fields
+-- =========================================================
+
+ALTER TABLE cards ADD COLUMN credit_limit DECIMAL(18, 2) NULL;
+
+ALTER TABLE cards ADD COLUMN available_credit DECIMAL(18, 2) NULL;
+
+ALTER TABLE cards
+ADD COLUMN current_balance DECIMAL(18, 2) DEFAULT 0.00;
+
+-- =========================================================
+-- CREATE CREDIT_CARD_BILLS TABLE
+-- =========================================================
+
+CREATE TABLE credit_card_bills (
+    bill_id VARCHAR(36) PRIMARY KEY,
+    card_id VARCHAR(36) NOT NULL,
+    billing_period_start DATE NOT NULL,
+    billing_period_end DATE NOT NULL,
+    due_date DATE NOT NULL,
+    total_amount DECIMAL(18, 2) NOT NULL DEFAULT 0.00,
+    minimum_payment DECIMAL(18, 2) NOT NULL,
+    paid_amount DECIMAL(18, 2) DEFAULT 0.00,
+    status ENUM('PENDING', 'PAID', 'OVERDUE') DEFAULT 'PENDING',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_bill_card FOREIGN KEY (card_id) REFERENCES cards (card_id) ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+CREATE INDEX idx_bill_card ON credit_card_bills (card_id);
+
+CREATE INDEX idx_bill_status ON credit_card_bills (status);
+
+CREATE INDEX idx_bill_due_date ON credit_card_bills (due_date);
+
+-- =========================================================
+-- CREATE CREDIT_CARD_PAYMENTS TABLE
+-- =========================================================
+
+CREATE TABLE credit_card_payments (
+    payment_id VARCHAR(36) PRIMARY KEY,
+    bill_id VARCHAR(36) NOT NULL,
+    transaction_id VARCHAR(36) NULL,
+    amount DECIMAL(18, 2) NOT NULL,
+    payment_date TIMESTAMP NOT NULL,
+    status ENUM(
+        'SUCCESS',
+        'FAILED',
+        'PENDING'
+    ) DEFAULT 'PENDING',
+    description VARCHAR(255) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_payment_bill FOREIGN KEY (bill_id) REFERENCES credit_card_bills (bill_id) ON UPDATE CASCADE ON DELETE RESTRICT,
+    CONSTRAINT fk_payment_transaction FOREIGN KEY (transaction_id) REFERENCES transactions (transaction_id) ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+CREATE INDEX idx_payment_bill ON credit_card_payments (bill_id);
+
+CREATE INDEX idx_payment_status ON credit_card_payments (status);
+
+CREATE INDEX idx_payment_transaction ON credit_card_payments (transaction_id);
+
+-- =========================================================
+-- ALTER TRANSACTIONS TABLE - Thêm credit card fields
+-- =========================================================
+
+ALTER TABLE transactions
+ADD COLUMN card_type ENUM('DEBIT', 'CREDIT') DEFAULT 'DEBIT';
+
+ALTER TABLE transactions
+ADD COLUMN is_credited_payment BOOLEAN DEFAULT FALSE;
+
+-- =========================================================
+-- UPDATE EXISTING CARDS - Set as DEBIT (for backward compatibility)
+-- =========================================================
+
+UPDATE cards SET card_type = 'DEBIT' WHERE card_type IS NULL;
+
+UPDATE transactions SET card_type = 'DEBIT' WHERE card_type IS NULL;

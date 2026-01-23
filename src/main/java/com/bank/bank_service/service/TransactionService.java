@@ -36,7 +36,8 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final CardRepository cardRepository;
     private final MerchantRepositoy merchantRepositoy;
-    private final CardPaymentService cardPaymentService;
+    private final LedgerService ledgerService;
+    private final FraudService fraudService;
     private final TransactionMapper transactionMapper;
 
     @Transactional
@@ -49,13 +50,59 @@ public class TransactionService {
         Card card = getCardOrThrow(request.getCardId());
         Merchant merchant = getMerchantOrThrow(request.getMerchantId());
 
-        cardPaymentService.validateAndProcessPayment(card, request.getAmount());
+        // 1. Perform Fraud Check
+        FraudService.FraudResult fraudResult = fraudService.checkTransaction(card, merchant, request.getAmount());
+        if (fraudResult.getDecision() == Transaction.FraudDecision.REJECT) {
+            log.warn("Transaction rejected by FDS - Card: {}, Reason: {}", card.getCardId(), fraudResult.getReasonCode());
+            
+            // Save rejected transaction for audit
+            Transaction transaction = createTransaction(card, merchant, request, fraudResult);
+            transaction.setStatus(Transaction.Status.DECLINED);
+            transactionRepository.save(transaction);
+            
+            throw new AppException(ErrorCode.TRANSACTION_FAILED); // Or specific FRAUD error
+        }
 
-        Transaction transaction = createTransaction(card, merchant, request);
+        // 2. Authorize Payment (Hold Funds)
+        ledgerService.holdFunds(card, request.getAmount());
+
+        // 3. Create Transaction record (Status: APPROVED/AUTHORIZED)
+        Transaction transaction = createTransaction(card, merchant, request, fraudResult);
+        transaction.setStatus(Transaction.Status.APPROVED); // APPROVED means Authorized/Held
         transactionRepository.save(transaction);
 
-        log.info("Card payment processed successfully - Transaction ID: {}", transaction.getTransactionId());
+        log.info("Card payment authorized successfully - Transaction ID: {}", transaction.getTransactionId());
         return transactionMapper.toCardPaymentResponse(transaction);
+    }
+
+    /**
+     * Settle transactions (Clear & Settlement)
+     * Moves money from Hold to Actual Deduction
+     */
+    @Transactional
+    public void settleTransactions() {
+        log.info("Starting settlement process...");
+        // Find all APPROVED transactions (Authorized but not Settled)
+        // In real system, this might be filtered by merchant or batch ID
+        Page<Transaction> authorizedOps = transactionRepository.findByStatus(Transaction.Status.APPROVED, Pageable.unpaged());
+        
+        for (Transaction tx : authorizedOps.getContent()) {
+            try {
+                log.info("Settling transaction: {}", tx.getTransactionId());
+                
+                // Capture payment
+                ledgerService.captureFunds(tx.getCard(), tx.getAmount());
+                
+                // Update status to SUCCESS (Settled)
+                tx.setStatus(Transaction.Status.SUCCESS);
+                transactionRepository.save(tx);
+                
+            } catch (Exception e) {
+                log.error("Failed to settle transaction: {}", tx.getTransactionId(), e);
+                // In reality, might retry or flag for manual review
+            }
+        }
+        log.info("Settlement process completed.");
     }
 
     // GET transaction by ID
@@ -124,7 +171,7 @@ public class TransactionService {
         return merchantRepositoy.findById(merchantId).orElseThrow(() -> new AppException(ErrorCode.MERCHANT_NOT_FOUND));
     }
 
-    private Transaction createTransaction(Card card, Merchant merchant, CardPaymentRequest request) {
+    private Transaction createTransaction(Card card, Merchant merchant, CardPaymentRequest request, FraudService.FraudResult fraudResult) {
         String transactionId = UUID.randomUUID().toString();
         long unix_time = Instant.now().getEpochSecond();
         OffsetDateTime transTime = OffsetDateTime.now(ZoneOffset.UTC);
@@ -134,7 +181,7 @@ public class TransactionService {
                 .transactionId(transactionId)
                 .idempotencyKey(request.getIdempotencyKey())
                 .channel(Transaction.Channel.CARD_PAYMENT)
-                .status(Transaction.Status.SUCCESS)
+                // Status set by caller
                 .amount(request.getAmount())
                 .transDate(transDate)
                 .transTime(transTime)
@@ -142,8 +189,9 @@ public class TransactionService {
                 .transNum(generateTransNum())
                 .card(card)
                 .merchant(merchant)
-                .fraudDecision(Transaction.FraudDecision.PASS)
-                .riskScore(0.0)
+                .fraudDecision(fraudResult.getDecision())
+                .riskScore(fraudResult.getRiskScore())
+                .reasonCode(fraudResult.getReasonCode())
                 .build();
     }
 

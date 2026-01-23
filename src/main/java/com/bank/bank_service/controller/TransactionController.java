@@ -50,6 +50,23 @@ public class TransactionController {
     }
 
     /**
+     * POST /api/transactions/settle
+     * Trigger daily settlement 
+     */
+    @PostMapping("/settle")
+    public ResponseEntity<ApiResponse<String>> settleTransactions() {
+        log.info("Received settlement request");
+        transactionService.settleTransactions();
+        
+        ApiResponse<String> apiResponse = ApiResponse.<String>builder()
+                .code(1000)
+                .message("Settlement process completed successfully")
+                .result("Settled all APPROVED transactions")
+                .build();
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    /**
      * GET /api/transactions/{transactionId}
      * Get transaction details by ID
      */
