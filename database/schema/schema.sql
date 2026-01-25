@@ -264,3 +264,5 @@ ADD COLUMN is_credited_payment BOOLEAN DEFAULT FALSE;
 UPDATE cards SET card_type = 'DEBIT' WHERE card_type IS NULL;
 
 UPDATE transactions SET card_type = 'DEBIT' WHERE card_type IS NULL;
+
+ALTER TABLE accounts ADD COLUMN credit_limit DECIMAL(18, 2) NULL;

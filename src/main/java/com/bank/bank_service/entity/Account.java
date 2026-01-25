@@ -37,6 +37,9 @@ public class Account {
     @Column(name = "hold_balance", nullable = false, precision = 18, scale = 2)
     BigDecimal holdBalance;
 
+    @Column(name = "credit_limit", precision = 18, scale = 2)
+    BigDecimal creditLimit;
+
     @Column(nullable = false, length = 3)
     String currency;
 

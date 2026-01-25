@@ -22,10 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class LedgerService {
     private final AccountRepository accountRepository;
 
-    /**
-     * Hold funds for authorization (Auth)
-     * Increases hold_balance, does NOT decrease real balance.
-     */
+    
     @Transactional
     public void holdFunds(Card card, BigDecimal amount) {
         log.info("Ledger: Holding funds - Card: {}, Amount: {}", card.getCardId(), amount);
@@ -40,8 +37,17 @@ public class LedgerService {
         Account lockedAccount = accountRepository.findByAccountNumberWithLock(account.getAccountNumber())
                 .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND));
 
-        // Available Balance = Balance - Hold Balance
-        BigDecimal availableBalance = lockedAccount.getBalance().subtract(lockedAccount.getHoldBalance());
+        // Check for Credit Limit (Credit Card) vs Balance (Debit Card)
+        BigDecimal availableBalance;
+        if (lockedAccount.getCreditLimit() != null && lockedAccount.getCreditLimit().compareTo(BigDecimal.ZERO) > 0) {
+            // CREDIT CARD: Available = (Balance + CreditLimit) - Hold
+            availableBalance = lockedAccount.getBalance()
+                    .add(lockedAccount.getCreditLimit())
+                    .subtract(lockedAccount.getHoldBalance());
+        } else {
+            // DEBIT CARD: Available = Balance - Hold
+            availableBalance = lockedAccount.getBalance().subtract(lockedAccount.getHoldBalance());
+        }
 
         if (availableBalance.compareTo(amount) < 0) {
             throw new AppException(ErrorCode.INSUFFICIENT_FUNDS);

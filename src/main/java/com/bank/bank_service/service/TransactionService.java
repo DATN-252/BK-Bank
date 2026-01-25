@@ -60,7 +60,7 @@ public class TransactionService {
             transaction.setStatus(Transaction.Status.DECLINED);
             transactionRepository.save(transaction);
             
-            throw new AppException(ErrorCode.TRANSACTION_FAILED); // Or specific FRAUD error
+            throw new AppException(ErrorCode.TRANSACTION_FAILED); 
         }
 
         // 2. Authorize Payment (Hold Funds)
@@ -68,7 +68,7 @@ public class TransactionService {
 
         // 3. Create Transaction record (Status: APPROVED/AUTHORIZED)
         Transaction transaction = createTransaction(card, merchant, request, fraudResult);
-        transaction.setStatus(Transaction.Status.APPROVED); // APPROVED means Authorized/Held
+        transaction.setStatus(Transaction.Status.APPROVED); 
         transactionRepository.save(transaction);
 
         log.info("Card payment authorized successfully - Transaction ID: {}", transaction.getTransactionId());
@@ -82,24 +82,19 @@ public class TransactionService {
     @Transactional
     public void settleTransactions() {
         log.info("Starting settlement process...");
-        // Find all APPROVED transactions (Authorized but not Settled)
-        // In real system, this might be filtered by merchant or batch ID
         Page<Transaction> authorizedOps = transactionRepository.findByStatus(Transaction.Status.APPROVED, Pageable.unpaged());
         
         for (Transaction tx : authorizedOps.getContent()) {
             try {
                 log.info("Settling transaction: {}", tx.getTransactionId());
                 
-                // Capture payment
                 ledgerService.captureFunds(tx.getCard(), tx.getAmount());
                 
-                // Update status to SUCCESS (Settled)
                 tx.setStatus(Transaction.Status.SUCCESS);
                 transactionRepository.save(tx);
                 
             } catch (Exception e) {
                 log.error("Failed to settle transaction: {}", tx.getTransactionId(), e);
-                // In reality, might retry or flag for manual review
             }
         }
         log.info("Settlement process completed.");
