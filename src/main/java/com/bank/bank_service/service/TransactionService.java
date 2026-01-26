@@ -187,6 +187,7 @@ public class TransactionService {
                 .fraudDecision(fraudResult.getDecision())
                 .riskScore(fraudResult.getRiskScore())
                 .reasonCode(fraudResult.getReasonCode())
+                .cardType(card.getCardType())
                 .build();
     }
 

@@ -79,6 +79,9 @@ public class Transaction {
     @Column(name = "reason_code", length = 80)
     private String reasonCode;
 
+    @Column(name = "card_type", length = 20)
+    private String cardType;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     private OffsetDateTime createdAt;
 
