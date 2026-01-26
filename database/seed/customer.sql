@@ -1,3 +1,4 @@
+-- Active: 1769421055658@@127.0.0.1@5432@bank
 INSERT INTO
     customers (
         citizen_id,

@@ -4,10 +4,14 @@ server:
       context-path: /BKBank
 spring:
     datasource:
-        url: jdbc:mysql://127.0.0.1:3306/bank
-        username: root
+        url: jdbc:postgresql://localhost:5432/bank
+        username: postgres
         password: root
+        driver-class-name: org.postgresql.Driver
     jpa:
-        hibernate: 
-            ddl-auto: validate
-        show-sql: true
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                format_sql: true
+                dialect: org.hibernate.dialect.PostgreSQLDialect

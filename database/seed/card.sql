@@ -1,3 +1,4 @@
+-- Active: 1769421385504@@127.0.0.1@5432@bank
 INSERT INTO
     cards (
         card_id,
@@ -7,7 +8,9 @@ INSERT INTO
         exp_year,
         status,
         card_type,
-        account_id
+        account_id,
+        available_credit,
+        current_balance
     )
 VALUES (
         '11111111-1111-1111-1111-111111111111',
@@ -16,6 +19,20 @@ VALUES (
         12,
         2028,
         'ACTIVE',
-        'VISA',
-        'ACC001'
+        'DEBIT',
+        'ACC001',
+        NULL,
+        0
+    ),
+    (
+        '22222222-2222-2222-2222-222222222222',
+        'PAN_TOKEN_CREDIT',
+        '5678',
+        12,
+        2028,
+        'ACTIVE',
+        'CREDIT',
+        'ACC_CREDIT_01',
+        10000000,
+        0
     );
