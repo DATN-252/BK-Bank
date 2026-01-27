@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
-import { CameraView, useCameraPermissions } from 'expo-camera';
+import { Camera, CameraView, useCameraPermissions } from 'expo-camera';
 import { Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -14,17 +14,6 @@ import { useRouter } from 'expo-router';
 import { useIsFocused } from '@react-navigation/native';
 
 
-const pickImage = async () => {
-  const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ['images'],
-    allowsEditing: true,
-    quality: 1,
-  });
-
-  if (!result.canceled) {
-    console.log(result.assets[0].uri);
-  }
-};
 
 export default function QRScreen() {
   const router = useRouter();
@@ -33,8 +22,81 @@ export default function QRScreen() {
   const [flash, setFlash] = React.useState<boolean>(false);
   const [isOn, setIsOn] = React.useState<boolean>(false);
   const isFocused = useIsFocused();
-
   const labels: [string, string] = ['Mã QR của tôi', 'Quét mã QR'];
+  const [scanned, setScanned] = React.useState<boolean>(false);
+  const [dataQR, setDataQR] = React.useState<string>('');
+
+  // chọn ảnh từ thư viện
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    // đang pick ảnh thì khóa lại
+    setScanned(true);
+
+    if (!result.canceled) {
+      const results = await Camera.scanFromURLAsync(result.assets[0].uri, ["qr"]);
+      if (!results[0]?.data) alert('Không tìm thấy mã QR trong ảnh');
+      else {
+        // alert(`Dữ liệu mã QR: ${results[0].data}`);
+        setDataQR(results[0].data);
+      }
+    }
+
+    // het pick ảnh rồi thì mở khóa lại
+    setScanned(false);
+  };
+
+  // kiểm tra mã QR có hợp lệ không
+  const isValidBankQR = (data: string) => {
+    if (!data) return false;
+
+    // Không cho ký tự đặc biệt
+    if (!/^[A-Za-z0-9 ]+$/.test(data)) return false;
+
+    // Chuẩn EMVCo
+    if (!data.startsWith('000201')) return false;
+
+    // Quốc gia Việt Nam
+    if (!data.includes('5802VN')) return false;
+
+    // CRC bắt buộc
+    if (!data.includes('6304')) return false;
+
+    return true;
+  };
+
+
+  React.useEffect(() => {
+    // khi dataQR = ''
+    if (!dataQR) return;
+
+    // xử lý kết quả quét QR
+    const handleQRResult = (qrData: string) => {
+      setTimeout(() => {
+        setScanned(false);
+        setDataQR('');
+      }, 3000);
+  
+      if (!isValidBankQR(qrData)) {
+        alert('Mã QR không hợp lệ!');
+        return;
+      }
+  
+      router.push({
+        pathname: '/transaction',
+        params: {
+          qr: qrData,
+        },
+      });
+    };
+    
+    handleQRResult(dataQR);
+  }, [dataQR]);
+  
 
   // element wrapper
   const QRView = (elements: { children?: React.ReactNode }) => {
@@ -135,7 +197,9 @@ export default function QRScreen() {
           barcodeTypes: ['qr'],
         }}
         onBarcodeScanned={({ data }) => {
-          console.log('QR DATA:', data);
+          if (scanned) return;
+          setScanned(true); // khóa lại
+          setDataQR(data);
         }}
         facing={facing ? 'front' : 'back'}
         flash={flash ? 'on' : 'off'}
@@ -155,7 +219,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: 'transparent',
     paddingBottom: '7%',
-    paddingHorizontal: 20,
+    paddingHorizontal: '6%',
     alignItems: 'center',
     justifyContent: 'space-between'
   },
@@ -167,11 +231,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 24,
     backgroundColor: 'transparent',
-    marginTop: -30
+    marginTop: '-10%'
   },
   intermediaryLogo: {
     resizeMode: 'contain',
-    width: 80,
+    width: '20%',
     height: 40
   },
 
@@ -186,7 +250,7 @@ const styles = StyleSheet.create({
   },
 
   controlCameraContainer: {
-    marginVertical: 20,
+    marginVertical: '5%',
     backgroundColor: 'transparent',
     flexDirection: 'row',
     alignItems: 'center',
@@ -194,7 +258,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around'
   },
   controlCamera: {
-    padding: 10,
+    padding: '3%',
     backgroundColor: 'transparent',
     borderRadius: 50,
     borderColor: Colors.light.icon,

@@ -10,6 +10,8 @@ import { Image } from 'expo-image';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { router } from 'expo-router';
 
+
+
 export default function HomeScreen() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
 
@@ -53,11 +55,21 @@ export default function HomeScreen() {
 
             <ThemedView style={styles.utilities}>
               <ThemedView style={styles.utilitiesItem}>
-                <TouchableOpacity style={styles.iconBackground}><AntDesign name="user-switch" size={24} color={Colors.light.icon} /></TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.iconBackground}
+                  onPress={() => router.push('/transaction')}
+                >
+                  <AntDesign name="user-switch" size={24} color={Colors.light.icon} />
+                </TouchableOpacity>
                 <ThemedText style={styles.textUtil}>Chuyển tiền</ThemedText>
               </ThemedView>
               <ThemedView style={styles.utilitiesItem}>
-                <TouchableOpacity style={styles.iconBackground} onPress={()=> {router.push('/qr')}}><AntDesign name="scan" size={24} color={Colors.light.icon} /></TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.iconBackground}
+                  onPress={() => { router.push('/qr') }}
+                >
+                  <AntDesign name="scan" size={24} color={Colors.light.icon} />
+                </TouchableOpacity>
                 <ThemedText style={styles.textUtil}>Mã QR</ThemedText>
               </ThemedView>
               <ThemedView style={styles.utilitiesItem}>
@@ -65,7 +77,7 @@ export default function HomeScreen() {
                 <ThemedText style={styles.textUtil}>Mở thẻ</ThemedText>
               </ThemedView>
               <ThemedView style={styles.utilitiesItem}>
-                <TouchableOpacity style={styles.iconBackground} onPress={()=> {router.push('/utilities')}}><AntDesign name="ellipsis" size={24} color={Colors.light.icon} /></TouchableOpacity>
+                <TouchableOpacity style={styles.iconBackground} onPress={() => { router.push('/utilities') }}><AntDesign name="ellipsis" size={24} color={Colors.light.icon} /></TouchableOpacity>
                 <ThemedText style={styles.textUtil}>Khác</ThemedText>
               </ThemedView>
             </ThemedView>

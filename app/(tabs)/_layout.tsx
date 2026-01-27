@@ -8,14 +8,18 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { ThemedView } from '@/components/themed-view';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
+
+
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  // const colorScheme = useColorScheme();
 
   return (
     <Tabs
       screenOptions={{
-        tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tabIconSelected,
+        // tabBarInactiveTintColor: Colors[colorScheme ?? 'light'].tabIconDefault,
+        // tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tabIconSelected,
+        tabBarInactiveTintColor: Colors['light'].tabIconDefault,
+        tabBarActiveTintColor: Colors['light'].tabIconSelected,
         headerShown: false,
         tabBarButton: HapticTab,
       }}
