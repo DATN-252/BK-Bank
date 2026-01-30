@@ -3,40 +3,41 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableWithoutFeedback, Animated } from 'react-native';
 
 interface CustomSwitchProps {
-    onToggle?: React.Dispatch<React.SetStateAction<boolean>>;
+    initialState?: boolean;
+    onToggle?: (isOn: boolean) => void;
     labels: [string, string];
 };
 
-export default function CustomSwitch({ onToggle, labels }: CustomSwitchProps) {
-    const [isOn, setIsOn] = React.useState<boolean>(false);
-    const [animValue] = React.useState<Animated.Value>(new Animated.Value(1));
+export default function CustomSwitch({ initialState = false, onToggle, labels }: CustomSwitchProps) {
+    const [isOn, setIsOn] = React.useState<boolean>(initialState);
+    const [animValue] = React.useState<Animated.Value>(new Animated.Value(initialState ? 0 : 1));
 
     const buttonLeft = () => {
         Animated.timing(animValue, {
             toValue: 0,
-            duration: 800,
+            duration: 500,
             useNativeDriver: false,
         }).start();
 
         // Simulate a delay for the switch to appear on the left
         setTimeout(() => {
-            setIsOn(true);
+            onToggle && onToggle(true);
         }, 500);
-        onToggle && onToggle(isOn);
+        setIsOn(true);
     };
 
     const buttonRight = () => {
         Animated.timing(animValue, {
             toValue: 1,
-            duration: 800,
+            duration: 500,
             useNativeDriver: false,
         }).start();
 
         // Simulate a delay for the switch to appear on the right
         setTimeout(() => {
-            setIsOn(false);
+            onToggle && onToggle(false);
         }, 500);
-        onToggle && onToggle(isOn);
+        setIsOn(false);
     };
 
     const thumbTranslate = animValue.interpolate({

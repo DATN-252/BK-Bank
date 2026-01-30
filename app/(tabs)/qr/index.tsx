@@ -2,7 +2,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import { Camera, CameraView, useCameraPermissions } from 'expo-camera';
-import { Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { Button, Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Image } from 'expo-image';
@@ -10,18 +10,18 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import * as ImagePicker from 'expo-image-picker';
 import CustomSwitch from '@/components/switch-animation';
-import { useRouter } from 'expo-router';
+import { Router, useRouter } from 'expo-router';
 import { useIsFocused } from '@react-navigation/native';
 
 
 
 export default function QRScreen() {
-  const router = useRouter();
+  const router: Router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = React.useState<boolean>(false);
   const [flash, setFlash] = React.useState<boolean>(false);
   const [isOn, setIsOn] = React.useState<boolean>(false);
-  const isFocused = useIsFocused();
+  const isFocused: boolean = useIsFocused();
   const labels: [string, string] = ['Mã QR của tôi', 'Quét mã QR'];
   const [scanned, setScanned] = React.useState<boolean>(false);
   const [dataQR, setDataQR] = React.useState<string>('');
@@ -69,6 +69,11 @@ export default function QRScreen() {
     return true;
   };
 
+  const openSettings = () => {
+    requestPermission();
+    if (permission?.canAskAgain) return;
+    Linking.openSettings();
+  };
 
   React.useEffect(() => {
     // khi dataQR = ''
@@ -80,12 +85,12 @@ export default function QRScreen() {
         setScanned(false);
         setDataQR('');
       }, 3000);
-  
+
       if (!isValidBankQR(qrData)) {
         alert('Mã QR không hợp lệ!');
         return;
       }
-  
+
       router.push({
         pathname: '/transaction',
         params: {
@@ -93,13 +98,18 @@ export default function QRScreen() {
         },
       });
     };
-    
+
     handleQRResult(dataQR);
   }, [dataQR]);
-  
+
+  const handleMyQR = (value: boolean) => {
+    if (value) {
+      router.push('/qr/my-qr');
+    }
+  };
 
   // element wrapper
-  const QRView = (elements: { children?: React.ReactNode }) => {
+  const QRView = () => {
     return (
       <SafeAreaProvider style={{ position: 'absolute', flex: 1, width: '100%', height: '100%' }}>
         {/* status */}
@@ -114,9 +124,9 @@ export default function QRScreen() {
         <ThemedView style={[styles.statusBar, { paddingVertical: '3%', height: '30%' }]}>
           <ThemedView style={styles.header}>
             <TouchableOpacity onPress={() => router.back()}>
-              <AntDesign name="close" size={24} color={Colors.light.icon} />
+              <AntDesign name="left" size={24} color={Colors.light.icon} />
             </TouchableOpacity>
-            <ThemedText type='subtitle'>Quét mã QR</ThemedText>
+            <ThemedText type='subtitle'>{labels[1]}</ThemedText>
             <ThemedView>
               {/* cho cân :)) */}
             </ThemedView>
@@ -137,8 +147,13 @@ export default function QRScreen() {
         <ThemedView style={{ flexDirection: 'row', backgroundColor: 'transparent' }}>
           <ThemedView style={[styles.statusBar, { flex: 1 }]}></ThemedView>
           <ThemedView style={styles.squareQRFrame}>
-            {elements ?
-              elements.children
+            {!permission || !permission.granted ?
+              <ThemedView style={{ backgroundColor: Colors.light.tabIconDefault, flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                <ThemedText type='subtitle'>Cần được cấp quyền Camera!</ThemedText>
+                <TouchableOpacity style={{ backgroundColor: Colors.light.warning, padding: 5, borderRadius: 5 }} onPress={openSettings}>
+                  <ThemedText type='subtitle'>Cấp quyền</ThemedText>
+                </TouchableOpacity>
+              </ThemedView>
               : null}
           </ThemedView>
           <ThemedView style={[styles.statusBar, { flex: 1 }]}></ThemedView>
@@ -171,23 +186,18 @@ export default function QRScreen() {
 
         {/* my/scan qr */}
         <ThemedView style={[styles.statusBar, { flex: 1, alignItems: 'center' }]}>
-          <ThemedView style={{ width: '70%', marginVertical: 20, backgroundColor: 'transparent' }}><CustomSwitch labels={labels} onToggle={setIsOn} /></ThemedView>
+          <ThemedView style={{ width: '70%', marginVertical: 20, backgroundColor: 'transparent' }}>
+           {isFocused && <CustomSwitch
+              labels={labels}
+              onToggle={(value) => {
+                setIsOn(value);
+                handleMyQR(value);
+              }}/>}
+          </ThemedView>
         </ThemedView>
-      </SafeAreaProvider>
+      </SafeAreaProvider >
     );
   };
-
-  if (!permission) return <ThemedView />;
-  if (!permission.granted) {
-    return (
-      <QRView>
-        <ThemedView style={{ backgroundColor: Colors.light.tabIconDefault, flex: 1, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-          <ThemedText type='subtitle'>Chưa có quyền camera</ThemedText>
-          <Button color={Colors.light.warning} title="Cấp quyền" onPress={requestPermission} />
-        </ThemedView>
-      </QRView>
-    );
-  }
 
   return (
     <>
@@ -243,7 +253,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 3,
     borderColor: '#FFFFFF',
-    flex: 5,
+    flex: 7,
     aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center'
