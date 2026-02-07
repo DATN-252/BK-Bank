@@ -13,6 +13,7 @@ export const Colors = {
   light: {
     text: '#ffffff',
     background: '#ffffff32',
+    borderColor: '#0000002f',
     tint: tintColorLight,
     icon: '#ffffff',
     backgroundIcon: '#4643A1',
@@ -23,6 +24,7 @@ export const Colors = {
   dark: {
     text: '#ECEDEE',
     background: '#000000',
+    borderColor: '#ffffff55',
     tint: tintColorDark,
     icon: '#ffffff53',
     tabIconDefault: '#ffffff53',

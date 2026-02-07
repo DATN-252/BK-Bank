@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     borderWidth: 1,
-    borderColor: Colors.dark.icon,
+    borderColor: Colors.dark.borderColor,
   },
   inputHaveIcon: {
     justifyContent: 'space-between',

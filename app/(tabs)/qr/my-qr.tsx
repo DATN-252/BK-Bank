@@ -16,6 +16,7 @@ export default function TransactionScreen() {
     const router: Router = useRouter();
     const labels: [string, string] = ['Mã QR của tôi', 'Quét mã QR'];
     const [isOn, setIsOn] = React.useState<boolean>(true);
+
     // tạo mã QR mẫu
     // const qrString = generateVietQR({
     //   bankCode: 'BIDV',
@@ -91,7 +92,7 @@ export default function TransactionScreen() {
 
 const styles = StyleSheet.create({
     statusBar: {
-
+        backgroundColor: 'transparent',
     },
 
     header: {
@@ -125,19 +126,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
 
-    controlCameraContainer: {
-        marginVertical: '5%',
-        backgroundColor: 'transparent',
-        flexDirection: 'row',
-        alignItems: 'center',
-        width: '70%',
-        justifyContent: 'space-around'
-    },
-    controlCamera: {
-        padding: '3%',
-        backgroundColor: 'transparent',
-        borderRadius: 50,
-        borderColor: Colors.light.icon,
-        borderWidth: 2
-    }
 });

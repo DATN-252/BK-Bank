@@ -1,7 +1,6 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
-import { Image } from 'expo-image';
 import { Router, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
@@ -24,42 +23,21 @@ export default function TransactionScreen() {
           <ThemedView style={styles.body}>
             <ThemedView style={styles.containerOptionRow}>
               <TouchableOpacity style={styles.optionRow}>
-                <Image source={require('../../assets/images/icon-bank.png')} style={styles.icon} />
                 <ThemedText style={styles.bodyText}>Tài khoản ngân hàng</ThemedText>
-              </TouchableOpacity>
-            </ThemedView>
-            <ThemedView style={styles.containerOptionRow}>
-              <TouchableOpacity style={styles.optionRow}>
-                <Image source={require('../../assets/images/icon-debitcard.png')} style={styles.icon} />
-                <ThemedText style={styles.bodyText}>Thẻ nội địa</ThemedText>
-              </TouchableOpacity>
-            </ThemedView>
-            <ThemedView style={styles.containerOptionRow}>
-              <TouchableOpacity
-                style={styles.optionRow}
-                onPress={() =>
-                  router.push({
-                    pathname: '/transaction/creditCard',
-                    params: {
-                      qrData: qrData,
-                    },
-                  })}>
-                <Image source={require('../../assets/images/icon-creditcard.png')} style={styles.icon} />
-                <ThemedView>
-                  <ThemedText style={styles.bodyText}>Thẻ thanh toán quốc tế/ tín dụng</ThemedText>
-                  <ThemedView style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly', }}>
-                    <Image source={require('../../assets/images/mastercard_logo.png')} style={styles.miniIcon} />
-                    <Image source={require('../../assets/images/icon-visa.png')} style={styles.miniIcon} />
-                    <Image source={require('../../assets/images/icon-jcb.png')} style={styles.miniIcon} />
-                    <Image source={require('../../assets/images/icon-amexpr.png')} style={styles.miniIcon} />
-                  </ThemedView>
-                </ThemedView>
               </TouchableOpacity>
             </ThemedView>
           </ThemedView>
         </ThemedView>
+
+        <ThemedView style={{ backgroundColor: 'transparent', flex: 1, width: '100%', alignItems: 'center', justifyContent: 'center' }}>
+          <TouchableOpacity
+            style={styles.buttonFooter}
+          >
+            <ThemedText>Tiếp tục</ThemedText>
+          </TouchableOpacity>
+        </ThemedView>
       </ThemedView>
-    </ThemedView>
+    </ThemedView >
   );
 }
 

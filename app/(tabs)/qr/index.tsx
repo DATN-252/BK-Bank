@@ -94,7 +94,7 @@ export default function QRScreen() {
       router.push({
         pathname: '/transaction',
         params: {
-          qr: qrData,
+          qrData: qrData,
         },
       });
     };
