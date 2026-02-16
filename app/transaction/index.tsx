@@ -20,43 +20,35 @@ export default function TransactionScreen() {
           <ThemedText style={styles.headerText}>Chọn phương thức chuyển tiền</ThemedText>
         </ThemedView>
 
-        <ThemedView style={{ backgroundColor: 'transparent', flex: 10, width: '100%', alignItems: 'center', justifyContent: 'center' }}>
-          <ThemedView style={styles.body}>
-            <ThemedView style={styles.containerOptionRow}>
-              <TouchableOpacity style={styles.optionRow}>
-                <Image source={require('../../assets/images/icon-bank.png')} style={styles.icon} />
-                <ThemedText style={styles.bodyText}>Tài khoản ngân hàng</ThemedText>
-              </TouchableOpacity>
+        <ThemedView style={styles.body}>
+          <TouchableOpacity style={styles.item}>
+            <Image source={require('../../assets/images/icon-bank.png')} style={styles.icon} />
+            <ThemedText style={styles.bodyText}>Tài khoản ngân hàng</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.item}>
+            <Image source={require('../../assets/images/icon-debitcard.png')} style={styles.icon} />
+            <ThemedText style={styles.bodyText}>Thẻ nội địa</ThemedText>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.item}
+            onPress={() =>
+              router.push({
+                pathname: '/transaction/creditCard',
+                params: {
+                  qrData: qrData,
+                },
+              })}>
+            <Image source={require('../../assets/images/icon-creditcard.png')} style={styles.icon} />
+            <ThemedView>
+              <ThemedText style={styles.bodyText}>Thẻ thanh toán quốc tế/ tín dụng</ThemedText>
+              <ThemedView style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly', }}>
+                <Image source={require('../../assets/images/mastercard_logo.png')} style={styles.miniIcon} />
+                <Image source={require('../../assets/images/icon-visa.png')} style={styles.miniIcon} />
+                <Image source={require('../../assets/images/icon-jcb.png')} style={styles.miniIcon} />
+                <Image source={require('../../assets/images/icon-amexpr.png')} style={styles.miniIcon} />
+              </ThemedView>
             </ThemedView>
-            <ThemedView style={styles.containerOptionRow}>
-              <TouchableOpacity style={styles.optionRow}>
-                <Image source={require('../../assets/images/icon-debitcard.png')} style={styles.icon} />
-                <ThemedText style={styles.bodyText}>Thẻ nội địa</ThemedText>
-              </TouchableOpacity>
-            </ThemedView>
-            <ThemedView style={styles.containerOptionRow}>
-              <TouchableOpacity
-                style={styles.optionRow}
-                onPress={() =>
-                  router.push({
-                    pathname: '/transaction/creditCard',
-                    params: {
-                      qrData: qrData,
-                    },
-                  })}>
-                <Image source={require('../../assets/images/icon-creditcard.png')} style={styles.icon} />
-                <ThemedView>
-                  <ThemedText style={styles.bodyText}>Thẻ thanh toán quốc tế/ tín dụng</ThemedText>
-                  <ThemedView style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly', }}>
-                    <Image source={require('../../assets/images/mastercard_logo.png')} style={styles.miniIcon} />
-                    <Image source={require('../../assets/images/icon-visa.png')} style={styles.miniIcon} />
-                    <Image source={require('../../assets/images/icon-jcb.png')} style={styles.miniIcon} />
-                    <Image source={require('../../assets/images/icon-amexpr.png')} style={styles.miniIcon} />
-                  </ThemedView>
-                </ThemedView>
-              </TouchableOpacity>
-            </ThemedView>
-          </ThemedView>
+          </TouchableOpacity>
         </ThemedView>
       </ThemedView>
     </ThemedView>
@@ -69,7 +61,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
   },
-
   content: {
     width: '90%',
     height: '90%',
@@ -93,19 +84,15 @@ const styles = StyleSheet.create({
 
   body: {
     backgroundColor: 'transparent',
-    flex: 1,
+    flex: 10,
     width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
     gap: '5%',
   },
-  containerOptionRow: {
-    backgroundColor: 'transparent',
+  item: {
     width: '100%',
     height: '16%',
-  },
-  optionRow: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 20,
@@ -127,14 +114,5 @@ const styles = StyleSheet.create({
   bodyText: {
     fontSize: 16,
     color: Colors.light.tabIconDefault,
-  },
-
-  buttonFooter: {
-    width: '85%',
-    borderRadius: 5,
-    backgroundColor: Colors.light.tabIconSelected,
-    paddingVertical: '1.8%',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
