@@ -16,6 +16,7 @@ export default function TransactionScreen() {
 
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <ThemedView style={styles.container}>
         <ThemedView style={styles.content}>
           <ThemedView style={styles.header}>
@@ -24,10 +25,11 @@ export default function TransactionScreen() {
           </ThemedView>
 
           <ThemedView style={styles.body}>
-            {creditCardErrors.numCard ?
-              <ThemedText style={styles.bodyText}>{creditCardErrors.numCard.message}</ThemedText>
-              : <ThemedText style={styles.bodyText}>Số thẻ</ThemedText>
-            }
+            {/* {creditCardErrors.numCard ?
+              <ThemedText style={styles.warning}>{creditCardErrors.numCard.message}</ThemedText>
+              : 
+            } */}
+            <ThemedText style={styles.bodyText}>Số thẻ</ThemedText>
             <Controller
               control={creditCardControl}
               name="numCard"
@@ -36,6 +38,7 @@ export default function TransactionScreen() {
                 <TextInput
                   placeholder="Nhập số thẻ"
                   onChangeText={onChange}
+                  keyboardType="numeric"
                   value={value}
                   style={styles.input}
                 />
@@ -44,10 +47,11 @@ export default function TransactionScreen() {
 
             <ThemedView style={styles.inputTwoRow}>
               <ThemedView style={{ flex: 1, marginTop: '3%' }}>
-                {creditCardErrors.cvc ?
-                  <ThemedText style={{ color: Colors.light.warning }}>{creditCardErrors.cvc.message}</ThemedText>
-                  : <ThemedText style={styles.bodyText}>CVC/CVV</ThemedText>
-                }
+                {/* {creditCardErrors.cvc ?
+                  <ThemedText style={styles.warning}>{creditCardErrors.cvc.message}</ThemedText>
+                  : 
+                } */}
+                <ThemedText style={styles.bodyText}>CVC/CVV</ThemedText>
                 <Controller
                   rules={{ required: '*CVC/CVV là bắt buộc!' }}
                   control={creditCardControl}
@@ -56,6 +60,8 @@ export default function TransactionScreen() {
                     <TextInput
                       placeholder="3 hoặc 4 chữ số"
                       onChangeText={onChange}
+                      keyboardType='numeric'
+                      maxLength={4}
                       value={value}
                       style={styles.input}
                     />
@@ -63,30 +69,62 @@ export default function TransactionScreen() {
                 />
               </ThemedView>
               <ThemedView style={{ flex: 1, marginTop: '3%' }}>
-                {creditCardErrors.dateCard ?
-                  <ThemedText style={{ color: Colors.light.warning }}>{creditCardErrors.dateCard.message}</ThemedText>
-                  : <ThemedText style={styles.bodyText}>Ngày hết hạn</ThemedText>
-                }
+                {/* {creditCardErrors.dateCard ?
+                  <ThemedText style={styles.warning}>{creditCardErrors.dateCard.message}</ThemedText>
+                  : 
+                } */}
+                <ThemedText style={styles.bodyText}>Ngày hết hạn</ThemedText>
                 <Controller
                   rules={{ required: '*Ngày hết hạn là bắt buộc!' }}
                   control={creditCardControl}
                   name="dateCard"
-                  render={({ field: { onChange, value } }) => (
-                    <TextInput
-                      placeholder="MM/YY"
-                      onChangeText={onChange}
-                      value={value}
-                      style={styles.input}
-                    />
-                  )}
+                  render={({ field: { onChange, value } }) => {
+                    const handleChange = (text: string) => {
+                      let cleaned = text.replace(/\D/g, '').slice(0, 4);
+
+                      // Validate tháng khi có đủ 2 số
+                      if (cleaned.length >= 2) {
+                        let month = cleaned.slice(0, 2);
+
+                        if (Number(month) > 12) month = '12';
+                        if (Number(month) === 0) month = '01';
+
+                        cleaned = month + cleaned.slice(2);
+                      }
+
+                      // Chỉ chèn "/" khi có ít nhất 3 số
+                      if (cleaned.length >= 3) {
+                        cleaned = cleaned.slice(0, 2) + '/' + cleaned.slice(2);
+                      }
+
+                      onChange(cleaned);
+                    };
+
+                    return (
+                      <TextInput
+                        value={value}
+                        onChangeText={handleChange}
+                        keyboardType="numeric"
+                        placeholder="MM/YY"
+                        maxLength={5}
+                        // onKeyPress={({ nativeEvent }) => {
+                        //   if (nativeEvent.key === 'Backspace') {
+                        //     onChange('');
+                        //   }
+                        // }}
+                        style={styles.input}
+                      />
+                    )
+                  }}
                 />
               </ThemedView>
             </ThemedView>
 
-            {creditCardErrors.cardholderName ?
-              <ThemedText style={{ color: Colors.light.warning }}>{creditCardErrors.cardholderName.message}</ThemedText>
-              : <ThemedText style={styles.bodyText}>Họ và Tên chủ thẻ</ThemedText>
-            }
+            {/* {creditCardErrors.cardholderName ?
+              <ThemedText style={styles.warning}>{creditCardErrors.cardholderName.message}</ThemedText>
+              : 
+            } */}
+            <ThemedText style={styles.bodyText}>Họ và Tên chủ thẻ</ThemedText>
             <Controller
               rules={{ required: '*Tên chủ thẻ là bắt buộc!' }}
               control={creditCardControl}
@@ -95,15 +133,17 @@ export default function TransactionScreen() {
                 <TextInput
                   placeholder="Nhập họ và tên chủ thẻ (không dấu)"
                   onChangeText={onChange}
+                  autoCapitalize="characters"
                   value={value}
                   style={styles.input}
                 />
               )}
             />
-            {creditCardErrors.addressRegister ?
-              <ThemedText style={{ color: Colors.light.warning }}>{creditCardErrors.addressRegister.message}</ThemedText>
-              : <ThemedText style={styles.bodyText}>Địa chỉ đăng ký thẻ</ThemedText>
-            }
+            {/* {creditCardErrors.addressRegister ?
+              <ThemedText style={styles.warning}>{creditCardErrors.addressRegister.message}</ThemedText>
+              : 
+            } */}
+            <ThemedText style={styles.bodyText}>Địa chỉ đăng ký thẻ</ThemedText>
             <Controller
               rules={{ required: '*Địa chỉ đăng ký thẻ là bắt buộc!' }}
               control={creditCardControl}
@@ -117,10 +157,11 @@ export default function TransactionScreen() {
                 />
               )}
             />
-            {creditCardErrors.amount ?
-              <ThemedText style={{ color: Colors.light.warning }}>{creditCardErrors.amount.message}</ThemedText>
-              : <ThemedText style={styles.bodyText}>Số tiền</ThemedText>
-            }
+            {/* {creditCardErrors.amount ?
+              <ThemedText style={styles.warning}>{creditCardErrors.amount.message}</ThemedText>
+              : 
+            } */}
+            <ThemedText style={styles.bodyText}>Số tiền</ThemedText>
             <Controller
               rules={{ required: '*Số tiền là bắt buộc!' }}
               control={creditCardControl}
@@ -140,22 +181,28 @@ export default function TransactionScreen() {
           <ThemedView style={styles.footer}>
             <TouchableOpacity
               style={styles.buttonFooter}
-              onPress={handleCreditCardSubmit((data) => {
-                // router.push({
-                //   pathname: '/transaction/creditcard/confirm',
-                //   params: {
-                //     qrData,
-                //     ...data,
-                //   }
-                // });
-                resetCreditCard();
-              })}
+              onPress={handleCreditCardSubmit(
+                (data) => {
+                  // router.push({
+                  //   pathname: '/transaction/creditcard/confirm',
+                  //   params: {
+                  //     qrData,
+                  //     ...data,
+                  //   }
+                  // });
+                  resetCreditCard();
+                },
+                (errors) => {
+                  // ❌ Có lỗi
+                  alert('Vui lòng nhập đầy đủ thông tin');
+                })}
             >
               <ThemedText>Tiếp tục</ThemedText>
             </TouchableOpacity>
           </ThemedView>
         </ThemedView>
       </ThemedView>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -189,7 +236,6 @@ const styles = StyleSheet.create({
   body: {
     flex: 6,
     width: '90%',
-    justifyContent: 'center',
     backgroundColor: 'transparent',
   },
   input: {
@@ -217,7 +263,11 @@ const styles = StyleSheet.create({
     gap: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center'
+    alignItems: 'center',
+  },
+  warning: {
+    marginTop: '3%',
+    color: Colors.light.warning,
   },
 
   footer: {

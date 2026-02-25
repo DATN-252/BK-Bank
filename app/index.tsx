@@ -2,10 +2,8 @@ import { Image, ImageBackground } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { Controller, useForm } from "react-hook-form";
-import { Animated, Dimensions, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-
+import { Animated, Dimensions, Keyboard, ScrollView, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import PinOTP from '@/components/PinOTP';
-
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
@@ -95,223 +93,62 @@ export default function LoginScreen() {
 
   return (
     // bản web sẽ không thấy
-    <BackgroundView>
-      <ImageBackground
-        source={sourceImgBackground()}
-        style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-        contentFit="contain"
-      >
-        <ScrollView
-          ref={refScroll}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          pagingEnabled
-          style={{ flex: 1, backgroundColor: 'transparent' }}
-          scrollEnabled={false}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <BackgroundView>
+        <ImageBackground
+          source={sourceImgBackground()}
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+          contentFit="contain"
         >
-          {/* form login */}
-          <ThemedView style={styles.container}>
-            <ThemedView style={styles.containerCenter}>
-              <ThemedView style={styles.header}>
-                <Image source={require('../assets/images/logo-bank.png')} style={styles.logoContainer} />
-                <ThemedText style={styles.textHeader}>
-                  Chào mừng trở lại!
-                </ThemedText>
-              </ThemedView>
+          <ScrollView
+            ref={refScroll}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            pagingEnabled
+            style={{ flex: 1, backgroundColor: 'transparent' }}
+            scrollEnabled={false}
+          >
+            {/* form login */}
+            <ThemedView style={styles.container}>
+              <ThemedView style={styles.containerCenter}>
+                <ThemedView style={styles.header}>
+                  <Image source={require('../assets/images/logo-bank.png')} style={styles.logoContainer} />
+                  <ThemedText style={styles.textHeader}>
+                    Chào mừng trở lại!
+                  </ThemedText>
+                </ThemedView>
 
-              <ThemedView style={styles.form}>
-                {loginErrors.nameAcc ?
-                  <ThemedText style={{ color: Colors.light.warning }}>{loginErrors.nameAcc.message}</ThemedText>
-                  : <ThemedText style={{ color: Colors.light.text }}>Tên đăng nhập:</ThemedText>
-                }
-                <Controller
-                  control={loginControl}
-                  name="nameAcc"
-                  rules={{ required: '*Tên đăng nhập là bắt buộc!' }}
-                  render={({ field: { onChange, value } }) => (
-                    <TextInput
-                      placeholder="Số điện thoại hoặc CCCD"
-                      onChangeText={onChange}
-                      value={value}
-                      style={styles.input}
-                    />
-                  )}
-                />
-                {loginErrors.password ?
-                  <ThemedText style={{ color: Colors.light.warning }}>{loginErrors.password.message}</ThemedText>
-                  : <ThemedText style={{ color: Colors.light.text }}>Mật khẩu:</ThemedText>
-                }
-                <Controller
-                  rules={{ required: '*Mật khẩu là bắt buộc!' }}
-                  control={loginControl}
-                  name="password"
-                  render={({ field: { onChange, value } }) => (
-                    <ThemedView style={styles.input}>
-                      <ThemedView style={styles.inputHaveIcon}>
-                        <TextInput
-                          placeholder="Tối thiểu 8 ký tự"
-                          secureTextEntry={!showPassword}
-                          onChangeText={onChange}
-                          value={value}
-                          style={{ flex: 1, color: Colors.light.text, fontSize: 17 }}
-                        />
-                        {showPassword ?
-                          <TouchableOpacity onPress={() => setShowPassword(false)}>
-                            <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
-                          </TouchableOpacity>
-                          :
-                          <TouchableOpacity onPress={() => setShowPassword(true)}>
-                            <FontAwesome name="eye" size={24} color={Colors.light.icon} />
-                          </TouchableOpacity>
-                        }
-                      </ThemedView>
-                    </ThemedView>
-                  )}
-                />
-
-                <TouchableOpacity style={styles.loginButton} onPress={handleLoginSubmit(handleLogin)}>
-                  <ThemedText style={styles.loginThemedText}>Đăng nhập</ThemedText>
-                </TouchableOpacity>
-
-                <TouchableOpacity onPress={buttonForgotPw}>
-                  <ThemedText style={styles.forgot}>Quên mật khẩu ?</ThemedText>
-                </TouchableOpacity>
-              </ThemedView>
-            </ThemedView>
-          </ThemedView>
-
-
-          {/* form xác minh thông tin */}
-          <ThemedView style={styles.container}>
-            <ThemedView style={styles.containerCenter}>
-              <ThemedView style={[styles.header, { height: '5%', marginBottom: 60 }]}>
-                <ThemedText style={styles.textHeader}>Lấy lại mật khẩu</ThemedText>
-              </ThemedView>
-
-              <ThemedView style={styles.form}>
-                {forgotErrors.phone ?
-                  <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.phone.message}</ThemedText>
-                  : <ThemedText style={{ color: Colors.light.text }}>Số điện thoại:</ThemedText>
-                }
-                <Controller
-                  rules={{ required: '*Số điện thoại là bắt buộc!' }}
-                  control={forgotControl}
-                  name="phone"
-                  render={({ field: { onChange, value } }) => (
-                    <TextInput
-                      placeholder=""
-                      keyboardType="phone-pad"
-                      onChangeText={onChange}
-                      value={value}
-                      style={styles.input}
-                    />
-                  )}
-                />
-                {forgotErrors.citizenId ?
-                  <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.citizenId.message}</ThemedText>
-                  : <ThemedText style={{ color: Colors.light.text }}>Căn cước công dân:</ThemedText>
-                }
-                <Controller
-                  rules={{ required: '*Căn cước công dân là bắt buộc!' }}
-                  control={forgotControl}
-                  name="citizenId"
-                  render={({ field: { onChange, value } }) => (
-                    <TextInput
-                      placeholder=""
-                      keyboardType="number-pad"
-                      onChangeText={onChange}
-                      value={value}
-                      style={styles.input}
-                    />
-                  )}
-                />
-                {forgotErrors.dateExp ?
-                  <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.dateExp.message}</ThemedText>
-                  : <ThemedText style={{ color: Colors.light.text }}>Ngày hết hạn:</ThemedText>
-                }
-                <Controller
-                  control={forgotControl}
-                  name="dateExp"
-                  rules={{ required: '*Ngày hết hạn là bắt buộc!' }}
-                  render={({ field: { onChange, value } }) => (
-                    <>
-                      <TouchableOpacity
-                        onPress={() => setShowPicker(true)}
-                        style={styles.input}>
-                        <ThemedView style={styles.inputHaveIcon}>
-                          <ThemedText style={{ color: Colors.light.text }}>{value}</ThemedText>
-                          <FontAwesome name="calendar" size={24} color={Colors.light.text} />
-                        </ThemedView>
-                      </TouchableOpacity>
-
-                      {showPicker && (
-                        <DateTimePicker
-                          value={value ? new Date(value) : new Date()}
-                          mode="date"
-                          display="spinner"
-                          onChange={(event, selectedDate) => {
-                            setShowPicker(false);
-                            if (selectedDate) {
-                              const d =
-                                selectedDate.getDate().toString().padStart(2, '0') + "/" +
-                                (selectedDate.getMonth() + 1).toString().padStart(2, '0') + "/" +
-                                selectedDate.getFullYear();
-
-                              if (d[0] !== 'N') onChange(d);
-                            }
-                          }}
-                        />
-                      )}
-                    </>
-                  )}
-                />
-
-                <TouchableOpacity
-                  style={styles.loginButton}
-                  onPress={handleForgotSubmit(handleForgotPw)}>
-                  <ThemedText type="subtitle" style={styles.loginThemedText}>Xác nhận</ThemedText>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.buttonBack}
-                  onPress={buttonBack}>
-                  <ThemedText type='subtitle' style={{ color: Colors.light.text }}>Trở lại</ThemedText>
-                </TouchableOpacity>
-              </ThemedView>
-            </ThemedView>
-          </ThemedView>
-
-          {/* reset password */}
-          <ThemedView style={styles.container}>
-            {/* set width 80 vì 6 ô otp quá to */}
-            <ThemedView style={[styles.containerCenter, { width: '80%' }]}>
-              <ThemedView style={[styles.header, { height: '5%' }]}>
-                <ThemedText style={styles.textHeader}>Xác thực OTP</ThemedText>
-              </ThemedView>
-
-              {onForgotPw ?
-                <>
-                  <ThemedText>Quý khách vui lòng nhập mã OTP gửi về số điện thoại ******6789.</ThemedText>
-                  <PinOTP numberPin={6} setOnForgotPw={setOnForgotPw} />
-                  <TouchableOpacity
-                    style={styles.buttonBack}
-                    onPress={buttonBack}>
-                    <ThemedText type='subtitle' style={{ color: Colors.light.text }}>Trở lại</ThemedText>
-                  </TouchableOpacity>
-                </>
-                : <>
-                  {resetErrors.password ?
-                    <ThemedText style={{ color: Colors.light.warning }}>{resetErrors.password.message}</ThemedText>
-                    : <ThemedText style={{ color: Colors.light.text }}>Mật khẩu mới:</ThemedText>
+                <ThemedView style={styles.form}>
+                  {loginErrors.nameAcc ?
+                    <ThemedText style={{ color: Colors.light.warning }}>{loginErrors.nameAcc.message}</ThemedText>
+                    : <ThemedText style={{ color: Colors.light.text }}>Tên đăng nhập:</ThemedText>
                   }
                   <Controller
-                    rules={{ required: '*Vui lòng nhập mật khẩu mới!' }}
-                    control={resetPasswordControl}
+                    control={loginControl}
+                    name="nameAcc"
+                    rules={{ required: '*Tên đăng nhập là bắt buộc!' }}
+                    render={({ field: { onChange, value } }) => (
+                      <TextInput
+                        placeholder="Số điện thoại hoặc CCCD"
+                        onChangeText={onChange}
+                        value={value}
+                        style={styles.input}
+                      />
+                    )}
+                  />
+                  {loginErrors.password ?
+                    <ThemedText style={{ color: Colors.light.warning }}>{loginErrors.password.message}</ThemedText>
+                    : <ThemedText style={{ color: Colors.light.text }}>Mật khẩu:</ThemedText>
+                  }
+                  <Controller
+                    rules={{ required: '*Mật khẩu là bắt buộc!' }}
+                    control={loginControl}
                     name="password"
                     render={({ field: { onChange, value } }) => (
                       <ThemedView style={styles.input}>
                         <ThemedView style={styles.inputHaveIcon}>
                           <TextInput
-                            // placeholder="Nhập mật khẩu mới của bạn"
+                            placeholder="Tối thiểu 8 ký tự"
                             secureTextEntry={!showPassword}
                             onChangeText={onChange}
                             value={value}
@@ -330,54 +167,217 @@ export default function LoginScreen() {
                       </ThemedView>
                     )}
                   />
-                  {resetErrors.confirmPassword ?
-                    <ThemedText style={{ color: Colors.light.warning }}>{resetErrors.confirmPassword.message}</ThemedText>
-                    : <ThemedText style={{ color: Colors.light.text }}>Xác nhận mật khẩu mới:</ThemedText>
+
+                  <TouchableOpacity style={styles.loginButton} onPress={handleLoginSubmit(handleLogin)}>
+                    <ThemedText style={styles.loginThemedText}>Đăng nhập</ThemedText>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity onPress={buttonForgotPw}>
+                    <ThemedText style={styles.forgot}>Quên mật khẩu ?</ThemedText>
+                  </TouchableOpacity>
+                </ThemedView>
+              </ThemedView>
+            </ThemedView>
+
+
+            {/* form xác minh thông tin */}
+            <ThemedView style={styles.container}>
+              <ThemedView style={styles.containerCenter}>
+                <ThemedView style={[styles.header, { height: '5%', marginBottom: 60 }]}>
+                  <ThemedText style={styles.textHeader}>Lấy lại mật khẩu</ThemedText>
+                </ThemedView>
+
+                <ThemedView style={styles.form}>
+                  {forgotErrors.phone ?
+                    <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.phone.message}</ThemedText>
+                    : <ThemedText style={{ color: Colors.light.text }}>Số điện thoại:</ThemedText>
                   }
                   <Controller
-                    rules={{
-                      required: '*Vui lòng nhập lại mật khẩu mới!',
-                      validate: (value, formValues) => (value === formValues.password) || '*Mật khẩu không khớp!',
-                    }}
-                    control={resetPasswordControl}
-                    name="confirmPassword"
+                    rules={{ required: '*Số điện thoại là bắt buộc!' }}
+                    control={forgotControl}
+                    name="phone"
                     render={({ field: { onChange, value } }) => (
-                      <ThemedView style={styles.input}>
-                        <ThemedView style={styles.inputHaveIcon}>
-                          <TextInput
-                            // placeholder="Xác nhận mật khẩu mới của bạn"
-                            secureTextEntry={!showConfirmPassword}
-                            onChangeText={onChange}
-                            value={value}
-                            style={{ flex: 1, color: Colors.light.text, fontSize: 17 }}
+                      <TextInput
+                        placeholder=""
+                        keyboardType="phone-pad"
+                        onChangeText={onChange}
+                        value={value}
+                        style={styles.input}
+                      />
+                    )}
+                  />
+                  {forgotErrors.citizenId ?
+                    <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.citizenId.message}</ThemedText>
+                    : <ThemedText style={{ color: Colors.light.text }}>Căn cước công dân:</ThemedText>
+                  }
+                  <Controller
+                    rules={{ required: '*Căn cước công dân là bắt buộc!' }}
+                    control={forgotControl}
+                    name="citizenId"
+                    render={({ field: { onChange, value } }) => (
+                      <TextInput
+                        placeholder=""
+                        keyboardType="number-pad"
+                        onChangeText={onChange}
+                        value={value}
+                        style={styles.input}
+                      />
+                    )}
+                  />
+                  {forgotErrors.dateExp ?
+                    <ThemedText style={{ color: Colors.light.warning }}>{forgotErrors.dateExp.message}</ThemedText>
+                    : <ThemedText style={{ color: Colors.light.text }}>Ngày hết hạn:</ThemedText>
+                  }
+                  <Controller
+                    control={forgotControl}
+                    name="dateExp"
+                    rules={{ required: '*Ngày hết hạn là bắt buộc!' }}
+                    render={({ field: { onChange, value } }) => (
+                      <>
+                        <TouchableOpacity
+                          onPress={() => setShowPicker(true)}
+                          style={styles.input}>
+                          <ThemedView style={styles.inputHaveIcon}>
+                            <ThemedText style={{ color: Colors.light.text }}>{value}</ThemedText>
+                            <FontAwesome name="calendar" size={24} color={Colors.light.text} />
+                          </ThemedView>
+                        </TouchableOpacity>
+
+                        {showPicker && (
+                          <DateTimePicker
+                            value={value ? new Date(value) : new Date()}
+                            mode="date"
+                            display="spinner"
+                            onChange={(event, selectedDate) => {
+                              setShowPicker(false);
+                              if (selectedDate) {
+                                const d =
+                                  selectedDate.getDate().toString().padStart(2, '0') + "/" +
+                                  (selectedDate.getMonth() + 1).toString().padStart(2, '0') + "/" +
+                                  selectedDate.getFullYear();
+
+                                if (d[0] !== 'N') onChange(d);
+                              }
+                            }}
                           />
-                          {showConfirmPassword ?
-                            <TouchableOpacity onPress={() => setShowConfirmPassword(false)}>
-                              <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
-                            </TouchableOpacity>
-                            :
-                            <TouchableOpacity onPress={() => setShowConfirmPassword(true)}>
-                              <FontAwesome name="eye" size={24} color={Colors.light.icon} />
-                            </TouchableOpacity>
-                          }
-                        </ThemedView>
-                      </ThemedView>
+                        )}
+                      </>
                     )}
                   />
 
                   <TouchableOpacity
                     style={styles.loginButton}
-                    onPress={handleResetSubmit(handleResetPw)}>
+                    onPress={handleForgotSubmit(handleForgotPw)}>
                     <ThemedText type="subtitle" style={styles.loginThemedText}>Xác nhận</ThemedText>
                   </TouchableOpacity>
-                </>
-              }
+                  <TouchableOpacity
+                    style={styles.buttonBack}
+                    onPress={buttonBack}>
+                    <ThemedText type='subtitle' style={{ color: Colors.light.text }}>Trở lại</ThemedText>
+                  </TouchableOpacity>
+                </ThemedView>
+              </ThemedView>
             </ThemedView>
-          </ThemedView>
 
-        </ScrollView >
-      </ImageBackground>
-    </BackgroundView>
+            {/* reset password */}
+            <ThemedView style={styles.container}>
+              {/* set width 80 vì 6 ô otp quá to */}
+              <ThemedView style={[styles.containerCenter, { width: '80%' }]}>
+                <ThemedView style={[styles.header, { height: '5%' }]}>
+                  <ThemedText style={styles.textHeader}>Xác thực OTP</ThemedText>
+                </ThemedView>
+
+                {onForgotPw ?
+                  <>
+                    <ThemedText>Quý khách vui lòng nhập mã OTP gửi về số điện thoại ******6789.</ThemedText>
+                    <PinOTP numberPin={6} setOnForgotPw={setOnForgotPw} />
+                    <TouchableOpacity
+                      style={styles.buttonBack}
+                      onPress={buttonBack}>
+                      <ThemedText type='subtitle' style={{ color: Colors.light.text }}>Trở lại</ThemedText>
+                    </TouchableOpacity>
+                  </>
+                  : <>
+                    {resetErrors.password ?
+                      <ThemedText style={{ color: Colors.light.warning }}>{resetErrors.password.message}</ThemedText>
+                      : <ThemedText style={{ color: Colors.light.text }}>Mật khẩu mới:</ThemedText>
+                    }
+                    <Controller
+                      rules={{ required: '*Vui lòng nhập mật khẩu mới!' }}
+                      control={resetPasswordControl}
+                      name="password"
+                      render={({ field: { onChange, value } }) => (
+                        <ThemedView style={styles.input}>
+                          <ThemedView style={styles.inputHaveIcon}>
+                            <TextInput
+                              // placeholder="Nhập mật khẩu mới của bạn"
+                              secureTextEntry={!showPassword}
+                              onChangeText={onChange}
+                              value={value}
+                              style={{ flex: 1, color: Colors.light.text, fontSize: 17 }}
+                            />
+                            {showPassword ?
+                              <TouchableOpacity onPress={() => setShowPassword(false)}>
+                                <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
+                              </TouchableOpacity>
+                              :
+                              <TouchableOpacity onPress={() => setShowPassword(true)}>
+                                <FontAwesome name="eye" size={24} color={Colors.light.icon} />
+                              </TouchableOpacity>
+                            }
+                          </ThemedView>
+                        </ThemedView>
+                      )}
+                    />
+                    {resetErrors.confirmPassword ?
+                      <ThemedText style={{ color: Colors.light.warning }}>{resetErrors.confirmPassword.message}</ThemedText>
+                      : <ThemedText style={{ color: Colors.light.text }}>Xác nhận mật khẩu mới:</ThemedText>
+                    }
+                    <Controller
+                      rules={{
+                        required: '*Vui lòng nhập lại mật khẩu mới!',
+                        validate: (value, formValues) => (value === formValues.password) || '*Mật khẩu không khớp!',
+                      }}
+                      control={resetPasswordControl}
+                      name="confirmPassword"
+                      render={({ field: { onChange, value } }) => (
+                        <ThemedView style={styles.input}>
+                          <ThemedView style={styles.inputHaveIcon}>
+                            <TextInput
+                              // placeholder="Xác nhận mật khẩu mới của bạn"
+                              secureTextEntry={!showConfirmPassword}
+                              onChangeText={onChange}
+                              value={value}
+                              style={{ flex: 1, color: Colors.light.text, fontSize: 17 }}
+                            />
+                            {showConfirmPassword ?
+                              <TouchableOpacity onPress={() => setShowConfirmPassword(false)}>
+                                <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
+                              </TouchableOpacity>
+                              :
+                              <TouchableOpacity onPress={() => setShowConfirmPassword(true)}>
+                                <FontAwesome name="eye" size={24} color={Colors.light.icon} />
+                              </TouchableOpacity>
+                            }
+                          </ThemedView>
+                        </ThemedView>
+                      )}
+                    />
+
+                    <TouchableOpacity
+                      style={styles.loginButton}
+                      onPress={handleResetSubmit(handleResetPw)}>
+                      <ThemedText type="subtitle" style={styles.loginThemedText}>Xác nhận</ThemedText>
+                    </TouchableOpacity>
+                  </>
+                }
+              </ThemedView>
+            </ThemedView>
+
+          </ScrollView >
+        </ImageBackground>
+      </BackgroundView>
+    </TouchableWithoutFeedback>
   );
 };
 
