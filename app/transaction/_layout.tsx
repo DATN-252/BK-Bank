@@ -9,29 +9,29 @@ import { Router, useRouter } from 'expo-router';
 import { BackgroundView } from '@/components/background-view';
 
 
+export const headerTransaction = (router: Router, title: string) => () => {
+  return (
+    <ThemedView style={styles.header}>
+      <TouchableOpacity onPress={() => router.back()}>
+        <AntDesign name="left" size={24} color={Colors.light.icon} />
+      </TouchableOpacity>
+
+      <ThemedText type="subtitle">{title}</ThemedText>
+
+      <TouchableOpacity onPress={() => router.replace('/home')}>
+        <FontAwesome name="home" size={24} color={Colors.light.icon} />
+      </TouchableOpacity>
+    </ThemedView>
+  );
+};
 
 export default function TransactionLayout() {
   const router: Router = useRouter();
 
-  const headerTransaction = () => {
-    return (
-      <ThemedView style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()}>
-          <AntDesign name="left" size={24} color={Colors.light.icon} />
-        </TouchableOpacity>
-
-        <ThemedText type="subtitle">Chuyển tiền</ThemedText>
-
-        <TouchableOpacity onPress={() => router.replace('/home')}>
-          <FontAwesome name="home" size={24} color={Colors.light.icon} />
-        </TouchableOpacity>
-      </ThemedView>
-    );
-  };
 
   return (
     <BackgroundView>
-      <Stack screenOptions={{ header: headerTransaction, contentStyle: styles.statusBar }}>
+      <Stack screenOptions={{ header: headerTransaction(router, "Chuyển tiền"), contentStyle: styles.statusBar }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="creditCard" />
         {/* <Stack.Screen name="debitCard" /> */}

@@ -21,11 +21,11 @@ export default function TransactionScreen() {
         </ThemedView>
 
         <ThemedView style={styles.body}>
-          <TouchableOpacity style={styles.item}>
+          <TouchableOpacity style={styles.item} onPress={() => router.push('/future')}>
             <Image source={require('../../assets/images/icon-bank.png')} style={styles.icon} />
             <ThemedText style={styles.bodyText}>Tài khoản ngân hàng</ThemedText>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.item}>
+          <TouchableOpacity style={styles.item} onPress={() => router.push('/future')}>
             <Image source={require('../../assets/images/icon-debitcard.png')} style={styles.icon} />
             <ThemedText style={styles.bodyText}>Thẻ nội địa</ThemedText>
           </TouchableOpacity>

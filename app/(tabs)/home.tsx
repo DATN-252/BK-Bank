@@ -73,7 +73,7 @@ export default function HomeScreen() {
                 <ThemedText style={styles.textUtil}>Mã QR</ThemedText>
               </ThemedView>
               <ThemedView style={styles.utilitiesItem}>
-                <TouchableOpacity style={styles.iconBackground}><AntDesign name="wallet" size={24} color={Colors.light.icon} /></TouchableOpacity>
+                <TouchableOpacity style={styles.iconBackground} onPress={() => router.push('/future')}><AntDesign name="wallet" size={24} color={Colors.light.icon} /></TouchableOpacity>
                 <ThemedText style={styles.textUtil}>Mở thẻ</ThemedText>
               </ThemedView>
               <ThemedView style={styles.utilitiesItem}>
@@ -85,7 +85,7 @@ export default function HomeScreen() {
 
         </ThemedView>
       </ThemedView>
-    </BackgroundView >
+    </BackgroundView>
   );
 }
 
