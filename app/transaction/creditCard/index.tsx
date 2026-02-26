@@ -1,19 +1,45 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
+import { CreditCardType } from '@/types/card';
 import { Router, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
-import { StyleSheet, TextInput, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Controller, useForm } from "react-hook-form";
-import { CreditCardType } from '@/types/card';
+import { Keyboard, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 
 
 
 export default function TransactionScreen() {
   const router: Router = useRouter();
   const { qrData } = useLocalSearchParams<{ qrData: string }>();
-  const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<CreditCardType>();
+  const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<CreditCardType>({
+    defaultValues: {
+      merchant: qrData,
+      currency: 'USD'
+    }
+  });
+  const dataMerchant = [
+    { label: 'Điện lực EVN', value: 'SP0001' },
+    { label: 'Siêu thị GO', value: 'SP0002' },
+    { label: 'Tạp hóa Xanh', value: 'SP0003' },
+    { label: 'Sport Yonex', value: '00020101021138540010A00000072701240006970418011063616631660208QRIBFTTA53037045802VN630485BC' }
+  ];
 
+
+  // call api to process transaction, then navigate to confirm screen
+  React.useEffect(() => {
+    //todo call api gọi data dropdown merchant
+    console.log('qrData: ', qrData);
+
+    // kiểm tra qrData có nằm trong danh sách merchant hay không, nếu không thì alert và quay về trang chủ
+    if (!dataMerchant.map(m => m.value).includes(qrData)
+      && qrData !== undefined) {
+      alert('Không tìm thấy dữ liệu QR. Vui lòng thử lại.');
+      router.replace('/home');
+    }
+
+  }, [qrData]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -21,18 +47,42 @@ export default function TransactionScreen() {
         <ThemedView style={styles.content}>
           <ThemedView style={styles.header}>
             <ThemedText style={styles.headerText}>Thanh toán qua thẻ quốc tế/tín dụng</ThemedText>
-            <ThemedText style={{ color: Colors.light.tabIconDefault }}>Nhập thông tin chủ thẻ</ThemedText>
+            {/* <ThemedText style={{ color: Colors.light.tabIconDefault }}>Nhập thông tin chủ thẻ</ThemedText> */}
           </ThemedView>
 
           <ThemedView style={styles.body}>
-            {/* {creditCardErrors.numCard ?
-              <ThemedText style={styles.warning}>{creditCardErrors.numCard.message}</ThemedText>
+            <ThemedText style={styles.bodyText}>Người nhận/ Cửa hàng</ThemedText>
+            <Controller
+              control={creditCardControl}
+              name="merchant"
+              rules={{ required: '*Người nhận là bắt buộc!' }}
+              render={({ field: { onChange, value } }) => (
+                <Dropdown
+                  data={dataMerchant}
+                  labelField="label"
+                  valueField="value"
+                  placeholder="-- Chọn --"
+                  search
+                  disable={(qrData !== undefined)}
+                  searchPlaceholder="Tìm kiếm..."
+                  value={value}
+                  onChange={onChange}
+                  style={[
+                    styles.input,
+                    (qrData !== undefined) && { opacity: 0.6 }
+                  ]}
+                />
+              )}
+            />
+
+            {/* {creditCardErrors.cardNumber ?
+              <ThemedText style={styles.warning}>{creditCardErrors.cardNumber.message}</ThemedText>
               : 
             } */}
             <ThemedText style={styles.bodyText}>Số thẻ</ThemedText>
             <Controller
               control={creditCardControl}
-              name="numCard"
+              name="cardNumber"
               rules={{ required: '*Số thẻ là bắt buộc!' }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
@@ -120,18 +170,18 @@ export default function TransactionScreen() {
               </ThemedView>
             </ThemedView>
 
-            {/* {creditCardErrors.cardholderName ?
-              <ThemedText style={styles.warning}>{creditCardErrors.cardholderName.message}</ThemedText>
+            {/* {creditCardErrors.cardHolder ?
+              <ThemedText style={styles.warning}>{creditCardErrors.cardHolder.message}</ThemedText>
               : 
             } */}
             <ThemedText style={styles.bodyText}>Họ và Tên chủ thẻ</ThemedText>
             <Controller
               rules={{ required: '*Tên chủ thẻ là bắt buộc!' }}
               control={creditCardControl}
-              name="cardholderName"
+              name="cardHolder"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  placeholder="Nhập họ và tên chủ thẻ (không dấu)"
+                  placeholder="Nhập đầy đủ không dấu"
                   onChangeText={onChange}
                   autoCapitalize="characters"
                   value={value}
@@ -168,7 +218,7 @@ export default function TransactionScreen() {
               name="amount"
               render={({ field: { onChange, value } }) => (
                 <TextInput
-                  placeholder="VND"
+                  placeholder="USD"
                   keyboardType="numeric"
                   onChangeText={onChange}
                   value={value?.toString() ?? ''}
@@ -234,7 +284,7 @@ const styles = StyleSheet.create({
   },
 
   body: {
-    flex: 6,
+    flex: 10,
     width: '90%',
     backgroundColor: 'transparent',
   },
@@ -285,4 +335,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
 });
