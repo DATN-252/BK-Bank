@@ -3,6 +3,7 @@ interface CardType {
     dateCard: string;
     amount: number;
     cardHolder: string;
+    bank: string;
 }
 
 export interface DebitCardType extends CardType {
@@ -10,7 +11,8 @@ export interface DebitCardType extends CardType {
 }
 
 export interface CreditCardType extends CardType {
-    merchant: string;
+    merchantId: string;
+    zip: string;
     cvc: string;
     addressRegister: string;
     currency: string;

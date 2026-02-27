@@ -34,6 +34,7 @@ export default function TransactionLayout() {
       <Stack screenOptions={{ header: headerTransaction(router, "Chuyển tiền"), contentStyle: styles.statusBar }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="creditCard" />
+        <Stack.Screen name="confirm" />
         {/* <Stack.Screen name="debitCard" /> */}
         {/* <Stack.Screen name="accountNumber" /> */}
       </Stack>
