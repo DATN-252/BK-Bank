@@ -35,6 +35,9 @@ export default function TransactionLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="creditCard" />
         <Stack.Screen name="confirm" />
+        <Stack.Screen name="loading" options={{ headerShown: false }} />
+        <Stack.Screen name="success" />
+        <Stack.Screen name="error" />
         {/* <Stack.Screen name="debitCard" /> */}
         {/* <Stack.Screen name="accountNumber" /> */}
       </Stack>

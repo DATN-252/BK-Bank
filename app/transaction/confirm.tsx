@@ -43,7 +43,7 @@ export default function TransactionScreen() {
                 </ThemedView>
 
                 <ThemedView style={styles.body}>
-                    <ThemedView style={{flex: 1, width: '90%', marginBottom: 24, gap: 18 }}>
+                    <ThemedView style={{flex: 1, width: '90%', marginBottom: 24, gap: '4%' }}>
                         {renderKeyValueRows(reponseData)}
                     </ThemedView>
                    
@@ -53,7 +53,7 @@ export default function TransactionScreen() {
                     <TouchableOpacity
                         style={styles.buttonFooter}
                         onPress={() => {
-                            // router.push('/transaction/success');
+                            router.replace('/transaction/loading');
                         }}
                     >
                         <ThemedText>Tiếp tục</ThemedText>
@@ -97,27 +97,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    item: {
-        width: '100%',
-        height: '14%',
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 20,
-        borderColor: Colors.light.borderColor,
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: '5%',
-    },
-    icon: {
-        width: 50,
-        height: 50,
-        resizeMode: 'contain',
-    },
-    miniIcon: {
-        width: 30,
-        height: 30,
-        resizeMode: 'contain',
-    },
+   
     bodyText: {
         fontSize: 16,
         color: Colors.light.tabIconDefault,
