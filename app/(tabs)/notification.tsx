@@ -164,7 +164,7 @@ export default function NotificationScreen() {
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <BackgroundView>
         <ThemedView style={styles.container}>
-          <ThemedText type='title' style={styles.title}>Thông báo</ThemedText>
+          <ThemedText type='subtitle' style={styles.title}>Thông báo</ThemedText>
 
           <ThemedView style={styles.searchBox}>
             <Ionicons name="search" size={20} color={Colors.light.icon} style={{ marginRight: 8 }} />
