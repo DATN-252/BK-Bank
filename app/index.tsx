@@ -1,5 +1,5 @@
 import { Image, ImageBackground } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { Router, useRouter } from 'expo-router';
 import React from 'react';
 import { Controller, useForm } from "react-hook-form";
 import { Animated, Dimensions, Keyboard, ScrollView, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
@@ -13,11 +13,13 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BackgroundView } from '@/components/background-view';
 
+import AuthService from '@/api/authApi';
+
+
 const { width: screenWidth } = Dimensions.get('window');
 
-
 export default function LoginScreen() {
-  const router = useRouter();
+    const router: Router = useRouter();
 
 
   const [showPicker, setShowPicker] = React.useState<boolean>(false);
@@ -40,10 +42,16 @@ export default function LoginScreen() {
   // xử lý screen 1: login
   const { control: loginControl, handleSubmit: handleLoginSubmit, formState: { errors: loginErrors }, reset: resetLogin } = useForm<LoginType>();
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
-  const handleLogin = (data: LoginType) => {
-    //todo
-    console.log(data);
-    router.push('/home');
+  const handleLogin = async (data: LoginType) => {
+    try {
+      const res = await AuthService.login(data);
+
+      console.log('Login success', res);
+      router.replace('/home');
+    } catch (err) {
+      // console.error('Login failed', err);
+      alert('Sai tài khoản hoặc mật khẩu');
+    }
   };
   const buttonForgotPw = () => {
     //todo

@@ -1,4 +1,5 @@
 
+import { Router, useRouter } from 'expo-router';
 import { BackgroundView } from '@/components/background-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -8,8 +9,13 @@ import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
+import AuthService from '@/api/authApi';
+
+
 
 export default function UserScreen() {
+  const router: Router = useRouter();
+
   return (
     <BackgroundView>
       <ThemedView style={styles.container}>
@@ -30,10 +36,10 @@ export default function UserScreen() {
             <Row icon="person-outline" label="Thông tin cá nhân" />
           </TouchableOpacity>
           <TouchableOpacity>
-            <Row icon="notifications-outline" label="Thông báo" right={<ThemedText style={styles.rightThemedText}>ON</ThemedText>} />
+            <Row icon="notifications-outline" label="Thông báo" right={<ThemedText style={styles.rightThemedText}>Bật</ThemedText>} />
           </TouchableOpacity>
           <TouchableOpacity>
-            <Row icon="language-outline" label="Ngôn ngữ" right={<ThemedText style={styles.rightThemedText}>English</ThemedText>} />
+            <Row icon="language-outline" label="Ngôn ngữ" right={<ThemedText style={styles.rightThemedText}>Tiếng Việt</ThemedText>} />
           </TouchableOpacity>
         </ThemedView>
 
@@ -42,7 +48,7 @@ export default function UserScreen() {
             <Row icon="shield-outline" label="Bảo mật" />
           </TouchableOpacity>
           <TouchableOpacity>
-            <Row icon="color-palette-outline" label="Chủ đề" right={<ThemedText style={styles.rightThemedText}>Light mode</ThemedText>} />
+            <Row icon="color-palette-outline" label="Chủ đề" right={<ThemedText style={styles.rightThemedText}>Tự động</ThemedText>} />
           </TouchableOpacity>
         </ThemedView>
 
@@ -57,15 +63,24 @@ export default function UserScreen() {
             <Row icon="document-text-outline" label="Chính sách bảo mật" />
           </TouchableOpacity>
         </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <TouchableOpacity onPress={async () => {
+            await AuthService.logout();
+            router.replace("/");
+          }}>
+            <Row icon="log-out" label="Đăng xuất" color="#ff0000" />
+          </TouchableOpacity>
+        </ThemedView>
       </ThemedView>
     </BackgroundView>
   );
 }
 
-function Row({ icon, label, right }: { icon: keyof typeof Ionicons.glyphMap; label: string; right?: React.ReactNode }) {
+function Row({ icon, label, right, color }: { icon: keyof typeof Ionicons.glyphMap; label: string; right?: React.ReactNode, color?: string }) {
   return (
     <ThemedView style={styles.row}>
-      <Ionicons name={icon} size={24} color={Colors.light.icon} style={{ marginRight: 16 }} />
+      <Ionicons name={icon} size={24} color={color || Colors.light.icon} style={{ marginRight: 16 }} />
       <ThemedText type='defaultSemiBold'>{label}</ThemedText>
       <ThemedView style={{ flex: 1 }} />
       {right}
@@ -134,7 +149,7 @@ const styles = StyleSheet.create({
   },
   rightThemedText: {
     fontSize: 15,
-    color: Colors.light.tabIconSelected,
+    color: Colors.light.text,
     fontWeight: 'bold',
   },
 });
