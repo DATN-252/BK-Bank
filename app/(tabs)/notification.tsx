@@ -1,83 +1,87 @@
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
+import { FlatList, Keyboard, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+
 import { BackgroundView } from '@/components/background-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
-import { Ionicons } from '@expo/vector-icons';
-import React, { useState } from 'react';
-import { FlatList, Keyboard, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import CustService from '@/service/custApi';
+import { NotificationType } from '@/types/noti';
 
-const DATA_BALANCE = [
-  {
-    id: '1',
-    type: 'up',
-    code: '012345678',
-    date: '5 Oct 2020',
-    amount: '+1.000.000 USD',
-  },
-  {
-    id: '2',
-    type: 'down',
-    code: '012345678',
-    date: '5 Oct 2020',
-    amount: '-200.000 USD',
-  },
-  {
-    id: '3',
-    type: 'up',
-    code: '012345678',
-    date: '5 Oct 2020',
-    amount: '+200.000 USD',
-  },
-  {
-    id: '4',
-    type: 'down',
-    code: '012345678',
-    date: '5 Oct 2020',
-    amount: '-200.000 USD',
-  },
-  {
-    id: '5',
-    type: 'up',
-    code: '012345678',
-    date: '5 Oct 2020',
-    amount: '+200.000 USD',
-  },
-  {
-    id: '6',
-    type: 'down',
-    code: '012345678',
-    date: '5 Oct 2020',
-    amount: '-200.000 USD',
-  },
-  {
-    id: '7',
-    type: 'up',
-    code: '012345678',
-    date: '5 Oct 2020',
-    amount: '+200.000 USD',
-  },
-  {
-    id: '8',
-    type: 'down',
-    code: '012345678',
-    date: '5 Oct 2020',
-    amount: '-200.000 USD',
-  },
-  {
-    id: '9',
-    type: 'up',
-    code: '012345678',
-    date: '5 Oct 2020',
-    amount: '+200.000 USD',
-  },
-  {
-    id: '10',
-    type: 'down',
-    code: '012345678',
-    date: '5 Oct 2020',
-    amount: '-200.000 USD',
-  }
-];
+
+// const DATA_BALANCE = [
+//   {
+//     id: '1',
+//     transactionType: 'up',
+//     merchantId: '012345678',
+//     transactionDate: '5 Oct 2020',
+//     amount: '+1.000.000 USD',
+//   },
+//   {
+//     id: '2',
+//     transactionType: 'down',
+//     merchantId: '012345678',
+//     transactionDate: '5 Oct 2020',
+//     amount: '-200.000 USD',
+//   },
+//   {
+//     id: '3',
+//     transactionType: 'up',
+//     merchantId: '012345678',
+//     transactionDate: '5 Oct 2020',
+//     amount: '+200.000 USD',
+//   },
+//   {
+//     id: '4',
+//     transactionType: 'down',
+//     merchantId: '012345678',
+//     transactionDate: '5 Oct 2020',
+//     amount: '-200.000 USD',
+//   },
+//   {
+//     id: '5',
+//     transactionType: 'up',
+//     merchantId: '012345678',
+//     transactionDate: '5 Oct 2020',
+//     amount: '+200.000 USD',
+//   },
+//   {
+//     id: '6',
+//     transactionType: 'down',
+//     merchantId: '012345678',
+//     transactionDate: '5 Oct 2020',
+//     amount: '-200.000 USD',
+//   },
+//   {
+//     id: '7',
+//     transactionType: 'up',
+//     merchantId: '012345678',
+//     transactionDate: '5 Oct 2020',
+//     amount: '+200.000 USD',
+//   },
+//   {
+//     id: '8',
+//     transactionType: 'down',
+//     merchantId: '012345678',
+//     transactionDate: '5 Oct 2020',
+//     amount: '-200.000 USD',
+//   },
+//   {
+//     id: '9',
+//     transactionType: 'up',
+//     merchantId: '012345678',
+//     transactionDate: '5 Oct 2020',
+//     amount: '+200.000 USD',
+//   },
+//   {
+//     id: '10',
+//     transactionType: 'down',
+//     merchantId: '012345678',
+//     transactionDate: '5 Oct 2020',
+//     amount: '-200.000 USD',
+//   }
+// ];
 
 const DATA_GENERAL = [
   {
@@ -118,30 +122,44 @@ const DATA_GENERAL = [
 ];
 
 export default function NotificationScreen() {
-  const [search, setSearch] = useState('');
-  const [tab, setTab] = useState<'balance' | 'general'>('balance');
+  const [search, setSearch] = React.useState('');
+  const [tab, setTab] = React.useState<'balance' | 'general'>('balance');
 
-  const filteredBalance = DATA_BALANCE.filter(item =>
-    item.code.includes(search)
-  );
-  const filteredGeneral = DATA_GENERAL.filter(item =>
-    item.title.toLowerCase().includes(search.toLowerCase())
-  );
+
+  const [DATA_BALANCE, setDataBalance] = React.useState<NotificationType[]>([]);
+  // const dispatchNoti: ReduxTypes['AppDispatch'] = useDispatch();
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const profile = await CustService.getNotiBalance();
+        setDataBalance(profile.result);
+        console.log('noti', profile);
+
+        // todo cho socket vào đây để nhận thông báo realtime
+        // dispatchNoti(setNoti(profile.result));
+      } catch (err) {
+        alert('Lấy thông báo thất bại!');
+      }
+    })();
+  }, []);
 
   const renderBalanceItem = ({ item }: { item: any }) => (
     <ThemedView style={styles.row}>
       <ThemedView style={styles.iconBox}>
         <Ionicons
-          name={item.type === 'up' ? 'arrow-up' : 'arrow-down'}
+          name={item.status === 'SUCCESS' ? (item.transactionType === 'RECEIVE' ? 'arrow-up' : 'arrow-down') : 'alert'}
           size={24}
-          color={item.type === 'up' ? '#00D26A' : 'red'}
+          color={item.status === 'SUCCESS' && item.transactionType === 'RECEIVE' ? '#00D26A' : 'red'}
         />
       </ThemedView>
       <ThemedView style={{ flex: 1 }}>
-        <ThemedText style={styles.code}>{item.code}</ThemedText>
-        <ThemedText style={styles.date}>{item.date}</ThemedText>
+        <ThemedText style={styles.merchantId}>Từ: {item.accountNumber}</ThemedText>
+        <ThemedText style={styles.merchantId}>Đến: {item.merchantId}</ThemedText>
+        <ThemedText style={styles.merchantId}>Nội dung: "{item.description}"</ThemedText>
+        <ThemedText style={styles.merchantId}>Số dư cuối: {item.balanceAfter}</ThemedText>
+        <ThemedText style={styles.date}>{item.transactionDate.split("T")[0]} | Trạng thái: {item.status}</ThemedText>
       </ThemedView>
-      <ThemedText style={[styles.amount, { color: item.type === 'up' ? '#00D26A' : 'red' }]}>{item.amount}</ThemedText>
+      <ThemedText style={[styles.amount, { color: item.transactionType === 'RECEIVE' ? '#00D26A' : 'red' }]}>{item.amount}</ThemedText>
     </ThemedView>
   );
 
@@ -151,7 +169,7 @@ export default function NotificationScreen() {
         <Ionicons name={item.icon} size={24} color={Colors.light.tint} />
       </ThemedView>
       <ThemedView style={{ flex: 1 }}>
-        <ThemedText style={styles.code}>{item.title}</ThemedText>
+        <ThemedText style={styles.merchantId}>{item.title}</ThemedText>
         <ThemedText style={styles.date}>{item.date}</ThemedText>
       </ThemedView>
       <TouchableOpacity>
@@ -187,7 +205,7 @@ export default function NotificationScreen() {
           </ThemedView>
 
           <FlatList
-            data={tab === 'balance' ? filteredBalance : filteredGeneral}
+            data={tab === 'balance' ? DATA_BALANCE : DATA_GENERAL}
             keyExtractor={item => item.id}
             renderItem={tab === 'balance' ? renderBalanceItem : renderGeneralItem}
             contentContainerStyle={{ paddingBottom: 16 }}
@@ -247,7 +265,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  code: {
+  merchantId: {
     fontWeight: 'bold',
     fontSize: 15,
     color: '#000000',

@@ -13,17 +13,18 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { BackgroundView } from '@/components/background-view';
 
-import AuthService from '@/api/authApi';
+import AuthService from '@/service/authApi';
 import { useDispatch } from 'react-redux';
 import { ReduxTypes } from '@/redux/store';
 import { setUser } from '@/redux/reducerUser';
+import CustService from '@/service/custApi';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const router: Router = useRouter();
 
-  const dispatchCart: ReduxTypes['AppDispatch'] = useDispatch();
+  const dispatchUser: ReduxTypes['AppDispatch'] = useDispatch();
 
   const [showPicker, setShowPicker] = React.useState<boolean>(false);
 
@@ -48,10 +49,10 @@ export default function LoginScreen() {
   const handleLogin = async (data: LoginType) => {
     try {
       const res = await AuthService.login(data);
-      const profile = await AuthService.getProfile();
+      const profile = await CustService.getProfile();
 
       console.log('Login success', profile);
-      dispatchCart(setUser(profile.result));
+      dispatchUser(setUser(profile.result));
       router.replace('/home');
     } catch (err) {
       // console.error('Login failed', err);

@@ -9,7 +9,7 @@ import { Image } from 'expo-image';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
-import AuthService from '@/api/authApi';
+import AuthService from '@/service/authApi';
 import { useSelector } from 'react-redux';
 import { ReduxTypes } from '@/redux/store';
 

@@ -21,11 +21,6 @@ const AuthService = {
     removeToken();
   },
 
-  getProfile: async () => {
-    const res = await axiosClient.get("/customer/me");
-    return res.data;
-  },
-
   isAuthenticated: () => {
     return !!getToken();
   }
