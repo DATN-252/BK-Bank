@@ -1,21 +1,24 @@
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Image } from 'expo-image';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import { router } from 'expo-router';
 
 import { BackgroundView } from '@/components/background-view';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Colors } from '@/constants/Colors';
-import { Image } from 'expo-image';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import { router } from 'expo-router';
+
+import { ReduxTypes } from '@/redux/store';
+import { useSelector } from 'react-redux';
 
 
 
 export default function HomeScreen() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
 
-
+  const userInfo = useSelector((state: ReduxTypes['RootState']) => state.userInfo);
 
   return (
     <BackgroundView>
@@ -23,7 +26,7 @@ export default function HomeScreen() {
         <ThemedView style={styles.content}>
           <ThemedView style={styles.header}>
             <ThemedText type='subtitle' style={styles.textHeader}>Xin chào</ThemedText>
-            <ThemedText type='title' style={styles.textHeader}>Nguyen Van A</ThemedText>
+            <ThemedText type='title' style={styles.textHeader}>{userInfo?.fullName}</ThemedText>
           </ThemedView>
 
           <ThemedView style={styles.body}>

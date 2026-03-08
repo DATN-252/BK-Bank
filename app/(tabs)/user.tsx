@@ -10,25 +10,35 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import AuthService from '@/api/authApi';
+import { useSelector } from 'react-redux';
+import { ReduxTypes } from '@/redux/store';
 
 
 
 export default function UserScreen() {
   const router: Router = useRouter();
 
+  const userInfo = useSelector((state: ReduxTypes['RootState']) => state.userInfo);
+
   return (
     <BackgroundView>
       <ThemedView style={styles.container}>
         <ThemedView style={styles.profileSection}>
           <ThemedView style={styles.avatarWrapper}>
-            <Image source={require('@/assets/images/favicon.png')} style={styles.avatar} />
+            <Image
+              source={
+                userInfo?.avatar
+                  ? { uri: userInfo.avatar }
+                  : require('@/assets/images/favicon.png')
+              }
+              style={styles.avatar} />
             <TouchableOpacity style={styles.editBtn}>
               <Ionicons name="pencil" size={18} color='black' />
             </TouchableOpacity>
           </ThemedView>
 
-          <ThemedText style={styles.name}>Nguyen Van A</ThemedText>
-          <ThemedText style={styles.info}>youremail@domain.com | +01 234 567 89</ThemedText>
+          <ThemedText style={styles.name}>{userInfo?.fullName}</ThemedText>
+          <ThemedText style={styles.info}>{userInfo?.email} | {userInfo?.phoneNumber}</ThemedText>
         </ThemedView>
 
         <ThemedView style={styles.card}>

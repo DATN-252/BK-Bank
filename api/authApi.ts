@@ -22,7 +22,7 @@ const AuthService = {
   },
 
   getProfile: async () => {
-    const res = await axiosClient.get("/auth/me");
+    const res = await axiosClient.get("/customer/me");
     return res.data;
   },
 

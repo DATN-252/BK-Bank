@@ -14,13 +14,16 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { BackgroundView } from '@/components/background-view';
 
 import AuthService from '@/api/authApi';
-
+import { useDispatch } from 'react-redux';
+import { ReduxTypes } from '@/redux/store';
+import { setUser } from '@/redux/reducerUser';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function LoginScreen() {
-    const router: Router = useRouter();
+  const router: Router = useRouter();
 
+  const dispatchCart: ReduxTypes['AppDispatch'] = useDispatch();
 
   const [showPicker, setShowPicker] = React.useState<boolean>(false);
 
@@ -45,8 +48,10 @@ export default function LoginScreen() {
   const handleLogin = async (data: LoginType) => {
     try {
       const res = await AuthService.login(data);
+      const profile = await AuthService.getProfile();
 
-      console.log('Login success', res);
+      console.log('Login success', profile);
+      dispatchCart(setUser(profile.result));
       router.replace('/home');
     } catch (err) {
       // console.error('Login failed', err);
