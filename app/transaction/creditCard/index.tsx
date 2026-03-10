@@ -1,7 +1,3 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Colors } from '@/constants/Colors';
-import { CreditCardType } from '@/types/card';
 import { Router, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { Controller, useForm } from "react-hook-form";
@@ -9,10 +5,18 @@ import { Keyboard, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeed
 import { Dropdown } from 'react-native-element-dropdown';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
-export default function TransactionScreen() {
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { Colors } from '@/constants/Colors';
+import { PaymentCreditType } from '@/types/payment';
+import PayService from '@/service/payApi';
+
+
+
+export default function CreditTransactionScreen() {
   const router: Router = useRouter();
   const { qrData } = useLocalSearchParams<{ qrData: string }>();
-  const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<CreditCardType>({
+  const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<PaymentCreditType>({
     defaultValues: {
       merchantId: qrData,
       currency: 'USD'
@@ -79,7 +83,6 @@ export default function TransactionScreen() {
                     <TextInput
                       placeholder="Nhập mã cửa hàng"
                       onChangeText={onChange}
-                      keyboardType="numeric"
                       value={value}
                       style={styles.input}
                       editable={qrData === undefined}
@@ -212,15 +215,15 @@ export default function TransactionScreen() {
               </ThemedView>
 
               <ThemedView>
-                {/* {creditCardErrors.cardHolder ?
-              <ThemedText style={styles.warning}>{creditCardErrors.cardHolder.message}</ThemedText>
+                {/* {creditCardErrors.cardholderName ?
+              <ThemedText style={styles.warning}>{creditCardErrors.cardholderName.message}</ThemedText>
               : 
             } */}
                 <ThemedText style={styles.bodyText}>Họ và Tên chủ thẻ</ThemedText>
                 <Controller
                   rules={{ required: '*Tên chủ thẻ là bắt buộc!' }}
                   control={creditCardControl}
-                  name="cardHolder"
+                  name="cardholderName"
                   render={({ field: { onChange, value } }) => (
                     <TextInput
                       placeholder="Nhập đầy đủ không dấu"
@@ -305,9 +308,19 @@ export default function TransactionScreen() {
             <TouchableOpacity
               style={styles.buttonFooter}
               onPress={handleCreditCardSubmit(
-                (data) => {
-                  router.push('/transaction/confirm');
-                  resetCreditCard();
+                async (data) => {
+                  try {
+                    const res = await PayService.paymentCredit(data);
+
+                    if (res.result.approved) {
+                      router.push('/transaction/confirm');
+                      resetCreditCard();
+                    }
+                    else alert('Thông tin không hợp lệ. Vui lòng kiểm tra lại thông tin thẻ hoặc thử thẻ khác.');
+                  } catch (error) {
+                    // console.error('Lỗi khi thanh toán: ', error);
+                    alert('Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại sau.');
+                  }
                 },
                 (errors) => {
                   // ❌ Có lỗi

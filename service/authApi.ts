@@ -1,5 +1,5 @@
 import axiosClient from './axiosClient';
-import { setToken, getToken, removeToken } from './localStorage';
+import { setToken, getToken, removeToken } from '../store/localStorage';
 import { LoginType } from '../types/login';
 
 export const AUTH_KEY = 'auth';

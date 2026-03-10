@@ -2,8 +2,7 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { Stack } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Provider } from "react-redux";
-import { store } from '@/redux/store';
-
+import { store } from "@/store/reduxStore"
 
 
 export default function RootLayout() {

@@ -127,7 +127,7 @@ export default function NotificationScreen() {
 
 
   const [DATA_BALANCE, setDataBalance] = React.useState<NotificationType[]>([]);
-  // const dispatchNoti: ReduxTypes['AppDispatch'] = useDispatch();
+  // const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
   React.useEffect(() => {
     (async () => {
       try {
@@ -147,9 +147,9 @@ export default function NotificationScreen() {
     <ThemedView style={styles.row}>
       <ThemedView style={styles.iconBox}>
         <Ionicons
-          name={item.status === 'SUCCESS' ? (item.transactionType === 'RECEIVE' ? 'arrow-up' : 'arrow-down') : 'alert'}
+          name={item.status === 'SUCCESS' ? (item.transactionType !== 'CHARGE' ? 'arrow-up' : 'arrow-down') : 'alert'}
           size={24}
-          color={item.status === 'SUCCESS' && item.transactionType === 'RECEIVE' ? '#00D26A' : 'red'}
+          color={item.status === 'SUCCESS' && item.transactionType !== 'CHARGE' ? '#00D26A' : 'red'}
         />
       </ThemedView>
       <ThemedView style={{ flex: 1 }}>
@@ -159,7 +159,7 @@ export default function NotificationScreen() {
         <ThemedText style={styles.merchantId}>Số dư cuối: {item.balanceAfter}</ThemedText>
         <ThemedText style={styles.date}>{item.transactionDate.split("T")[0]} | Trạng thái: {item.status}</ThemedText>
       </ThemedView>
-      <ThemedText style={[styles.amount, { color: item.transactionType === 'RECEIVE' ? '#00D26A' : 'red' }]}>{item.amount}</ThemedText>
+      <ThemedText style={[styles.amount, { color: item.transactionType !== 'CHARGE' ? '#00D26A' : 'red' }]}>{item.transactionType !== 'CHARGE' ? "+" + item.amount : "-" + item.amount}</ThemedText>
     </ThemedView>
   );
 

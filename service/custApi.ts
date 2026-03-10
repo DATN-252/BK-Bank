@@ -13,6 +13,11 @@ const CustService = {
     const res = await axiosClient.get('/customer/me');
     return res.data;
   },
+
+  getCards: async () => {
+    const res = await axiosClient.get('/customer/me/cards');
+    return res.data;
+  },
 };
 
 export default CustService;

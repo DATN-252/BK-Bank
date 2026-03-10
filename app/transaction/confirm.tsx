@@ -8,7 +8,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 
 
 
-export default function TransactionScreen() {
+export default function ConfirmTransactionScreen() {
         // Hàm render từng dòng key:value, space-between
         const reponseData = [
             { key: 'Số tiền', value: '1.234.567 VND' },

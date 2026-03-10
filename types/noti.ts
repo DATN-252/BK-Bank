@@ -10,4 +10,4 @@ export interface NotificationType {
     merchantId?: string;
     merchantName?: string;
     status: 'PENDING' | 'SUCCESS' | 'FAILED';
-}
+};

@@ -12,7 +12,7 @@ import { BackgroundView } from '@/components/background-view';
 
 
 
-export default function TransactionScreen() {
+export default function SuccessTransactionScreen() {
     // Dữ liệu hiển thị theo ảnh mẫu
     const responseData = [
         { key: 'Số tiền', value: '1.234.567 VND' },

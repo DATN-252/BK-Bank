@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from 'react-native';
+import { Animated, FlatList, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Image } from 'expo-image';
@@ -10,51 +10,93 @@ import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Colors } from '@/constants/Colors';
 
-import { ReduxTypes } from '@/redux/store';
 import { useSelector } from 'react-redux';
-
-
+import { ReduxTypes } from '@/store/reduxStore';
+import Indicator from '@/components/Indicator';
 
 export default function HomeScreen() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
 
   const userInfo = useSelector((state: ReduxTypes['RootState']) => state.userInfo);
+  const cardInfo = useSelector((state: ReduxTypes['RootState']) => state.cardInfo);
+  const { width: screenWidth } = Dimensions.get('window');
+  const scrollXBanner: Animated.Value = React.useRef<Animated.Value>(new Animated.Value(0)).current;
 
   return (
     <BackgroundView>
       <ThemedView style={styles.container}>
         <ThemedView style={styles.content}>
+
           <ThemedView style={styles.header}>
             <ThemedText type='subtitle' style={styles.textHeader}>Xin chào</ThemedText>
             <ThemedText type='title' style={styles.textHeader}>{userInfo?.fullName}</ThemedText>
           </ThemedView>
 
           <ThemedView style={styles.body}>
-            <ThemedView style={styles.infoCard}>
-              <ThemedView style={styles.cardHeader}>
-                <ThemedText style={{ opacity: 0.6 }}>Số dư hiện tại</ThemedText>
-                {showPassword ?
-                  <TouchableOpacity onPress={() => setShowPassword(false)}>
-                    <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
-                  </TouchableOpacity>
-                  :
-                  <TouchableOpacity onPress={() => setShowPassword(true)}>
-                    <FontAwesome name="eye" size={24} color={Colors.light.icon} />
-                  </TouchableOpacity>
-                }
-              </ThemedView>
-              <ThemedText
-                type='title'
-                style={styles.textHeader}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-              >{showPassword ? "1.234.565.899" : "***********"} VND</ThemedText>
-              <ThemedText style={styles.textCard}>{showPassword ? "**** **** **** 1289" : "**** **** **** ****"}</ThemedText>
-              <ThemedView style={styles.cardFooter}>
-                <ThemedText style={styles.textCard}>{showPassword ? "09/25" : "**/**"}</ThemedText>
-                <Image source={require('@/assets/images/mastercard_logo.png')} style={{ width: '15%', aspectRatio: 1, resizeMode: 'contain' }} />
-              </ThemedView>
-            </ThemedView>
+            {/* //todo ở đây đang lấy creditcard, sau này list có debit thì phải sửa lại */}
+            <FlatList
+              data={cardInfo}
+              style={{ height: '35%' }}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item, index) => index.toString()}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { x: scrollXBanner } } }],
+                { useNativeDriver: false }
+              )}
+              renderItem={({ item }) => (
+                <ThemedView style={{ width: screenWidth, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' }}>
+                  <ThemedView style={styles.infoCard}>
+                    <ThemedView style={styles.cardHeader}>
+                      <ThemedText style={{ opacity: 0.6 }}>
+                        {item.cardType === 'CREDIT' ? 'Số dư hiện tại' : 'Hạn mức còn lại'}
+                      </ThemedText>
+
+                      {showPassword ? (
+                        <TouchableOpacity onPress={() => setShowPassword(false)}>
+                          <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity onPress={() => setShowPassword(true)}>
+                          <FontAwesome name="eye" size={24} color={Colors.light.icon} />
+                        </TouchableOpacity>
+                      )}
+                    </ThemedView>
+
+                    <ThemedText
+                      type="title"
+                      style={styles.textHeader}
+                      adjustsFontSizeToFit
+                      numberOfLines={1}
+                    >
+                      {showPassword
+                        ? (item.creditLimit - item.outstandingBalance).toLocaleString() + " USD"
+                        : "***********"}
+                    </ThemedText>
+
+                    <ThemedText style={styles.textCard}>
+                      {showPassword ? item.maskedPan : "**** **** **** ****"}
+                    </ThemedText>
+
+                    <ThemedView style={styles.cardFooter}>
+                      <ThemedText style={styles.textCard}>
+                        {showPassword
+                          ? item.expirationDate.slice(5).replace("-", "/")
+                          : "**/**"}
+                      </ThemedText>
+
+                      <Image
+                        source={require('@/assets/images/mastercard_logo.png')}
+                        style={{ width: '15%', aspectRatio: 1, resizeMode: 'contain' }}
+                      />
+                    </ThemedView>
+
+                  </ThemedView>
+                </ThemedView>
+              )}
+            />
+            <Indicator scrollX={scrollXBanner} lengthData={cardInfo.length} key={'banner'} _key={'banner'} sizeItem={screenWidth} />
 
             <ThemedView style={styles.utilities}>
               <ThemedView style={styles.utilitiesItem}>
@@ -95,18 +137,18 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: 'transparent',
+    justifyContent: 'center',
   },
   content: {
     flex: 1,
+    alignItems: 'center',
     backgroundColor: 'transparent',
-    width: '90%',
+    width: '100%',
   },
 
   header: {
-    width: '100%',
+    width: '90%',
     height: '20%',
     justifyContent: 'center',
     backgroundColor: 'transparent',
@@ -127,8 +169,9 @@ const styles = StyleSheet.create({
 
   infoCard: {
     paddingHorizontal: '5%',
+    width: '90%',
+    height: '90%',
     borderRadius: 10,
-    height: '50%',
     justifyContent: 'space-evenly',
   },
   cardHeader: {

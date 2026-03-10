@@ -1,19 +1,21 @@
+
 interface CardType {
-    cardNumber: string;
-    dateCard: string;
-    amount: number;
-    cardHolder: string;
+    maskedPan: string;
+    expirationDate: string;
+    cardholderName: string;
     bank: string;
-}
+    accountId: string;
+    status: string;
+    lastFour: string;
+    cardType: string;
+};
 
 export interface DebitCardType extends CardType {
+    balance: number;
     // pinOTP: string;
-}
+};
 
 export interface CreditCardType extends CardType {
-    merchantId: string;
-    zip: string;
-    cvc: string;
-    addressRegister: string;
-    currency: string;
-}
+    creditLimit: number;
+    outstandingBalance: number;
+};
