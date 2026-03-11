@@ -22,11 +22,11 @@ export default function TransactionScreen() {
 
         <ThemedView style={styles.body}>
           <TouchableOpacity style={styles.item} onPress={() => router.push('/future')}>
-            <Image source={require('../../assets/images/icon-bank.png')} style={styles.icon} />
+            <Image source={require('@/assets/images/icon-bank.png')} style={styles.icon} />
             <ThemedText style={styles.bodyText}>Tài khoản ngân hàng</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity style={styles.item} onPress={() => router.push('/future')}>
-            <Image source={require('../../assets/images/icon-debitcard.png')} style={styles.icon} />
+            <Image source={require('@/assets/images/icon-debitcard.png')} style={styles.icon} />
             <ThemedText style={styles.bodyText}>Thẻ nội địa</ThemedText>
           </TouchableOpacity>
           <TouchableOpacity
@@ -38,14 +38,14 @@ export default function TransactionScreen() {
                   qrData: qrData,
                 },
               })}>
-            <Image source={require('../../assets/images/icon-creditcard.png')} style={styles.icon} />
+            <Image source={require('@/assets/images/icon-creditcard.png')} style={styles.icon} />
             <ThemedView>
               <ThemedText style={styles.bodyText}>Thẻ thanh toán quốc tế/ tín dụng</ThemedText>
               <ThemedView style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly', }}>
-                <Image source={require('../../assets/images/mastercard_logo.png')} style={styles.miniIcon} />
-                <Image source={require('../../assets/images/icon-visa.png')} style={styles.miniIcon} />
-                <Image source={require('../../assets/images/icon-jcb.png')} style={styles.miniIcon} />
-                <Image source={require('../../assets/images/icon-amexpr.png')} style={styles.miniIcon} />
+                <Image source={require('@/assets/images/mastercard_logo.png')} style={styles.miniIcon} />
+                <Image source={require('@/assets/images/icon-visa.png')} style={styles.miniIcon} />
+                <Image source={require('@/assets/images/icon-jcb.png')} style={styles.miniIcon} />
+                <Image source={require('@/assets/images/icon-amexpr.png')} style={styles.miniIcon} />
               </ThemedView>
             </ThemedView>
           </TouchableOpacity>

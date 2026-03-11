@@ -3,22 +3,25 @@ import { Router, useRouter } from 'expo-router';
 import React from 'react';
 import { Controller, useForm } from "react-hook-form";
 import { Animated, Dimensions, Keyboard, ScrollView, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
+import { BackgroundView } from '@/components/background-view';
 import PinOTP from '@/components/PinOTP';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import { LoginType } from '@/types/login';
 import { ForgotPasswordType, ResetPasswordType } from '@/types/resetPassword';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { BackgroundView } from '@/components/background-view';
 
 import AuthService from '@/service/authApi';
+import CustService from '@/service/custApi';
+
 import { useDispatch } from 'react-redux';
 import { ReduxTypes } from '@/store/reduxStore';
 import { setUser } from '@/redux/reducerUser';
-import CustService from '@/service/custApi';
 import { getCards } from '@/redux/reducerCard';
+import { saveToken } from '@/redux/reducerAuth';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -54,6 +57,8 @@ export default function LoginScreen() {
       const cards = await CustService.getCards();
 
       console.log('Login success', profile);
+
+      dispatch(saveToken(res.data.result.token));
       dispatch(setUser(profile.result));
       dispatch(getCards(cards.result));
       router.replace('/home');

@@ -10,14 +10,17 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 import AuthService from '@/service/authApi';
-import { useSelector } from 'react-redux';
-import { ReduxTypes } from '@/redux/store';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '@/redux/reducerAuth';
+import { ReduxTypes } from '@/store/reduxStore';
 
 
 
 export default function UserScreen() {
   const router: Router = useRouter();
 
+  const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
   const userInfo = useSelector((state: ReduxTypes['RootState']) => state.userInfo);
 
   return (
@@ -77,6 +80,7 @@ export default function UserScreen() {
         <ThemedView style={styles.card}>
           <TouchableOpacity onPress={async () => {
             await AuthService.logout();
+            dispatch(logout());
             router.replace("/");
           }}>
             <Row icon="log-out" label="Đăng xuất" color="#ff0000" />

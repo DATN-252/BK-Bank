@@ -3,6 +3,7 @@ import reducerUser from '@/redux/reducerUser';
 import reducerTheme from '@/redux/reducerTheme';
 import reducerNoti from '@/redux/reducerNoti';
 import reducerCard from '@/redux/reducerCard';
+import reducerAuth from '@/redux/reducerAuth';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     themeApp: reducerTheme,
     notification: reducerNoti,
     cardInfo: reducerCard,
+    auth: reducerAuth,
   },
 });
 
