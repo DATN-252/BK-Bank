@@ -15,11 +15,17 @@ import PayService from '@/service/payApi';
 
 export default function CreditTransactionScreen() {
   const router: Router = useRouter();
-  const { qrData } = useLocalSearchParams<{ qrData: string }>();
+
+  // dữ liệu từ QR, nếu có, sẽ được parse sẵn và gán vào default value của form
+  let { qrData } = useLocalSearchParams<{ qrData: string }>();
+  let parsedQrData: any = null;
+  if (qrData) parsedQrData = JSON.parse(qrData);
+
   const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<PaymentCreditType>({
     defaultValues: {
-      merchantId: qrData,
-      currency: 'USD'
+      merchantId: parsedQrData?.merchantAccount?.merchantId ?? '',
+      currency: parsedQrData?.currency ?? 'USD',
+      amount: parsedQrData?.amount ? Number(parsedQrData.amount) : undefined,
     }
   });
   const typeCreditCard = [
@@ -297,6 +303,7 @@ export default function CreditTransactionScreen() {
                       onChangeText={onChange}
                       value={value?.toString() ?? ''}
                       style={styles.input}
+                      editable={parsedQrData?.amount === undefined}
                     />
                   )}
                 />

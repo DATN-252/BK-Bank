@@ -2,7 +2,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import { Camera, CameraView, useCameraPermissions } from 'expo-camera';
-import { Button, Linking, StyleSheet, TouchableOpacity } from 'react-native';
+import { Linking, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Image } from 'expo-image';
@@ -20,7 +20,6 @@ export default function QRScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [facing, setFacing] = React.useState<boolean>(false);
   const [flash, setFlash] = React.useState<boolean>(false);
-  const [isOn, setIsOn] = React.useState<boolean>(false);
   const isFocused: boolean = useIsFocused();
   const labels: [string, string] = ['Mã QR của tôi', 'Quét mã QR'];
   const [scanned, setScanned] = React.useState<boolean>(false);
@@ -50,56 +49,103 @@ export default function QRScreen() {
     setScanned(false);
   };
 
-  // kiểm tra mã QR có hợp lệ không
+  // kiểm tra mã QR có hợp lệ không (EMVCo)
   const isValidBankQR = (data: string) => {
     if (!data) return false;
 
     // Không cho ký tự đặc biệt
-    if (!/^[A-Za-z0-9 ]+$/.test(data)) return false;
+    // if (!/^[A-Za-z0-9 ]+$/.test(data)) return false;
 
     // Chuẩn EMVCo
-    if (!data.startsWith('000201')) return false;
+    if (!data.startsWith('000201')) {
+      return false;
+    }
 
-    // Quốc gia Việt Nam
-    if (!data.includes('5802VN')) return false;
+    // Quốc gia
+    // if (!data.includes('5802VN')) return false;
 
-    // CRC bắt buộc
-    if (!data.includes('6304')) return false;
+    // CRC
+    if (!data.includes('6304')) {
+      return false;
+    }
 
     return true;
   };
 
+  // mở cài đặt để mở quyền
   const openSettings = () => {
     requestPermission();
     if (permission?.canAskAgain) return;
     Linking.openSettings();
   };
 
+  type TLVObject = {
+    [tag: string]: string;
+  };
+  const parseTLV = (str: string): TLVObject => {
+    const result: TLVObject = {};
+    let i = 0;
+
+    while (i < str.length) {
+      const tag = str.slice(i, i + 2);
+      const length = parseInt(str.slice(i + 2, i + 4));
+      const value = str.slice(i + 4, i + 4 + length);
+
+      result[tag] = value;
+
+      i += 4 + length;
+    }
+
+    return result;
+  };
+
   React.useEffect(() => {
     // khi dataQR = ''
     if (!dataQR) return;
 
+    // mở sau 3s
+    setTimeout(() => {
+      setScanned(false);
+      setDataQR('');
+    }, 3000);
+
+    if (!isValidBankQR(dataQR)) {
+      alert('Mã QR không hợp lệ, yêu cầu chuẩn EMVCo!');
+      return;
+    }
+
     // xử lý kết quả quét QR
-    const handleQRResult = (qrData: string) => {
-      setTimeout(() => {
-        setScanned(false);
-        setDataQR('');
-      }, 3000);
+    const obj = parseTLV(dataQR);
+    const merchantInfo = parseTLV(obj["26"]);
+    const additionalData = parseTLV(obj["62"]);
 
-      if (!isValidBankQR(qrData)) {
-        alert('Mã QR không hợp lệ!');
-        return;
-      }
-
-      router.push({
-        pathname: '/transaction',
-        params: {
-          qrData: qrData,
-        },
-      });
+    const parsed = {
+      payloadFormat: obj["00"],
+      initiationMethod: obj["01"],
+      merchantCategory: obj["52"],
+      currency: obj["53"],
+      amount: obj["54"],
+      country: obj["58"],
+      merchantName: obj["59"],
+      merchantCity: obj["60"],
+      merchantAccount: {
+        GUI: merchantInfo["00"],
+        merchantId: merchantInfo["01"],
+      },
+      location: {
+        latitude: additionalData["50"],
+        longitude: additionalData["51"]
+      },
+      crc: obj["63"]
     };
 
-    handleQRResult(dataQR);
+    //todo phải xử lý thêm nếu qr là về tk ngân hàng thì push('/transaction/debitCard')
+    router.push({
+      pathname: '/transaction',
+      params: {
+        qrData: JSON.stringify(parsed),
+      },
+    });
   }, [dataQR]);
 
   const handleMyQR = (value: boolean) => {
@@ -187,12 +233,9 @@ export default function QRScreen() {
         {/* my/scan qr */}
         <ThemedView style={[styles.statusBar, { flex: 1, alignItems: 'center' }]}>
           <ThemedView style={{ width: '70%', marginVertical: 20, backgroundColor: 'transparent' }}>
-           {isFocused && <CustomSwitch
+            {isFocused && <CustomSwitch
               labels={labels}
-              onToggle={(value) => {
-                setIsOn(value);
-                handleMyQR(value);
-              }}/>}
+              onToggle={handleMyQR} />}
           </ThemedView>
         </ThemedView>
       </SafeAreaProvider >
@@ -208,8 +251,12 @@ export default function QRScreen() {
         }}
         onBarcodeScanned={({ data }) => {
           if (scanned) return;
-          setScanned(true); // khóa lại
-          setDataQR(data);
+
+          // tránh data rỗng thì khóa vĩnh viễn
+          if (!data) {
+            setScanned(true); // khóa lại
+            setDataQR(data);
+          }
         }}
         facing={facing ? 'front' : 'back'}
         flash={flash ? 'on' : 'off'}
