@@ -341,11 +341,11 @@ export default function CreditTransactionScreen() {
                           }),
                         },
                       });
-                      // resetCreditCard();
+                      resetCreditCard();
                     }
                     else alert('Thông tin không hợp lệ. Vui lòng kiểm tra lại thông tin thẻ hoặc thử thẻ khác.');
                   } catch (error) {
-                    console.error('Lỗi khi thanh toán: ', error);
+                    // console.error('Lỗi khi thanh toán: ', error);
                     alert('Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại sau.');
                   }
                 },

@@ -20,6 +20,8 @@ export interface PaymentCreditType {
     cvc: string;
     expirationDate: string;
     amount: number;
+    latitude: number | null;
+    longitude: number | null;
     idempotencyKey: string;
 };
 
@@ -35,13 +37,13 @@ export interface CheckoutDataType {
     message: string;
     responseMessage: string;
     idempotencyKey: string;
-    
+
     merchantId: string;
     merchantName: string;
     recipientAccount: string;
     recipientName: string;
     bankName: string;
-    
+
     amount: number;
     fee: number;
     totalAmount: number;

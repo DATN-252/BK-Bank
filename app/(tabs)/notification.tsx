@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import CustService from '@/service/custApi';
 import { NotificationType } from '@/types/noti';
+import { set } from 'react-hook-form';
 
 
 // const DATA_BALANCE = [
@@ -125,6 +126,7 @@ export default function NotificationScreen() {
   const [search, setSearch] = React.useState('');
   const [tab, setTab] = React.useState<'balance' | 'general'>('balance');
 
+  const [refreshing, setRefreshing] = React.useState(false);
 
   const [DATA_BALANCE, setDataBalance] = React.useState<NotificationType[]>([]);
   // const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
@@ -141,7 +143,9 @@ export default function NotificationScreen() {
         alert('Lấy thông báo thất bại!');
       }
     })();
-  }, []);
+
+    setRefreshing(false);
+  }, [refreshing]);
 
   const renderBalanceItem = ({ item }: { item: any }) => (
     <ThemedView style={styles.row}>
@@ -210,6 +214,8 @@ export default function NotificationScreen() {
             renderItem={tab === 'balance' ? renderBalanceItem : renderGeneralItem}
             contentContainerStyle={{ paddingBottom: 16 }}
             showsVerticalScrollIndicator={false}
+            refreshing={refreshing}
+            onRefresh={() => setRefreshing(true)}
           />
         </ThemedView>
       </BackgroundView>
