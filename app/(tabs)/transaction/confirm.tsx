@@ -1,35 +1,87 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
+import PayService from '@/service/payApi';
 import { ImageBackground } from 'expo-image';
-import { Router, useRouter } from 'expo-router';
+import { Router, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
+interface ConfirmDataType {
+    zipCode: string,
+    amount: number,
+    fee: number,
+    cardType: string,
+    bankName: string,
+    maskedCardNumber: string,
+    merchantName: string,
+    executionTime: string,
+    totalAmount: number,
+    cardNetwork: string,
+    merchantId: string,
+    recipientAccount: string,
+    cardholderName: string,
+    recipientName: string,
+    currency: string,
+    billingAddress: string,
+    status: string
+};
 
+const DISPLAY_FIELDS: [keyof ConfirmDataType, string][] = [
+    ['amount', 'Số tiền'],
+    ['merchantName', 'Tên bên nhận'],
+    ['merchantId', 'Tài khoản bên nhận'],
+    ['bankName', 'Ngân hàng'],
+    ['executionTime', 'Thời gian thực hiện'],
+    ['fee', 'Phí giao dịch'],
+    ['totalAmount', 'Tổng cộng'],
+];
 
 export default function ConfirmTransactionScreen() {
-        // Hàm render từng dòng key:value, space-between
-        const reponseData = [
-            { key: 'Số tiền', value: '1.234.567 VND' },
-            { key: 'Tên bên nhận', value: 'Nguyen Van A' },
-            { key: 'Mã bên nhận', value: 'CTTVPN01' },
-            { key: 'Ngân hàng', value: 'Master Card' },
-            { key: 'Phí giao dịch', value: '0 VND' },
-            { key: 'Tổng cộng', value: '1.000.000 VND' },
-        ];
-        const renderKeyValueRows = (data: Array<{ key: string, value: string }>) => {
-            return data.map((item, idx) => (
-                <ThemedView key={idx} 
-                style={{flex: (data.length - idx == 3) ? 1 : 0,
-                    flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
-                    <ThemedText style={styles.bodyText}>{item.key}</ThemedText>
-                    <ThemedText style={[styles.bodyText, { fontWeight: 'bold' }]}>{item.value}</ThemedText>
-                </ThemedView>
-            ));
-        };
     const router: Router = useRouter();
+    let { confirmData } = useLocalSearchParams<{ confirmData: string }>();
+    const responseData = confirmData ? JSON.parse(confirmData) : null;
 
+    // Hàm render từng dòng key:value, space-between
+    // const responseData =  {
+    //     "zipCode": "100000",
+    //     "amount": 90.0,
+    //     "fee": 0,
+    //     "cardType": "CREDIT",
+    //     "bankName": "BKBank Merchant Network",
+    //     "maskedCardNumber": "**** **** **** 1111",
+    //     "merchantName": "Điện lực EVN",
+    //     "executionTime": "2026-03-19 21:18:24",
+    //     "totalAmount": 90.0,
+    //     "cardNetwork": "VISA",
+    //     "merchantId": "SP0001",
+    //     "recipientAccount": "SP0001",
+    //     "cardholderName": "Nguyen Van A",
+    //     "recipientName": "Điện lực EVN",
+    //     "currency": "VND",
+    //     "billingAddress": "123 A Street, Hanoi",
+    //     "status": "VALID"
+    // };
+    const renderKeyValueRows = (data: ConfirmDataType) => {
+        return DISPLAY_FIELDS.map(([key, label], idx) => (
+            <ThemedView
+                key={idx}
+                style={{
+                    flex: (Object.keys(DISPLAY_FIELDS).length - idx == 3) ? 1 : 0,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                    width: '100%'
+                }}
+            >
+                <ThemedText style={styles.bodyText}>{label}</ThemedText>
+                <ThemedText style={[styles.bodyText, { fontWeight: 'bold' }]}>
+                    {String(data[key])}  {idx == 0
+                        || idx == Object.keys(DISPLAY_FIELDS).length - 1
+                        || idx == Object.keys(DISPLAY_FIELDS).length - 2 ? data.currency : ''}
+                </ThemedText>
+            </ThemedView>
+        ));
+    };
 
     return (
         <ThemedView style={styles.container}>
@@ -43,17 +95,42 @@ export default function ConfirmTransactionScreen() {
                 </ThemedView>
 
                 <ThemedView style={styles.body}>
-                    <ThemedView style={{flex: 1, width: '90%', marginBottom: 24, gap: '4%' }}>
-                        {renderKeyValueRows(reponseData)}
+                    <ThemedView style={{ flex: 1, width: '90%', marginBottom: 24, gap: '4%' }}>
+                        {renderKeyValueRows(responseData)}
                     </ThemedView>
-                   
+
                 </ThemedView>
 
                 <ThemedView style={styles.footer}>
                     <TouchableOpacity
                         style={styles.buttonFooter}
                         onPress={() => {
-                            router.replace('/transaction/loading');
+                            const {
+                                zipCode,
+                                fee,
+                                totalAmount,
+                                bankName,
+                                maskedCardNumber,
+                                merchantName,
+                                executionTime,
+                                cardNetwork,
+                                recipientAccount,
+                                cardholderName,
+                                recipientName,
+                                currency,
+                                billingAddress,
+                                status, ...dataToSend } = responseData;
+
+                            dataToSend.amount = responseData.totalAmount;
+                            console.log('Data for execution: ', dataToSend);
+                            router.replace({
+                                pathname: '/transaction/loading',
+                                params: {
+                                    dataToSend: JSON.stringify({
+                                        ...dataToSend,
+                                    }),
+                                },
+                            });
                         }}
                     >
                         <ThemedText>Tiếp tục</ThemedText>
@@ -97,7 +174,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-   
+
     bodyText: {
         fontSize: 16,
         color: Colors.light.tabIconDefault,

@@ -1,19 +1,17 @@
 import axiosClient from './axiosClient';
-import { PaymentCreditType } from '@/types/payment';
+import { PaymentCreditType, PaymentPreviewCreditType } from '@/types/payment';
 
 
 export const AUTH_KEY = 'auth';
 
 const PayService = {
+  paymentPreviewCredit: async (data: PaymentPreviewCreditType) => {
+    const res = await axiosClient.post('/payment/preview', data);
+    return res.data;
+  },
+
   paymentCredit: async (data: PaymentCreditType) => {
-    const res = await axiosClient.post('/payment/credit-card', {
-      cardNumber: data.cardNumber,
-      cvc: data.cvc,
-      dateCard: data.dateCard,
-      amount: data.amount,
-      merchantId: data.merchantId,
-      currency: data.currency,
-    });
+    const res = await axiosClient.post('/payment/credit-card', data);
     return res.data;
   },
 };

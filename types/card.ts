@@ -1,5 +1,6 @@
 
 interface CardType {
+    id: string;
     maskedPan: string;
     expirationDate: string;
     cardholderName: string;
@@ -8,6 +9,8 @@ interface CardType {
     status: string;
     lastFour: string;
     cardType: string;
+    network: string;
+    outstandingBalance: number;
 };
 
 export interface DebitCardType extends CardType {
@@ -17,5 +20,4 @@ export interface DebitCardType extends CardType {
 
 export interface CreditCardType extends CardType {
     creditLimit: number;
-    outstandingBalance: number;
 };

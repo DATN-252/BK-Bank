@@ -132,8 +132,8 @@ export default function NotificationScreen() {
     (async () => {
       try {
         const profile = await CustService.getNotiBalance();
-        setDataBalance(profile.result);
-        console.log('noti', profile);
+        setDataBalance(profile.result.content);
+        // console.log('noti', profile.result.content);
 
         // todo cho socket vào đây để nhận thông báo realtime
         // dispatchNoti(setNoti(profile.result));

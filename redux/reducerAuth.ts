@@ -1,5 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+// todo nên là isAuthenticated: boolean, vì token cần giấu đi, không nên lưu trong state
+// gộp vào reducerUser, vì nó liên quan đến user, khi logout thì xóa cả user info đi luôn, tránh trường hợp token hết hạn mà vẫn còn user
 interface AuthState {
   token: string | null;
 }

@@ -3,25 +3,62 @@ import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Image, ImageBackground } from 'expo-image';
-import { Router, useRouter } from 'expo-router';
+import { Router, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useRef } from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import ViewShot from "react-native-view-shot";
 import * as MediaLibrary from 'expo-media-library';
 import { BackgroundView } from '@/components/background-view';
+import { CheckoutDataType } from '@/types/payment';
 
 
+export const DISPLAY_FIELDS: [keyof CheckoutDataType, string, { isMultiline?: boolean }][] = [
+    ['totalAmount', 'Số tiền', { isMultiline: true }],
+    ['merchantName', 'Tên bên nhận', { isMultiline: true }],
+    ['merchantId', 'Tài khoản bên nhận', { isMultiline: true }],
+    ['bankName', 'Ngân hàng', { isMultiline: true }],
+    ['transactionId', 'Mã giao dịch', { isMultiline: true }],
+    ['transactionTime', 'Thời gian thực hiện', { isMultiline: true }],
+];
+
+// Render từng dòng key:value, hỗ trợ multiline cho value
+export const renderKeyValueRows = (data: CheckoutDataType) => {
+    return DISPLAY_FIELDS.map(([key, label, options], idx) => (
+        <ThemedView
+            key={idx}
+            style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                width: '100%',
+                alignItems: 'flex-start',
+                marginBottom: 8,
+            }}
+        >
+            <ThemedText style={styles.bodyText}>{label}</ThemedText>
+
+            <ThemedText
+                style={[styles.bodyText, { fontWeight: 'bold', textAlign: 'right' }]}
+                numberOfLines={options?.isMultiline ? 2 : 1}
+            >
+                {String(data[key] ?? '')} {key === 'totalAmount' ? data.currency : ''}
+            </ThemedText>
+        </ThemedView>
+    ));
+};
 
 export default function SuccessTransactionScreen() {
     // Dữ liệu hiển thị theo ảnh mẫu
-    const responseData = [
-        { key: 'Số tiền', value: '1.234.567 VND' },
-        { key: 'Thông tin chi tiết', value: 'Vietcombank\n********6789', isMultiline: true },
-        { key: 'Lời nhắn', value: 'Nguyen Van A chuyen tien' },
-        { key: 'Ngày thực hiện', value: '20/12/2025 19:20:18' },
-        { key: 'Mã giao dịch', value: '123456789ABC' },
-    ];
+    // const responseData = [
+    //     { key: 'Số tiền', value: '1.234.567 VND' },
+    //     { key: 'Thông tin chi tiết', value: 'Vietcombank\n********6789', isMultiline: true },
+    //     { key: 'Lời nhắn', value: 'Nguyen Van A chuyen tien' },
+    //     { key: 'Ngày thực hiện', value: '20/12/2025 19:20:18' },
+    //     { key: 'Mã giao dịch', value: '123456789ABC' },
+    // ];
     const router: Router = useRouter();
+    let { checkoutData } = useLocalSearchParams<{ checkoutData: string }>();
+    const responseData = checkoutData ? JSON.parse(checkoutData) : null;
+    console.log('Data for success screen: ', responseData);
 
     const viewRef = useRef<ViewShot>(null);
     const captureScreen = async () => {
@@ -38,23 +75,6 @@ export default function SuccessTransactionScreen() {
         }
     };
 
-    // Render từng dòng key:value, hỗ trợ multiline cho value
-    const renderKeyValueRows = (data: Array<{ key: string, value: string, isMultiline?: boolean }>) => {
-        return data.map((item, idx) => (
-            <ThemedView
-                key={idx}
-                style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'flex-start', marginBottom: 8 }}
-            >
-                <ThemedText style={styles.bodyText}>{item.key}</ThemedText>
-                <ThemedText
-                    style={[styles.bodyText, { fontWeight: 'bold', textAlign: 'right' }]}
-                    numberOfLines={item.isMultiline ? 2 : 1}
-                >
-                    {item.value}
-                </ThemedText>
-            </ThemedView>
-        ));
-    };
 
     return (
         <ThemedView style={styles.container}>

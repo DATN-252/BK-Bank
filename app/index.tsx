@@ -53,14 +53,20 @@ export default function LoginScreen() {
   const handleLogin = async (data: LoginType) => {
     try {
       const res = await AuthService.login(data);
-      const profile = await CustService.getProfile();
-      const cards = await CustService.getCards();
+      const profile = await CustService.getProfile().catch(err => {
+        alert('Lỗi lấy thông tin người dùng!');
+        throw err;
+      });
+      const cards = await CustService.getCards().catch(err => {
+        alert('Lỗi lấy thông tin thẻ!');
+        throw err;
+      });
 
-      console.log('Login success', profile);
+      console.log('Login success', res);
 
-      dispatch(saveToken(res.data.result.token));
+      dispatch(saveToken(res.result.token));
       dispatch(setUser(profile.result));
-      dispatch(getCards(cards.result));
+      dispatch(getCards(cards.result.content));
       router.replace('/home');
     } catch (err) {
       // console.error('Login failed', err);

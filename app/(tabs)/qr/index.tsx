@@ -184,7 +184,7 @@ export default function QRScreen() {
               {/* //todo nếu cần load dynamic*/}
               <Image source={require('@/assets/images/256px-VietQR_Logo.svg.png')} style={styles.intermediaryLogo} />
               <Image source={require('@/assets/images/256px-Zalopay_horizontal_logo_2025.svg.png')} style={styles.intermediaryLogo} />
-              <Image source={require('@/assets/images/napas.png')} style={styles.intermediaryLogo} />
+              <Image source={require('@/assets/images/NAPAS.png')} style={styles.intermediaryLogo} />
             </ThemedView>
           </ThemedView>
         </ThemedView>

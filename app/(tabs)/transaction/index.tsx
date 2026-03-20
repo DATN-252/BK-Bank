@@ -42,10 +42,10 @@ export default function TransactionScreen() {
             <ThemedView>
               <ThemedText style={styles.bodyText}>Thẻ thanh toán quốc tế/ tín dụng</ThemedText>
               <ThemedView style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly', }}>
-                <Image source={require('@/assets/images/mastercard_logo.png')} style={styles.miniIcon} />
-                <Image source={require('@/assets/images/icon-visa.png')} style={styles.miniIcon} />
-                <Image source={require('@/assets/images/icon-jcb.png')} style={styles.miniIcon} />
-                <Image source={require('@/assets/images/icon-amexpr.png')} style={styles.miniIcon} />
+                <Image source={require('@/assets/images/MASTERCARD.png')} style={styles.miniIcon} />
+                <Image source={require('@/assets/images/VISA.png')} style={styles.miniIcon} />
+                <Image source={require('@/assets/images/JCB.png')} style={styles.miniIcon} />
+                <Image source={require('@/assets/images/AMEX.png')} style={styles.miniIcon} />
               </ThemedView>
             </ThemedView>
           </TouchableOpacity>

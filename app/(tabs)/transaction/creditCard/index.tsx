@@ -8,7 +8,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
-import { PaymentCreditType } from '@/types/payment';
+import { PaymentPreviewCreditType } from '@/types/payment';
 import PayService from '@/service/payApi';
 
 
@@ -18,14 +18,18 @@ export default function CreditTransactionScreen() {
 
   // dữ liệu từ QR, nếu có, sẽ được parse sẵn và gán vào default value của form
   let { qrData } = useLocalSearchParams<{ qrData: string }>();
-  let parsedQrData: any = null;
-  if (qrData) parsedQrData = JSON.parse(qrData);
+  const parsedQrData = qrData ? JSON.parse(qrData) : null;
 
-  const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<PaymentCreditType>({
+  const randomIdempotencyKey = () => {
+    return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  };
+
+  const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<PaymentPreviewCreditType>({
     defaultValues: {
-      merchantId: parsedQrData?.merchantAccount?.merchantId ?? '',
+      recipientAccount: parsedQrData?.merchantAccount?.merchantId ?? '',
       currency: parsedQrData?.currency ?? 'USD',
       amount: parsedQrData?.amount ? Number(parsedQrData.amount) : undefined,
+      cardType: 'CREDIT',
     }
   });
   const typeCreditCard = [
@@ -83,7 +87,7 @@ export default function CreditTransactionScreen() {
                 <ThemedText style={styles.bodyText}>Bên nhận/ Cửa hàng</ThemedText>
                 <Controller
                   control={creditCardControl}
-                  name="merchantId"
+                  name="recipientAccount"
                   rules={{ required: '*Bên nhận là bắt buộc!' }}
                   render={({ field: { onChange, value } }) => (
                     <TextInput
@@ -101,7 +105,7 @@ export default function CreditTransactionScreen() {
                 <ThemedText style={styles.bodyText}>Loại thẻ</ThemedText>
                 <Controller
                   control={creditCardControl}
-                  name="bank"
+                  name="cardNetwork"
                   rules={{ required: '*Loại thẻ là bắt buộc!' }}
                   render={({ field: { onChange, value } }) => (
                     <Dropdown
@@ -110,7 +114,6 @@ export default function CreditTransactionScreen() {
                       valueField="value"
                       placeholder="-- Chọn --"
                       search
-                      disable={(qrData !== undefined)}
                       searchPlaceholder="Tìm kiếm..."
                       value={value}
                       onChange={onChange}
@@ -169,15 +172,15 @@ export default function CreditTransactionScreen() {
                   />
                 </ThemedView>
                 <ThemedView style={{ flex: 1 }}>
-                  {/* {creditCardErrors.dateCard ?
-                  <ThemedText style={styles.warning}>{creditCardErrors.dateCard.message}</ThemedText>
+                  {/* {creditCardErrors.expirationDate ?
+                  <ThemedText style={styles.warning}>{creditCardErrors.expirationDate.message}</ThemedText>
                   : 
                 } */}
                   <ThemedText style={styles.bodyText}>Ngày hết hạn</ThemedText>
                   <Controller
                     rules={{ required: '*Ngày hết hạn là bắt buộc!' }}
                     control={creditCardControl}
-                    name="dateCard"
+                    name="expirationDate"
                     render={({ field: { onChange, value } }) => {
                       const handleChange = (text: string) => {
                         let cleaned = text.replace(/\D/g, '').slice(0, 4);
@@ -244,15 +247,15 @@ export default function CreditTransactionScreen() {
 
               <ThemedView style={styles.inputTwoRow}>
                 <ThemedView style={{ flex: 1 }}>
-                  {/* {creditCardErrors.addressRegister ?
-                  <ThemedText style={styles.warning}>{creditCardErrors.addressRegister.message}</ThemedText>
+                  {/* {creditCardErrors.billingAddress ?
+                  <ThemedText style={styles.warning}>{creditCardErrors.billingAddress.message}</ThemedText>
                   :
                 } */}
                   <ThemedText style={styles.bodyText}>Địa chỉ đăng ký thẻ</ThemedText>
                   <Controller
                     rules={{ required: '*Địa chỉ đăng ký thẻ là bắt buộc!' }}
                     control={creditCardControl}
-                    name="addressRegister"
+                    name="billingAddress"
                     render={({ field: { onChange, value } }) => (
                       <TextInput
                         placeholder="Nhập địa chỉ"
@@ -264,15 +267,15 @@ export default function CreditTransactionScreen() {
                   />
                 </ThemedView>
                 <ThemedView style={{ flex: 1 }}>
-                  {/* {creditCardErrors.zip ?
-                  <ThemedText style={styles.warning}>{creditCardErrors.zip.message}</ThemedText>
+                  {/* {creditCardErrors.zipCode ?
+                  <ThemedText style={styles.warning}>{creditCardErrors.zipCode.message}</ThemedText>
                   : 
                 } */}
                   <ThemedText style={styles.bodyText}>Mã bưu chính</ThemedText>
                   <Controller
                     rules={{ required: '*Mã bưu điện là bắt buộc!' }}
                     control={creditCardControl}
-                    name="zip"
+                    name="zipCode"
                     render={({ field: { onChange, value } }) => (
                       <TextInput
                         placeholder="Mã zip"
@@ -317,15 +320,32 @@ export default function CreditTransactionScreen() {
               onPress={handleCreditCardSubmit(
                 async (data) => {
                   try {
-                    const res = await PayService.paymentCredit(data);
+                    // bỏ trường cardType trước khi gửi data, vì backend không cần trường này
+                    const { cardNetwork, ...dataToSend } = data;
+                    // console.log('Data for confirm: ', dataToSend);
 
-                    if (res.result.approved) {
-                      router.push('/transaction/confirm');
-                      resetCreditCard();
+                    const res = await PayService.paymentPreviewCredit(dataToSend);
+
+                    if (res.result.status === 'VALID') {
+                      router.push({
+                        pathname: '/transaction/confirm',
+                        params: {
+                          confirmData: JSON.stringify({
+                            ...res.result,
+
+                            // truyền thêm vài trường cần
+                            cardNumber: data.cardNumber,
+                            cvc: data.cvc,
+                            expirationDate: data.expirationDate,
+                            idempotencyKey: randomIdempotencyKey(),
+                          }),
+                        },
+                      });
+                      // resetCreditCard();
                     }
                     else alert('Thông tin không hợp lệ. Vui lòng kiểm tra lại thông tin thẻ hoặc thử thẻ khác.');
                   } catch (error) {
-                    // console.error('Lỗi khi thanh toán: ', error);
+                    console.error('Lỗi khi thanh toán: ', error);
                     alert('Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại sau.');
                   }
                 },

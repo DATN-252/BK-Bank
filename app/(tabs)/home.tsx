@@ -1,4 +1,4 @@
-import { Animated, FlatList, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Animated, FlatList, StyleSheet, TouchableOpacity, Dimensions, ImageSourcePropType } from 'react-native';
 import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Image } from 'expo-image';
@@ -14,8 +14,14 @@ import { useSelector } from 'react-redux';
 import { ReduxTypes } from '@/store/reduxStore';
 import Indicator from '@/components/Indicator';
 
+const images: { [key: string]: ImageSourcePropType } = {
+  visa: require('@/assets/images/VISA.png'),
+  mastercard: require('@/assets/images/MASTERCARD.png'),
+  napas: require('@/assets/images/NAPAS.png'),
+};
+
 export default function HomeScreen() {
-  const [showPassword, setShowPassword] = React.useState<boolean>(false);
+  const [showInfoCard, setShowInfoCard] = React.useState<boolean>(false);
 
   const userInfo = useSelector((state: ReduxTypes['RootState']) => state.userInfo);
   const cardInfo = useSelector((state: ReduxTypes['RootState']) => state.cardInfo);
@@ -50,15 +56,15 @@ export default function HomeScreen() {
                   <ThemedView style={styles.infoCard}>
                     <ThemedView style={styles.cardHeader}>
                       <ThemedText style={{ opacity: 0.6 }}>
-                        {item.cardType === 'CREDIT' ? 'Số dư hiện tại' : 'Hạn mức còn lại'}
+                        {item.cardType === 'CREDIT' ? 'Hạn mức còn lại' : 'Số dư hiện tại'}
                       </ThemedText>
 
-                      {showPassword ? (
-                        <TouchableOpacity onPress={() => setShowPassword(false)}>
+                      {showInfoCard ? (
+                        <TouchableOpacity onPress={() => setShowInfoCard(false)}>
                           <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
                         </TouchableOpacity>
                       ) : (
-                        <TouchableOpacity onPress={() => setShowPassword(true)}>
+                        <TouchableOpacity onPress={() => setShowInfoCard(true)}>
                           <FontAwesome name="eye" size={24} color={Colors.light.icon} />
                         </TouchableOpacity>
                       )}
@@ -70,24 +76,26 @@ export default function HomeScreen() {
                       adjustsFontSizeToFit
                       numberOfLines={1}
                     >
-                      {showPassword
-                        ? (item.creditLimit - item.outstandingBalance).toLocaleString() + " USD"
+                      {showInfoCard
+                        ? item.cardType === 'CREDIT'
+                          ? (item.creditLimit - item.outstandingBalance).toLocaleString() + " USD"
+                          : item.outstandingBalance.toLocaleString() + " USD"
                         : "***********"}
                     </ThemedText>
 
                     <ThemedText style={styles.textCard}>
-                      {showPassword ? item.maskedPan : "**** **** **** ****"}
+                      {showInfoCard ? item.maskedPan : "**** **** **** ****"}
                     </ThemedText>
 
                     <ThemedView style={styles.cardFooter}>
                       <ThemedText style={styles.textCard}>
-                        {showPassword
+                        {showInfoCard
                           ? item.expirationDate.slice(5).replace("-", "/")
                           : "**/**"}
                       </ThemedText>
 
                       <Image
-                        source={require('@/assets/images/mastercard_logo.png')}
+                        source={images[item.network.toLowerCase()]}
                         style={{ width: '15%', aspectRatio: 1, resizeMode: 'contain' }}
                       />
                     </ThemedView>
