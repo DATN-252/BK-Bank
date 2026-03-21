@@ -18,6 +18,10 @@ const CustService = {
     const res = await axiosClient.get('/customer/me/cards');
     return res.data;
   },
+
+  saveToken: async (token: string) => {
+    await axiosClient.post('/customer/me/push-token', { token });
+  }
 };
 
 export default CustService;

@@ -1,6 +1,7 @@
 import axiosClient from './axiosClient';
 import { setToken, getToken, removeToken } from '../store/localStorage';
 import { LoginType } from '../types/login';
+import { registerForPush } from './notifyRealtime';
 
 
 export const AUTH_KEY = 'auth';
@@ -12,9 +13,14 @@ const AuthService = {
       nameAcc: data.nameAcc,
       password: data.password,
     });
-
     const token = res.data.result.token;
     await setToken(token);
+
+    
+    // const tokenNoti = await registerForPush();
+    // await axiosClient.post('/device-token', {
+    //   token: tokenNoti,
+    // });
 
     return res.data;
   },
