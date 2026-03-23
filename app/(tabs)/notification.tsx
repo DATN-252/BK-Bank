@@ -8,7 +8,6 @@ import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import CustService from '@/service/custApi';
 import { NotificationType } from '@/types/noti';
-import { set } from 'react-hook-form';
 
 
 // const DATA_BALANCE = [
@@ -157,11 +156,19 @@ export default function NotificationScreen() {
         />
       </ThemedView>
       <ThemedView style={{ flex: 1 }}>
-        <ThemedText style={styles.merchantId}>Từ: {item.accountNumber}</ThemedText>
-        <ThemedText style={styles.merchantId}>Đến: {item.merchantId}</ThemedText>
-        <ThemedText style={styles.merchantId}>Nội dung: "{item.description}"</ThemedText>
-        <ThemedText style={styles.merchantId}>Số dư cuối: {item.balanceAfter}</ThemedText>
-        <ThemedText style={styles.date}>{item.transactionDate.split("T")[0]} | Trạng thái: {item.status}</ThemedText>
+        <ThemedText style={styles.textKey}>Từ:
+         <ThemedText style={styles.textValue}> {item.accountNumber}</ThemedText>
+         </ThemedText>
+        <ThemedText style={styles.textKey}>Đến: 
+          <ThemedText style={styles.textValue}> {item.merchantId}</ThemedText>
+        </ThemedText>
+        <ThemedText style={styles.textKey}>Nội dung: 
+          <ThemedText style={styles.textValue}> "{item.description}"</ThemedText>
+        </ThemedText>
+        <ThemedText style={styles.textKey}>Số dư cuối: 
+          <ThemedText style={styles.textValue}> {item.balanceAfter}</ThemedText>
+        </ThemedText>
+        <ThemedText style={styles.textKey}>{item.transactionDate.split("T")[0]} | Trạng thái: {item.status}</ThemedText>
       </ThemedView>
       <ThemedText style={[styles.amount, { color: item.transactionType !== 'CHARGE' ? '#00D26A' : 'red' }]}>{item.transactionType !== 'CHARGE' ? "+" + item.amount : "-" + item.amount}</ThemedText>
     </ThemedView>
@@ -173,8 +180,8 @@ export default function NotificationScreen() {
         <Ionicons name={item.icon} size={24} color={Colors.light.tint} />
       </ThemedView>
       <ThemedView style={{ flex: 1 }}>
-        <ThemedText style={styles.merchantId}>{item.title}</ThemedText>
-        <ThemedText style={styles.date}>{item.date}</ThemedText>
+        <ThemedText style={styles.textValue}>{item.title}</ThemedText>
+        <ThemedText style={styles.textKey}>{item.date}</ThemedText>
       </ThemedView>
       <TouchableOpacity>
         <ThemedText style={styles.link}>{item.link}</ThemedText>
@@ -271,12 +278,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-  merchantId: {
-    fontWeight: 'bold',
-    fontSize: 15,
+  textKey: {
+    fontSize: 12,
     color: '#000000',
   },
-  date: {
+  textValue: {
+    fontWeight: 'bold',
     fontSize: 12,
     color: '#000000',
   },

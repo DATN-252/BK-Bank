@@ -58,12 +58,15 @@ export default function SuccessTransactionScreen() {
     const router: Router = useRouter();
     let { checkoutData } = useLocalSearchParams<{ checkoutData: string }>();
     const responseData = checkoutData ? JSON.parse(checkoutData) : null;
-    console.log('Data for success screen: ', responseData);
+    // console.log('Data for success screen: ', responseData);
 
     const viewRef = useRef<ViewShot>(null);
     const captureScreen = async () => {
         try {
-            const { status } = await MediaLibrary.requestPermissionsAsync();
+            const { status } = await MediaLibrary.requestPermissionsAsync(
+                true,
+                ['photo']
+            );
             if (status !== "granted") return;
 
             if (viewRef.current && viewRef.current.capture) {

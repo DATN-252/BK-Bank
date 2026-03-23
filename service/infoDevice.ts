@@ -20,18 +20,20 @@ export const getDeviceInfo = async () => {
 };
 
 export const requestLocation = async () => {
+    // todo ko ép người dùng phải cung cấp vị trí thì mới thanh toán được, nhưng nếu có thì sẽ tăng trust hơn
     try {
         // 1. check service bật chưa
         const enabled = await Location.hasServicesEnabledAsync();
         if (!enabled) {
             console.log('GPS đang tắt');
-            alert('GPS đang tắt. Vui lòng bật GPS để tiếp tục thanh toán');
+            // alert('GPS đang tắt. Vui lòng bật GPS để tiếp tục thanh toán');
             return null;
         }
 
         // 2. xin quyền
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== 'granted') {
+            return null;
             Alert.alert(
                 'Cần quyền vị trí',
                 'Bạn cần cấp quyền vị trí để tiếp tục thanh toán',
