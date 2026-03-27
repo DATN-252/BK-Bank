@@ -3,8 +3,12 @@ import { Platform } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import { useRouter } from 'expo-router';
+import { Router, useRouter } from 'expo-router';
 import CustService from '@/service/custApi';
+import { useDispatch } from 'react-redux';
+import { ReduxTypes } from '@/store/reduxStore';
+import { addToNoti } from '@/redux/reducerNoti';
+import { NotificationType } from '@/types/noti';
 
 // Handler (giữ ngoài component)
 Notifications.setNotificationHandler({
@@ -18,7 +22,8 @@ Notifications.setNotificationHandler({
 });
 
 const PushNotificationManager = ({ children }: { children: React.ReactNode }) => {
-    const router = useRouter();
+    const router: Router = useRouter();
+    const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
 
     // lấy token
     const registerForPush = async (): Promise<string | null> => {
@@ -92,6 +97,11 @@ const PushNotificationManager = ({ children }: { children: React.ReactNode }) =>
             // nhận khi app mở
             receivedSub = Notifications.addNotificationReceivedListener((noti) => {
                 console.log('Received:', noti.request.content.data);
+                const data = noti.request.content.data as unknown as NotificationType;
+                dispatch(addToNoti({
+                    ...data,
+                    readed: false
+                }));
             });
 
             // khi click notification
