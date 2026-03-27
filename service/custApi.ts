@@ -21,6 +21,7 @@ const CustService = {
 
   saveToken: async (token: string) => {
     await axiosClient.post('/customer/me/push-token', { token });
+    return token;
   }
 };
 
