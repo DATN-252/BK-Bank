@@ -13,6 +13,10 @@ const reducerNoti = createSlice({
       state.unshift(action.payload); // thêm noti mới lên đầu
     },
 
+    addAllNoti: (state, action: PayloadAction<NotiBalance[]>) => {
+      return action.payload.map(item => ({ ...item, readed: false }));
+    },
+
     removeAllNoti: () => {
       return [];
     },
@@ -32,5 +36,5 @@ const reducerNoti = createSlice({
   },
 });
 
-export const { addToNoti, removeAllNoti, checkNoti, checkAllNoti } = reducerNoti.actions;
+export const { addToNoti, addAllNoti, removeAllNoti, checkNoti, checkAllNoti } = reducerNoti.actions;
 export default reducerNoti.reducer;

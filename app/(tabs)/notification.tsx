@@ -7,8 +7,9 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import CustService from '@/service/custApi';
-import { NotificationType } from '@/types/noti';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { ReduxTypes } from '@/store/reduxStore';
+import { addAllNoti, NotiBalance, removeAllNoti } from '@/redux/reducerNoti';
 
 // const DATA_BALANCE = [
 //   {
@@ -126,18 +127,20 @@ export default function NotificationScreen() {
   const [tab, setTab] = React.useState<'balance' | 'general'>('balance');
 
   const [refreshing, setRefreshing] = React.useState(false);
+  const DATA_BALANCE: NotiBalance[] = useSelector((state: ReduxTypes['RootState']) => state.notification);
+  // cho viec xoa hoac readed
+  const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
 
-  const [DATA_BALANCE, setDataBalance] = React.useState<NotificationType[]>([]);
-  // const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
   React.useEffect(() => {
     (async () => {
       try {
-        const profile = await CustService.getNotiBalance();
-        setDataBalance(profile.result.content);
-        // console.log('noti', profile.result.content);
-
-        // todo cho socket vào đây để nhận thông báo realtime
-        // dispatchNoti(setNoti(profile.result));
+        // mỗi lần fresh thì xóa hết noti cũ đi rồi lấy lại từ api
+        dispatch(removeAllNoti());
+        
+        const data = await CustService.getNotiBalance();
+        data.result.content.forEach((item: NotiBalance) => {
+          dispatch(addAllNoti([item]));
+        });
       } catch (err) {
         alert('Lấy thông báo thất bại!');
       }
@@ -146,7 +149,7 @@ export default function NotificationScreen() {
     setRefreshing(false);
   }, [refreshing]);
 
-  const renderBalanceItem = ({ item }: { item: any }) => (
+  const renderBalanceItem = ({ item }: { item: NotiBalance }) => (
     <ThemedView style={styles.row}>
       <ThemedView style={styles.iconBox}>
         <Ionicons
@@ -157,20 +160,20 @@ export default function NotificationScreen() {
       </ThemedView>
       <ThemedView style={{ flex: 1 }}>
         <ThemedText style={styles.textKey}>Từ:
-         <ThemedText style={styles.textValue}> {item.accountNumber}</ThemedText>
-         </ThemedText>
-        <ThemedText style={styles.textKey}>Đến: 
+          <ThemedText style={styles.textValue}> {item.accountNumber}</ThemedText>
+        </ThemedText>
+        <ThemedText style={styles.textKey}>Đến:
           <ThemedText style={styles.textValue}> {item.merchantId}</ThemedText>
         </ThemedText>
-        <ThemedText style={styles.textKey}>Nội dung: 
+        <ThemedText style={styles.textKey}>Nội dung:
           <ThemedText style={styles.textValue}> "{item.description}"</ThemedText>
         </ThemedText>
-        <ThemedText style={styles.textKey}>Số dư cuối: 
-          <ThemedText style={styles.textValue}> {item.balanceAfter}</ThemedText>
+        <ThemedText style={styles.textKey}>Số dư cuối:
+          <ThemedText style={styles.textValue}> {item.balanceAfter} {item.currency}</ThemedText>
         </ThemedText>
-        <ThemedText style={styles.textKey}>{item.transactionDate.split("T")[0]} | Trạng thái: {item.status}</ThemedText>
+        <ThemedText style={styles.textKey}>{item.transactionDate?.split("T")[0] || "N/A"} | Trạng thái: {item.status}</ThemedText>
       </ThemedView>
-      <ThemedText style={[styles.amount, { color: item.transactionType !== 'CHARGE' ? '#00D26A' : 'red' }]}>{item.transactionType !== 'CHARGE' ? "+" + item.amount : "-" + item.amount}</ThemedText>
+      <ThemedText style={[styles.amount, { color: item.transactionType !== 'CHARGE' ? '#00D26A' : 'red' }]}>{item.transactionType !== 'CHARGE' ? "+" + item.amount : "-" + item.amount} {item.currency}</ThemedText>
     </ThemedView>
   );
 
@@ -215,15 +218,25 @@ export default function NotificationScreen() {
             </TouchableOpacity>
           </ThemedView>
 
-          <FlatList
-            data={tab === 'balance' ? DATA_BALANCE : DATA_GENERAL}
-            keyExtractor={item => item.id}
-            renderItem={tab === 'balance' ? renderBalanceItem : renderGeneralItem}
-            contentContainerStyle={{ paddingBottom: 16 }}
-            showsVerticalScrollIndicator={false}
-            refreshing={refreshing}
-            onRefresh={() => setRefreshing(true)}
-          />
+          {tab === 'balance' ? (
+            <FlatList
+              data={DATA_BALANCE}
+              keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+              renderItem={renderBalanceItem}
+              contentContainerStyle={{ paddingBottom: 16 }}
+              showsVerticalScrollIndicator={false}
+              refreshing={refreshing}
+              onRefresh={() => setRefreshing(true)}
+            />
+          ) : (
+            <FlatList
+              data={DATA_GENERAL}
+              keyExtractor={item => item.id}
+              renderItem={renderGeneralItem}
+              contentContainerStyle={{ paddingBottom: 16 }}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
         </ThemedView>
       </BackgroundView>
     </TouchableWithoutFeedback>

@@ -19,8 +19,8 @@ const CustService = {
     return res.data;
   },
 
-  saveToken: async (token: string) => {
-    await axiosClient.post('/customer/me/push-token', { token });
+  saveTokenMessage: async (token: string) => {
+    await axiosClient.post('/customer/push-token', { token });
     return token;
   }
 };

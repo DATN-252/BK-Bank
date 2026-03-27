@@ -4,8 +4,10 @@ export interface NotificationType {
     accountType: string;
     transactionType: string;
     amount: number;
-    status: 'PENDING' | 'SUCCESS' | 'FAILED';
-
+    currency: string;
+    paymentId: string;
+    idempotencyKey: string;
+    
     originalTransactionId: string;
     channel: "ONLINE";
     transactionDate: string;
@@ -23,4 +25,5 @@ export interface NotificationType {
     externalReference: string;
     responseCode: string;
     responseMessage: string;
+    status: 'PENDING' | 'SUCCESS' | 'FAILED';
 };

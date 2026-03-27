@@ -22,6 +22,7 @@ import { ReduxTypes } from '@/store/reduxStore';
 import { setUser } from '@/redux/reducerUser';
 import { getCards } from '@/redux/reducerCard';
 import { saveToken } from '@/redux/reducerAuth';
+import { registerForPush } from '@/components/PushNotificationManager';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -52,7 +53,10 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const handleLogin = async (data: LoginType) => {
     try {
-      const res = await AuthService.login(data);
+      const res = await AuthService.login(data).catch(err => {
+        alert('Lỗi đăng nhập!');
+        throw err;
+      });
       const profile = await CustService.getProfile().catch(err => {
         alert('Lỗi lấy thông tin người dùng!');
         throw err;
@@ -61,6 +65,15 @@ export default function LoginScreen() {
         alert('Lỗi lấy thông tin thẻ!');
         throw err;
       });
+
+      // Đăng ký nhận token-message và gửi lên server 
+      const tokenMess = await registerForPush();
+      if (tokenMess) {
+        await CustService.saveTokenMessage(tokenMess).catch(err => {
+          alert('Lỗi đăng ký nhận thông báo!');
+          throw err;
+        });
+      }
 
       console.log('Login success', res);
 
