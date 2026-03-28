@@ -2,7 +2,7 @@ import { BackgroundView } from '@/components/background-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
-import { Image } from 'expo-image';
+// import { Image } from 'expo-image';
 import { Router, useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';

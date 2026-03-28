@@ -15,6 +15,26 @@ import { useIsFocused } from '@react-navigation/native';
 
 
 
+type TLVObject = {
+  [tag: string]: string;
+};
+const parseTLV = (str: string): TLVObject => {
+  const result: TLVObject = {};
+  let i = 0;
+
+  while (i < str.length) {
+    const tag = str.slice(i, i + 2);
+    const length = parseInt(str.slice(i + 2, i + 4));
+    const value = str.slice(i + 4, i + 4 + length);
+
+    result[tag] = value;
+
+    i += 4 + length;
+  }
+
+  return result;
+};
+
 export default function QRScreen() {
   const router: Router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
@@ -79,26 +99,6 @@ export default function QRScreen() {
     Linking.openSettings();
   };
 
-  type TLVObject = {
-    [tag: string]: string;
-  };
-  const parseTLV = (str: string): TLVObject => {
-    const result: TLVObject = {};
-    let i = 0;
-
-    while (i < str.length) {
-      const tag = str.slice(i, i + 2);
-      const length = parseInt(str.slice(i + 2, i + 4));
-      const value = str.slice(i + 4, i + 4 + length);
-
-      result[tag] = value;
-
-      i += 4 + length;
-    }
-
-    return result;
-  };
-
   React.useEffect(() => {
     // khi dataQR = ''
     if (!dataQR) return;
@@ -146,7 +146,7 @@ export default function QRScreen() {
         qrData: JSON.stringify(parsed),
       },
     });
-  }, [dataQR]);
+  }, [dataQR, router]);
 
   const handleMyQR = (value: boolean) => {
     if (value) {

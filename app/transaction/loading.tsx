@@ -14,7 +14,7 @@ export default function LoadingScreen() {
     const responseData = dataToSend ? JSON.parse(dataToSend) : null;
 
     React.useEffect(() => {
-        const callApi = async () => {
+        (async () => {
             try {
                 const res = await PayService.paymentCredit(responseData);
                 console.log('Review Response:', res);
@@ -30,14 +30,13 @@ export default function LoadingScreen() {
                         params: { checkoutData: JSON.stringify(res.result) },
                     });
                 }
-            } catch (err) {
+            } catch (err: any) {
+                console.error('Lỗi khi thực hiện giao dịch: ', err);
                 router.back();
                 alert('Có lỗi xảy ra khi thực hiện giao dịch. Vui lòng thử lại sau.');
             }
-        };
-
-        callApi();
-    }, []);
+        })();
+    }, [responseData, router]);
 
 
     return (

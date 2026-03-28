@@ -7,9 +7,12 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import CustService from '@/service/custApi';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { ReduxTypes } from '@/store/reduxStore';
 import { addAllNoti, NotiBalance, removeAllNoti } from '@/redux/reducerNoti';
+
+
 
 // const DATA_BALANCE = [
 //   {
@@ -131,23 +134,28 @@ export default function NotificationScreen() {
   // cho viec xoa hoac readed
   const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
 
-  React.useEffect(() => {
-    (async () => {
-      try {
-        // mỗi lần fresh thì xóa hết noti cũ đi rồi lấy lại từ api
-        dispatch(removeAllNoti());
-        
-        const data = await CustService.getNotiBalance();
-        data.result.content.forEach((item: NotiBalance) => {
-          dispatch(addAllNoti([item]));
-        });
-      } catch (err) {
-        alert('Lấy thông báo thất bại!');
-      }
-    })();
+  const refreshNotifications = React.useCallback(async () => {
+    setRefreshing(true);
 
-    setRefreshing(false);
-  }, [refreshing]);
+    try {
+      // xóa hết thông báo cũ đi rồi thêm thông báo mới vào
+      dispatch(removeAllNoti());
+
+      const data = await CustService.getNotiBalance();
+
+      dispatch(addAllNoti(data.result.content));
+    } catch (err) {
+      console.log(err);
+      alert('Lấy thông báo thất bại!');
+    } finally {
+      setRefreshing(false);
+    }
+  }, [dispatch]);
+
+  React.useEffect(() => {
+    refreshNotifications();
+  }, [refreshNotifications]);
+
 
   const renderBalanceItem = ({ item }: { item: NotiBalance }) => (
     <ThemedView style={styles.row}>
@@ -166,9 +174,9 @@ export default function NotificationScreen() {
           <ThemedText style={styles.textValue}> {item.merchantId}</ThemedText>
         </ThemedText>
         <ThemedText style={styles.textKey}>Nội dung:
-          <ThemedText style={styles.textValue}> "{item.description}"</ThemedText>
+          <ThemedText style={styles.textValue}> {`"${item.description}"`}</ThemedText>
         </ThemedText>
-        <ThemedText style={styles.textKey}>Số dư cuối:
+        <ThemedText style={styles.textKey}>{item.accountType === 'LOAN' ? 'Số tiền vay cuối:' : 'Số dư cuối:'} 
           <ThemedText style={styles.textValue}> {item.balanceAfter} {item.currency}</ThemedText>
         </ThemedText>
         <ThemedText style={styles.textKey}>{item.transactionDate?.split("T")[0] || "N/A"} | Trạng thái: {item.status}</ThemedText>
@@ -225,8 +233,8 @@ export default function NotificationScreen() {
               renderItem={renderBalanceItem}
               contentContainerStyle={{ paddingBottom: 16 }}
               showsVerticalScrollIndicator={false}
-              refreshing={refreshing}
-              onRefresh={() => setRefreshing(true)}
+              refreshing={refreshing} // hiện ui loading
+              onRefresh={refreshNotifications}
             />
           ) : (
             <FlatList

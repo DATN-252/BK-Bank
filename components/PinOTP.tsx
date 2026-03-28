@@ -1,12 +1,12 @@
 
 import React from 'react';
 import { Alert, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
-import { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
+// import { SubmitErrorHandler, SubmitHandler } from 'react-hook-form';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
-import { ResetPasswordType } from '@/types/resetPassword';
+// import { ResetPasswordType } from '@/types/resetPassword';
 
 interface PinOTPProps {
     // handleRegisterSubmit: (onValid: SubmitHandler<ResetPasswordType>, onInvalid?: SubmitErrorHandler<ResetPasswordType> | undefined) => (e?: React.BaseSyntheticEvent) => Promise<void>

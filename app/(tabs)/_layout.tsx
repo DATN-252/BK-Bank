@@ -1,23 +1,23 @@
-import { Tabs, Redirect } from 'expo-router';
+import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+// import { useColorScheme } from '@/hooks/use-color-scheme';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { ThemedView } from '@/components/themed-view';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
-import { useSelector } from "react-redux";
-import { ReduxTypes } from '@/store/reduxStore';
+// import { useSelector } from "react-redux";
+// import { ReduxTypes } from '@/store/reduxStore';
 
 export default function TabLayout() {
   // const colorScheme = useColorScheme();
-  const token = useSelector((state: ReduxTypes['RootState']) => state.auth.token);
+  // const token = useSelector((state: ReduxTypes['RootState']) => state.auth.token);
 
-  if (!token) {
-    return <Redirect href="/" />;
-  }
+  // if (!token) {
+  //   return <Redirect href="/" />;
+  // }
 
   return (
     <Tabs
@@ -90,13 +90,12 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <FontAwesome name="user" size={24} color={color} />,
         }}
       />
-
-      <Tabs.Screen
-        name="transaction"
-        options={{
-          href: null,   //Ẩn khỏi tab
-        }}
-      />
     </Tabs>
   );
 }
+// <Tabs.Screen
+//   name="transaction"
+//   options={{
+//     href: null,   //Ẩn khỏi tab
+//   }}
+// />

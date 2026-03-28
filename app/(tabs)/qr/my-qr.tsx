@@ -25,7 +25,7 @@ export default function TransactionScreen() {
     //   amount: 50000,                // optional
     //   description: 'Thanh toan don hang #12345', // optional
     // });
-    const qrStringDefault: string = '00020101021138540010A00000072701240006970418011063616631660208QRIBFTTA53037045802VN630485BC';
+    // const qrStringBaking: string = '00020101021138540010A00000072701240006970418011063616631660208QRIBFTTA53037045802VN630485BC';
 
     const encodeTLV = (tag: string, value: string) => {
         const length = value.length.toString().padStart(2, "0");

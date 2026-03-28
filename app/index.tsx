@@ -53,37 +53,31 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const handleLogin = async (data: LoginType) => {
     try {
-      const res = await AuthService.login(data).catch(err => {
-        alert('Lỗi đăng nhập!');
-        throw err;
-      });
-      const profile = await CustService.getProfile().catch(err => {
-        alert('Lỗi lấy thông tin người dùng!');
-        throw err;
-      });
-      const cards = await CustService.getCards().catch(err => {
-        alert('Lỗi lấy thông tin thẻ!');
-        throw err;
-      });
+      const res = await AuthService.login(data);
+      const profile = await CustService.getProfile();
+      const cards = await CustService.getCards();
 
-      // Đăng ký nhận token-message và gửi lên server 
       const tokenMess = await registerForPush();
       if (tokenMess) {
-        await CustService.saveTokenMessage(tokenMess).catch(err => {
-          alert('Lỗi đăng ký nhận thông báo!');
-          throw err;
-        });
+        await CustService.saveTokenMessage(tokenMess);
       }
-
-      console.log('Login success', res);
 
       dispatch(saveToken(res.result.token));
       dispatch(setUser(profile.result));
       dispatch(getCards(cards.result.content));
+
       router.replace('/home');
-    } catch (err) {
-      // console.error('Login failed', err);
-      alert('Sai tài khoản hoặc mật khẩu');
+    } catch (err: any) {
+      console.error('Login flow error:', err);
+
+      // phân loại lỗi
+      if (err?.response?.status === 401) {
+        alert('Sai tài khoản hoặc mật khẩu');
+      } else if (!err?.response) {
+        alert('Không kết nối được server');
+      } else {
+        alert('Lỗi khi đăng nhập');
+      }
     }
   };
   const buttonForgotPw = () => {
@@ -171,6 +165,7 @@ export default function LoginScreen() {
                     render={({ field: { onChange, value } }) => (
                       <TextInput
                         placeholder="Số điện thoại hoặc CCCD"
+                        keyboardType='numeric'
                         onChangeText={onChange}
                         value={value}
                         style={styles.input}

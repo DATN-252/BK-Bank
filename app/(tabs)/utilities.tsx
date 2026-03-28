@@ -1,7 +1,7 @@
 import { BackgroundView } from '@/components/background-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Colors } from '@/constants/Colors';
+// import { Colors } from '@/constants/Colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { FlatList, StyleSheet, TouchableOpacity } from 'react-native';

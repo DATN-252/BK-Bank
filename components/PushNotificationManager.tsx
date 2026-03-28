@@ -87,6 +87,9 @@ const PushNotificationManager = ({ children }: { children: React.ReactNode }) =>
         let responseSub: Notifications.Subscription;
 
         (async () => {
+            //   const tokenMess = await registerForPush();
+            //   console.log('Token message:', tokenMess);
+
             // nhận khi app mở
             receivedSub = Notifications.addNotificationReceivedListener((noti) => {
                 const data = (noti.request.content.data as { result: NotificationType }).result;
@@ -103,15 +106,14 @@ const PushNotificationManager = ({ children }: { children: React.ReactNode }) =>
                     const data = (res.notification.request.content.data as { result: NotificationType }).result;
 
                     // điều hướng vào detail của notification, tạm thời vô trang thông báo thôi
-                    router.push('/notification');
-                    // console.log('Response:', data);
-                    // if (data) {
-                    //     router.push({
-                    //         pathname: '/notification/detail',
-                    //         params: { id: data.id },
-                    //     });
-                    // } else {
-                    // }
+                    if (data) {
+                        router.push('/notification');
+                        // console.log('Response:', data);
+                        //     router.push({
+                        //         pathname: '/notification/detail',
+                        //         params: { id: data.id },
+                        //     });
+                    }
                 }
             );
         })();
@@ -120,7 +122,7 @@ const PushNotificationManager = ({ children }: { children: React.ReactNode }) =>
             receivedSub?.remove();
             responseSub?.remove();
         };
-    }, []);
+    }, [dispatch, router]);
 
     return <>{children}</>;
 };

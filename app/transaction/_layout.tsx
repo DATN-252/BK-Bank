@@ -3,35 +3,45 @@ import { Colors } from '@/constants/Colors';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Stack } from 'expo-router';
 import { ThemedText } from '@/components/themed-text';
-import { Router, useRouter } from 'expo-router';
+import { Router, useRouter, Stack } from 'expo-router';
 import { BackgroundView } from '@/components/background-view';
 
 
-export const headerTransaction = (router: Router, title: string) => () => {
-  return (
-    <ThemedView style={styles.header}>
-      <TouchableOpacity onPress={() => router.back()}>
-        <AntDesign name="left" size={24} color={Colors.light.icon} />
-      </TouchableOpacity>
+export const headerTransaction = (title: string) => {
+  const Header = () => {
+    const router: Router = useRouter();
 
-      <ThemedText type="subtitle">{title}</ThemedText>
+    return (
+      <ThemedView style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()}>
+          <AntDesign name="left" size={24} color={Colors.light.icon} />
+        </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.replace('/home')}>
-        <FontAwesome name="home" size={24} color={Colors.light.icon} />
-      </TouchableOpacity>
-    </ThemedView>
-  );
+        <ThemedText type="subtitle">{title}</ThemedText>
+
+        <TouchableOpacity onPress={() => router.replace('/(tabs)/home')}>
+          <FontAwesome name="home" size={24} color={Colors.light.icon} />
+        </TouchableOpacity>
+      </ThemedView>
+    );
+  };
+
+  Header.displayName = 'HeaderTransaction';
+
+  return Header;
 };
 
 export default function TransactionLayout() {
-  const router: Router = useRouter();
 
 
   return (
     <BackgroundView>
-      <Stack screenOptions={{ header: headerTransaction(router, "Chuyển tiền"), contentStyle: styles.statusBar }}>
+      <Stack
+        screenOptions={{
+          header: headerTransaction("Chuyển tiền"),
+          contentStyle: styles.statusBar
+        }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="creditCard" />
         <Stack.Screen name="confirm" />

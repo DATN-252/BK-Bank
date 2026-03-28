@@ -1,7 +1,6 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
-import PayService from '@/service/payApi';
 import { ImageBackground } from 'expo-image';
 import { Router, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
@@ -67,7 +66,7 @@ export default function ConfirmTransactionScreen() {
             <ThemedView
                 key={idx}
                 style={{
-                    flex: (Object.keys(DISPLAY_FIELDS).length - idx == 3) ? 1 : 0,
+                    flex: (Object.keys(DISPLAY_FIELDS).length - idx === 3) ? 1 : 0,
                     flexDirection: 'row',
                     justifyContent: 'space-between',
                     width: '100%'
@@ -75,9 +74,9 @@ export default function ConfirmTransactionScreen() {
             >
                 <ThemedText style={styles.bodyText}>{label}</ThemedText>
                 <ThemedText style={[styles.bodyText, { fontWeight: 'bold' }]}>
-                    {String(data[key])}  {idx == 0
-                        || idx == Object.keys(DISPLAY_FIELDS).length - 1
-                        || idx == Object.keys(DISPLAY_FIELDS).length - 2 ? data.currency : ''}
+                    {String(data[key])}  {idx === 0
+                        || idx === Object.keys(DISPLAY_FIELDS).length - 1
+                        || idx === Object.keys(DISPLAY_FIELDS).length - 2 ? data.currency : ''}
                 </ThemedText>
             </ThemedView>
         ));
