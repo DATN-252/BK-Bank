@@ -12,6 +12,28 @@ import React from 'react';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 
+const encodeTLV = (tag: string, value: string) => {
+    const length = value.length.toString().padStart(2, "0");
+    return tag + length + value;
+};
+
+const crc16 = (str: string) => {
+    let crc = 0xFFFF;
+
+    for (let c = 0; c < str.length; c++) {
+        crc ^= str.charCodeAt(c) << 8;
+        for (let i = 0; i < 8; i++) {
+            if ((crc & 0x8000) !== 0) {
+                crc = (crc << 1) ^ 0x1021;
+            } else {
+                crc <<= 1;
+            }
+            crc &= 0xffff;
+        }
+    };
+
+    return crc.toString(16).toUpperCase().padStart(4, "0");
+};
 
 export default function TransactionScreen() {
     const router: Router = useRouter();
@@ -27,32 +49,11 @@ export default function TransactionScreen() {
     // });
     // const qrStringBaking: string = '00020101021138540010A00000072701240006970418011063616631660208QRIBFTTA53037045802VN630485BC';
 
-    const encodeTLV = (tag: string, value: string) => {
-        const length = value.length.toString().padStart(2, "0");
-        return tag + length + value;
-    };
-    const crc16 = (str: string) => {
-        let crc = 0xFFFF;
-
-        for (let c = 0; c < str.length; c++) {
-            crc ^= str.charCodeAt(c) << 8;
-            for (let i = 0; i < 8; i++) {
-                if ((crc & 0x8000) !== 0) {
-                    crc = (crc << 1) ^ 0x1021;
-                } else {
-                    crc <<= 1;
-                }
-                crc &= 0xffff;
-            }
-        }
-
-        return crc.toString(16).toUpperCase().padStart(4, "0");
-    }
 
     // EMVCo spec: https://www.emvco.com/knowledge-hub/emv-qr-code-for-payments/
     const merchantAccount =
         encodeTLV("00", "A0000000031010") + // globally unique identifier
-        encodeTLV("01", "VNM_123");         // merchant id
+        encodeTLV("01", "SP0001");         // merchant id
     const indexMerchant =
         encodeTLV("50", "1") +        // latitude
         encodeTLV("51", "1");         // longitude

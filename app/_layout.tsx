@@ -13,16 +13,16 @@ const AppLayout = () => {
   const segments = useSegments();
   const token = useSelector((state: ReduxTypes['RootState']) => state.auth.token);
 
-  const inAuthScreen = segments[0] === "(tabs)" || segments[0] === "transaction";
+  const inAuthScreen = segments[0] === "login";
 
-  if (!token && inAuthScreen) {
-    return <Redirect href="/" />;
+  if (!token && !inAuthScreen) {
+    return <Redirect href="/login" />;
   }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
+        <Stack.Screen name="login" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="transaction" />
       </Stack>

@@ -176,7 +176,7 @@ export default function NotificationScreen() {
         <ThemedText style={styles.textKey}>Nội dung:
           <ThemedText style={styles.textValue}> {`"${item.description}"`}</ThemedText>
         </ThemedText>
-        <ThemedText style={styles.textKey}>{item.accountType === 'LOAN' ? 'Số tiền vay cuối:' : 'Số dư cuối:'} 
+        <ThemedText style={styles.textKey}>{item.accountType === 'LOAN' ? 'Số nợ cuối:' : 'Số dư cuối:'} 
           <ThemedText style={styles.textValue}> {item.balanceAfter} {item.currency}</ThemedText>
         </ThemedText>
         <ThemedText style={styles.textKey}>{item.transactionDate?.split("T")[0] || "N/A"} | Trạng thái: {item.status}</ThemedText>

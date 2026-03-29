@@ -1,5 +1,5 @@
 
-import { Router, useRouter } from 'expo-router';
+import { Redirect } from 'expo-router';
 import { BackgroundView } from '@/components/background-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -18,10 +18,20 @@ import { ReduxTypes } from '@/store/reduxStore';
 
 
 export default function UserScreen() {
-  const router: Router = useRouter();
+  // const router: Router = useRouter();
 
   const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
   const userInfo = useSelector((state: ReduxTypes['RootState']) => state.userInfo);
+
+  const handleLogout = async () => {
+    try {
+      await AuthService.logout();
+      dispatch(logout());
+      return <Redirect href="/login" />;
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
     <BackgroundView>
@@ -78,11 +88,7 @@ export default function UserScreen() {
         </ThemedView>
 
         <ThemedView style={styles.card}>
-          <TouchableOpacity onPress={async () => {
-            await AuthService.logout();
-            dispatch(logout());
-            router.replace("/");
-          }}>
+          <TouchableOpacity onPress={handleLogout}>
             <Row icon="log-out" label="Đăng xuất" color="#ff0000" />
           </TouchableOpacity>
         </ThemedView>
