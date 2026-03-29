@@ -28,19 +28,17 @@ export const headerTransaction = (title: string) => {
   };
 
   Header.displayName = 'HeaderTransaction';
-
   return Header;
 };
 
 export default function TransactionLayout() {
-
 
   return (
     <BackgroundView>
       <Stack
         screenOptions={{
           header: headerTransaction("Chuyển tiền"),
-          contentStyle: styles.statusBar
+          contentStyle: styles.container
         }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="creditCard" />
@@ -56,8 +54,9 @@ export default function TransactionLayout() {
 }
 
 const styles = StyleSheet.create({
-  statusBar: {
+  container: {
     backgroundColor: 'transparent',
+    flex: 1,
   },
 
   header: {

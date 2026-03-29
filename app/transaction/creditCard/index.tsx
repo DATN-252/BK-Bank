@@ -12,6 +12,19 @@ import { PaymentPreviewCreditType } from '@/types/payment';
 import PayService from '@/service/payApi';
 
 
+const randomIdempotencyKey = () => {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+};
+const typeCreditCard = [
+  { label: 'Master Card', value: 'SP0001' },
+  { label: 'Master Card (3DS)', value: 'SP0002' },
+  { label: 'Visa Card', value: 'SP0003' },
+  { label: 'Visa Card (3DS)', value: '00020101021138540010A00000072701240006970418011063616631660208QRIBFTTA53037045802VN630485BC' },
+  { label: 'JCB', value: 'SP0004' },
+  { label: 'JCB (3DS)', value: 'SP0005' },
+  { label: 'American Express', value: 'SP0006' },
+  { label: 'American Express (3DS)', value: 'SP0007' },
+];
 
 export default function CreditTransactionScreen() {
   const router: Router = useRouter();
@@ -20,9 +33,6 @@ export default function CreditTransactionScreen() {
   let { qrData } = useLocalSearchParams<{ qrData: string }>();
   const parsedQrData = qrData ? JSON.parse(qrData) : null;
 
-  const randomIdempotencyKey = () => {
-    return Math.random().toString(36).substring(2) + Date.now().toString(36);
-  };
 
   const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<PaymentPreviewCreditType>({
     defaultValues: {
@@ -32,17 +42,6 @@ export default function CreditTransactionScreen() {
       cardType: 'CREDIT',
     }
   });
-  const typeCreditCard = [
-    { label: 'Master Card', value: 'SP0001' },
-    { label: 'Master Card (3DS)', value: 'SP0002' },
-    { label: 'Visa Card', value: 'SP0003' },
-    { label: 'Visa Card (3DS)', value: '00020101021138540010A00000072701240006970418011063616631660208QRIBFTTA53037045802VN630485BC' },
-    { label: 'JCB', value: 'SP0004' },
-    { label: 'JCB (3DS)', value: 'SP0005' },
-    { label: 'American Express', value: 'SP0006' },
-    { label: 'American Express (3DS)', value: 'SP0007' },
-  ];
-
 
   // call api to process transaction, then navigate to confirm screen
   // React.useEffect(() => {

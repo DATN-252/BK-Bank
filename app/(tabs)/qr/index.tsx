@@ -58,7 +58,7 @@ export default function QRScreen() {
 
     if (!result.canceled) {
       const results = await Camera.scanFromURLAsync(result.assets[0].uri, ["qr"]);
-      if (!results[0]?.data) alert('Không tìm thấy mã QR trong ảnh');
+      if (!results[0]?.data) alert('Không tìm thấy mã QR trong ảnh. Vui lòng cắt ảnh rõ hơn hoặc thử lại!');
       else {
         // alert(`Dữ liệu mã QR: ${results[0].data}`);
         setDataQR(results[0].data);

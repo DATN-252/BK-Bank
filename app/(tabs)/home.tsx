@@ -9,10 +9,12 @@ import { BackgroundView } from '@/components/background-view';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Colors } from '@/constants/Colors';
+import Indicator from '@/components/Indicator';
 
 import { useSelector } from 'react-redux';
 import { ReduxTypes } from '@/store/reduxStore';
-import Indicator from '@/components/Indicator';
+
+
 
 const images: { [key: string]: ImageSourcePropType } = {
   visa: require('@/assets/images/VISA.png'),
@@ -116,21 +118,29 @@ export default function HomeScreen() {
                 </TouchableOpacity>
                 <ThemedText style={styles.textUtil}>Chuyển tiền</ThemedText>
               </ThemedView>
+
               <ThemedView style={styles.utilitiesItem}>
                 <TouchableOpacity
                   style={styles.iconBackground}
-                  onPress={() => { router.push('/qr') }}
+                  onPress={() => router.push('/qr')}
                 >
                   <AntDesign name="scan" size={24} color={Colors.light.icon} />
                 </TouchableOpacity>
                 <ThemedText style={styles.textUtil}>Mã QR</ThemedText>
               </ThemedView>
+
               <ThemedView style={styles.utilitiesItem}>
-                <TouchableOpacity style={styles.iconBackground} onPress={() => router.push('/future')}><AntDesign name="wallet" size={24} color={Colors.light.icon} /></TouchableOpacity>
-                <ThemedText style={styles.textUtil}>Mở thẻ</ThemedText>
+                <TouchableOpacity
+                  style={styles.iconBackground}
+                  onPress={() => router.push('/utilities/utilCard')}
+                ><AntDesign name="wallet" size={24} color={Colors.light.icon} /></TouchableOpacity>
+                <ThemedText style={styles.textUtil}>Dịch vụ thẻ</ThemedText>
               </ThemedView>
               <ThemedView style={styles.utilitiesItem}>
-                <TouchableOpacity style={styles.iconBackground} onPress={() => { router.push('/utilities') }}><AntDesign name="ellipsis" size={24} color={Colors.light.icon} /></TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.iconBackground}
+                  onPress={() => router.push('/utilities')}
+                ><AntDesign name="ellipsis" size={24} color={Colors.light.icon} /></TouchableOpacity>
                 <ThemedText style={styles.textUtil}>Khác</ThemedText>
               </ThemedView>
             </ThemedView>
@@ -140,7 +150,7 @@ export default function HomeScreen() {
       </ThemedView>
     </BackgroundView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {

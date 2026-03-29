@@ -22,6 +22,28 @@ const CustService = {
   saveTokenMessage: async (token: string) => {
     await axiosClient.post('/customer/push-token', { token });
     return token;
+  },
+
+  CreditCardPayments: async (loanId: string, billingDate: string, data: any) => {
+    const res = await axiosClient.get(`/customer/me/loans/${loanId}/monthly-statements/${billingDate}/payments`);
+    return res.data;
+  },
+
+  getInfoLoan: async () => {
+    const res = await axiosClient.get('/customer/me/statements');
+    return res.data;
+  },
+
+  lockCard: async (cardId: number) => {
+    // Gọi API khóa thẻ
+    const res = await axiosClient.post(`/customer/me/cards/${cardId}/lock`);
+    return res.data;
+  },
+
+  unlockCard: async (cardId: number) => {
+    // Gọi API mở khóa thẻ
+    const res = await axiosClient.post(`/customer/me/cards/${cardId}/unlock`);
+    return res.data;
   }
 };
 
