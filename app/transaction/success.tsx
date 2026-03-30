@@ -12,18 +12,28 @@ import { BackgroundView } from '@/components/background-view';
 import { CheckoutDataType } from '@/types/payment';
 
 
-export const DISPLAY_FIELDS: [keyof CheckoutDataType, string, { isMultiline?: boolean }][] = [
+
+export type DisplayField<T> = [
+    keyof T,
+    string,
+    { isMultiline?: boolean }?
+];
+
+const fields: DisplayField<CheckoutDataType>[] = [
     ['totalAmount', 'Số tiền', { isMultiline: true }],
     ['merchantName', 'Tên bên nhận', { isMultiline: true }],
     ['merchantId', 'Tài khoản bên nhận', { isMultiline: true }],
     ['bankName', 'Ngân hàng', { isMultiline: true }],
     ['transactionId', 'Mã giao dịch', { isMultiline: true }],
-    ['transactionTime', 'Thời gian thực hiện', { isMultiline: true }],
+    ['transactionTime', 'Thời gian thực hiện', { isMultiline: true }]
 ];
 
 // Render từng dòng key:value, hỗ trợ multiline cho value
-export const renderKeyValueRows = (data: CheckoutDataType) => {
-    return DISPLAY_FIELDS.map(([key, label, options], idx) => (
+const renderKeyValueRows = <T extends object>(
+    data: T,
+    fields: DisplayField<T>[]
+) => {
+    return fields.map(([key, label, options], idx) => (
         <ThemedView
             key={idx}
             style={{
@@ -40,26 +50,17 @@ export const renderKeyValueRows = (data: CheckoutDataType) => {
                 style={[styles.bodyText, { fontWeight: 'bold', textAlign: 'right' }]}
                 numberOfLines={options?.isMultiline ? 2 : 1}
             >
-                {String(data[key] ?? '')} {key === 'totalAmount' ? data.currency : ''}
+                {String(data[key] ?? '')}
+                {key === 'totalAmount' && (data as any).currency
+                    ? ` ${(data as any).currency}`
+                    : ''}
             </ThemedText>
         </ThemedView>
     ));
 };
 
-export default function SuccessTransactionScreen() {
-    // Dữ liệu hiển thị theo ảnh mẫu
-    // const responseData = [
-    //     { key: 'Số tiền', value: '1.234.567 VND' },
-    //     { key: 'Thông tin chi tiết', value: 'Vietcombank\n********6789', isMultiline: true },
-    //     { key: 'Lời nhắn', value: 'Nguyen Van A chuyen tien' },
-    //     { key: 'Ngày thực hiện', value: '20/12/2025 19:20:18' },
-    //     { key: 'Mã giao dịch', value: '123456789ABC' },
-    // ];
+export const CheckoutTransaction = ({ title, responseData, icon }: { title: string; responseData: CheckoutDataType; icon: { name: string; color: string } }) => {
     const router: Router = useRouter();
-    let { checkoutData } = useLocalSearchParams<{ checkoutData: string }>();
-    const responseData = checkoutData ? JSON.parse(checkoutData) : null;
-    // console.log('Data for success screen: ', responseData);
-
     const viewRef = useRef<ViewShot>(null);
     const captureScreen = async () => {
         try {
@@ -77,23 +78,20 @@ export default function SuccessTransactionScreen() {
             console.log(err);
         }
     };
-
-
     return (
-        <ThemedView style={styles.container}>
+        <>
             <ImageBackground
                 source={require('@/assets/images/background-receipt.png')}
                 style={styles.content}
                 contentFit="fill"
             >
                 <ThemedView style={styles.header}>
-                    <FontAwesome name="check-circle" size={64} color="green" />
-                    {/* <FontAwesome name="times-circle" size={24} color="black" /> */}
-                    <ThemedText style={styles.headerText}>Chuyển khoản thành công</ThemedText>
+                    <FontAwesome name={icon.name as any} size={64} color={icon.color} />
+                    <ThemedText style={styles.headerText}>{title}</ThemedText>
                 </ThemedView>
 
                 <ThemedView style={styles.body}>
-                    {renderKeyValueRows(responseData)}
+                    {renderKeyValueRows(responseData, fields)}
                 </ThemedView>
 
                 <ThemedView style={styles.footer}>
@@ -137,22 +135,46 @@ export default function SuccessTransactionScreen() {
                             contentFit="fill"
                         >
                             <ThemedView style={styles.header}>
-                                <FontAwesome name="check-circle" size={64} color="green" />
+                                <FontAwesome name="check-circle" as any size={64} color="green" />
                                 <ThemedText style={styles.headerText}>
-                                    Chuyển khoản thành công
+                                    {title}
                                 </ThemedText>
                             </ThemedView>
 
                             <ThemedView style={styles.body}>
-                                {renderKeyValueRows(responseData)}
+                                {renderKeyValueRows(responseData, fields)}
                             </ThemedView>
                         </ImageBackground>
                     </ThemedView>
                 </BackgroundView>
             </ViewShot>
-        </ThemedView >
+        </>
     );
-}
+};
+
+export default function SuccessTransactionScreen() {
+    // Dữ liệu hiển thị theo ảnh mẫu
+    // const responseData = [
+    //     { key: 'Số tiền', value: '1.234.567 VND' },
+    //     { key: 'Thông tin chi tiết', value: 'Vietcombank\n********6789', isMultiline: true },
+    //     { key: 'Lời nhắn', value: 'Nguyen Van A chuyen tien' },
+    //     { key: 'Ngày thực hiện', value: '20/12/2025 19:20:18' },
+    //     { key: 'Mã giao dịch', value: '123456789ABC' },
+    // ];
+    let { checkoutData } = useLocalSearchParams<{ checkoutData: string }>();
+    const responseData = checkoutData ? JSON.parse(checkoutData) : null;
+    // console.log('Data for success screen: ', responseData);
+
+    return (
+        <ThemedView style={styles.container}>
+            <CheckoutTransaction
+                title="Chuyển khoản thành công"
+                responseData={responseData}
+                icon={{ name: 'check-circle', color: 'green' }}
+            />
+        </ThemedView>
+    );
+};
 
 const styles = StyleSheet.create({
     container: {

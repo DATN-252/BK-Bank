@@ -41,7 +41,7 @@ export default function TransactionScreen() {
             <Image source={require('@/assets/images/icon-creditcard.png')} style={styles.icon} />
             <ThemedView>
               <ThemedText style={styles.bodyText}>Thẻ thanh toán quốc tế/ tín dụng</ThemedText>
-              <ThemedView style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly', }}>
+              <ThemedView style={{ alignItems: 'center', flexDirection: 'row', justifyContent: 'space-evenly', width: '90%' }}>
                 <Image source={require('@/assets/images/MASTERCARD.png')} style={styles.miniIcon} />
                 <Image source={require('@/assets/images/VISA.png')} style={styles.miniIcon} />
                 <Image source={require('@/assets/images/JCB.png')} style={styles.miniIcon} />
