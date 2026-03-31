@@ -132,7 +132,7 @@ export default function HomeScreen() {
               <ThemedView style={styles.utilitiesItem}>
                 <TouchableOpacity
                   style={styles.iconBackground}
-                  onPress={() => router.push('/utilities/utilCard')}
+                  onPress={() => router.push('/utilities/utilCard/index')}
                 ><AntDesign name="wallet" size={24} color={Colors.light.icon} /></TouchableOpacity>
                 <ThemedText style={styles.textUtil}>Dịch vụ thẻ</ThemedText>
               </ThemedView>

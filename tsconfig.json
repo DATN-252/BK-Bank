@@ -12,6 +12,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts", "app/(tabs)/utilities/utilCard",  
+    "expo-env.d.ts", "app/(tabs)/utilities/utilCard", "../.vscode/ccPayment.tsx", "../.vscode/index.tsx", "../.vscode/lockCard.tsx",  
   ]
 }

@@ -30,7 +30,27 @@ const CustService = {
   },
 
   getInfoLoan: async () => {
+    const res = await axiosClient.get('/customer/me/loans');
+    return res.data;
+  },
+
+  getInfoSaving: async () => {
+    const res = await axiosClient.get('/customer/me/savings');
+    return res.data;
+  },
+  
+  getAllTermStatements: async () => {
     const res = await axiosClient.get('/customer/me/statements');
+    return res.data;
+  },
+
+  getAllTermStatementsbyLoanId: async (loanId: string) => {
+    const res = await axiosClient.get(`/customer/me/loans/${loanId}/monthly-statements`);
+    return res.data;
+  },
+
+  getStatementsbyLoanIdAndBillingDate: async (loanId: string, billingDate: string) => {
+    const res = await axiosClient.get(`/customer/me/statement?loanId=${loanId}&billingDate=${billingDate}`);
     return res.data;
   },
 
