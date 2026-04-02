@@ -15,6 +15,7 @@ import PayService from '@/service/payApi';
 const randomIdempotencyKey = () => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 };
+
 const typeCreditCard = [
   { label: 'Master Card', value: 'SP0001' },
   { label: 'Master Card (3DS)', value: 'SP0002' },

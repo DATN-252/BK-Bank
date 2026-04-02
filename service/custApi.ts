@@ -24,8 +24,8 @@ const CustService = {
     return token;
   },
 
-  CreditCardPayments: async (loanId: string, billingDate: string, data: any) => {
-    const res = await axiosClient.get(`/customer/me/loans/${loanId}/monthly-statements/${billingDate}/payments`);
+  postCreditCardPayments: async (loanId: string, billingDate: string, data: any) => {
+    const res = await axiosClient.post(`/customer/me/loans/${loanId}/monthly-statements/${billingDate}/payments`, data);
     return res.data;
   },
 
@@ -54,13 +54,13 @@ const CustService = {
     return res.data;
   },
 
-  lockCard: async (cardId: number) => {
+  postLockCard: async (cardId: number) => {
     // Gọi API khóa thẻ
     const res = await axiosClient.post(`/customer/me/cards/${cardId}/lock`);
     return res.data;
   },
 
-  unlockCard: async (cardId: number) => {
+  postUnlockCard: async (cardId: number) => {
     // Gọi API mở khóa thẻ
     const res = await axiosClient.post(`/customer/me/cards/${cardId}/unlock`);
     return res.data;

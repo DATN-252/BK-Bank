@@ -17,7 +17,7 @@ export default function UtilCardLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="ccPayment" />
         <Stack.Screen name="lockCard" />
-        {/* <Stack.Screen name="statement" /> */}
+        <Stack.Screen name="statement" />
         {/* <Stack.Screen name="create" /> */}
       </Stack>
     </BackgroundView>
