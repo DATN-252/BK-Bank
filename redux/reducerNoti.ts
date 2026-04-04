@@ -1,7 +1,7 @@
-import { NotificationType } from '@/types/noti';
+import { NotificationBalanceType } from '@/types/noti';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-  
-export interface NotiBalance extends NotificationType {
+
+export interface NotiBalance extends NotificationBalanceType {
   readed: boolean;
 }
 

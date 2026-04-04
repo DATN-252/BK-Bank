@@ -48,7 +48,7 @@ export default function TransactionScreen() {
                         <Image source={require('@/assets/images/icon-debitcard.png')} style={styles.icon} />
                         <ThemedText style={styles.bodyText}>Khóa/Mở khóa thẻ</ThemedText>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.item} onPress={() => router.push('/future')}>
+                    <TouchableOpacity style={styles.item} onPress={() => router.push('/utilities/utilCard/statement')}>
                         <Image source={require('@/assets/images/icon-statement.png')} style={styles.icon} />
                         <ThemedText style={styles.bodyText}>Sao kê giao dịch</ThemedText>
                     </TouchableOpacity>

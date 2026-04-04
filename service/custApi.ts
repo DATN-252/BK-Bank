@@ -64,6 +64,21 @@ const CustService = {
     // Gọi API mở khóa thẻ
     const res = await axiosClient.post(`/customer/me/cards/${cardId}/unlock`);
     return res.data;
+  },
+
+  getNotiFraud: async () => {
+    const res = await axiosClient.get(`/customer/me/fraud-alerts`);
+    return res.data;
+  },
+
+  postRejectTransaction: async (alertId: string) => {
+    const res = await axiosClient.post(`/customer/me/fraud-alerts/${alertId}/reject`);
+    return res.data;
+  },
+
+  postConfirmTransaction: async (alertId: string) => {
+    const res = await axiosClient.post(`/customer/me/fraud-alerts/${alertId}/confirm`);
+    return res.data;
   }
 };
 

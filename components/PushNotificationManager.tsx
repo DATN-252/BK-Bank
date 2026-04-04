@@ -7,7 +7,7 @@ import { Router, useRouter } from 'expo-router';
 import { useDispatch } from 'react-redux';
 import { ReduxTypes } from '@/store/reduxStore';
 import { addToNoti } from '@/redux/reducerNoti';
-import { NotificationType } from '@/types/noti';
+import { NotificationBalanceType } from '@/types/noti';
 
 // Handler (giữ ngoài component)
 Notifications.setNotificationHandler({
@@ -92,7 +92,7 @@ const PushNotificationManager = ({ children }: { children: React.ReactNode }) =>
 
             // nhận khi app mở
             receivedSub = Notifications.addNotificationReceivedListener((noti) => {
-                const data = (noti.request.content.data as { result: NotificationType }).result;
+                const data = (noti.request.content.data as { result: NotificationBalanceType }).result;
                 dispatch(addToNoti({
                     ...data,
                     readed: false
@@ -103,7 +103,7 @@ const PushNotificationManager = ({ children }: { children: React.ReactNode }) =>
             // khi click notification
             responseSub = Notifications.addNotificationResponseReceivedListener(
                 (res) => {
-                    const data = (res.notification.request.content.data as { result: NotificationType }).result;
+                    const data = (res.notification.request.content.data as { result: NotificationBalanceType }).result;
 
                     // điều hướng vào detail của notification, tạm thời vô trang thông báo thôi
                     if (data) {

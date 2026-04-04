@@ -9,15 +9,23 @@ export default function UtilCardLayout() {
 
   return (
     <BackgroundView>
-      <Stack
-        screenOptions={{
+      <Stack>
+        <Stack.Screen name="index" options={{
           header: headerTransaction("Dịch vụ thẻ"),
           contentStyle: styles.container
-        }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="ccPayment" />
-        <Stack.Screen name="lockCard" />
-        <Stack.Screen name="statement" />
+        }} />
+        <Stack.Screen name="ccPayment" options={{
+          header: headerTransaction("Thanh toán thẻ"),
+          contentStyle: styles.container
+        }}/>
+        <Stack.Screen name="lockCard" options={{
+          header: headerTransaction("Khóa/Mở thẻ"),
+          contentStyle: styles.container
+        }}/>
+        <Stack.Screen name="statement" options={{
+          header: headerTransaction("Sao kê tín dụng"),
+          contentStyle: styles.container
+        }} />
         {/* <Stack.Screen name="create" /> */}
       </Stack>
     </BackgroundView>

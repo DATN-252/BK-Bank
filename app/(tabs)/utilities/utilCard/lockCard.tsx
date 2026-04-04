@@ -94,7 +94,6 @@ export default function LockCardScreen() {
 
     return (
         <ThemedView style={styles.container}>
-            <ThemedText style={styles.header}>Quản lý khóa/mở thẻ</ThemedText>
             <FlatList
                 data={cardInfo}
                 keyExtractor={item => item.id?.toString()}
@@ -110,14 +109,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'transparent',
         paddingHorizontal: 14,
-    },
-    header: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        marginBottom: 16,
-        textAlign: 'center',
-        letterSpacing: 0.5,
-        color: Colors.light.text,
     },
 
     cardModern: {

@@ -21,6 +21,13 @@ export interface termStatementType {
     generatedAt: string
 };
 
+export interface statementDetailType extends termStatementType {
+    currency: string,
+    items: [
+        transactionStatementType
+    ]
+};
+
 export interface transactionStatementType {
     transactionDate: string,
     paymentId: string,

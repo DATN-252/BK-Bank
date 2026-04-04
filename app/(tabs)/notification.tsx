@@ -1,16 +1,18 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { FlatList, Keyboard, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
+import NotiModal from '@/components/Noti-modal';
 
 import { BackgroundView } from '@/components/background-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import CustService from '@/service/custApi';
+import { addAllNoti, NotiBalance, removeAllNoti } from '@/redux/reducerNoti';
+import { NotificationSystemType } from '@/types/noti';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { ReduxTypes } from '@/store/reduxStore';
-import { addAllNoti, NotiBalance, removeAllNoti } from '@/redux/reducerNoti';
 
 
 
@@ -89,35 +91,35 @@ import { addAllNoti, NotiBalance, removeAllNoti } from '@/redux/reducerNoti';
 
 const DATA_GENERAL = [
   {
-    id: '1',
+    id: '1001',
     icon: 'gift-outline',
     title: 'Khuyến mãi mở thẻ',
     date: '5 Oct 2020',
     link: 'Xem thêm',
   },
   {
-    id: '2',
+    id: '1002',
     icon: 'settings-outline',
     title: 'Bảo trì hệ thống 20/12',
     date: '5 Oct 2020',
     link: 'Xem thêm',
   },
   {
-    id: '3',
+    id: '1003',
     icon: 'help-circle-outline',
     title: 'Hướng dẫn mở số tk',
     date: '5 Oct 2020',
     link: 'Xem thêm',
   },
   {
-    id: '4',
+    id: '1004',
     icon: 'cloud-upload-outline',
     title: 'Nâng cấp hệ thống',
     date: '5 Oct 2020',
     link: 'Xem thêm',
   },
   {
-    id: '5',
+    id: '1005',
     icon: 'shield-checkmark-outline',
     title: 'Yêu cầu bật xác thực 2 lớp',
     date: '5 Oct 2020',
@@ -134,7 +136,7 @@ export default function NotificationScreen() {
   // cho viec xoa hoac readed
   const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
 
-  const refreshNotifications = React.useCallback(async () => {
+  const refreshNotificationsBalance = React.useCallback(async () => {
     setRefreshing(true);
 
     try {
@@ -153,8 +155,31 @@ export default function NotificationScreen() {
   }, [dispatch]);
 
   React.useEffect(() => {
-    refreshNotifications();
-  }, [refreshNotifications]);
+    refreshNotificationsBalance();
+  }, [refreshNotificationsBalance]);
+
+  const [DATA_SYSTEM, setDATA_SYSTEM] = React.useState<NotificationSystemType[]>([]);
+  const refreshNotificationsSystem = React.useCallback(async () => {
+    setRefreshing(true);
+
+    try {
+      // xóa hết thông báo cũ đi rồi thêm thông báo mới vào
+      // dispatch(removeAllNoti());
+
+      const data = await CustService.getNotiFraud();
+      setDATA_SYSTEM(data.result);
+      // dispatch(addAllNoti(data.result));
+    } catch (err) {
+      console.log(err);
+      alert('Lấy thông báo thất bại!');
+    } finally {
+      setRefreshing(false);
+    }
+  }, [dispatch]);
+
+  React.useEffect(() => {
+    refreshNotificationsSystem();
+  }, [refreshNotificationsSystem]);
 
 
   const renderBalanceItem = ({ item }: { item: NotiBalance }) => (
@@ -166,7 +191,7 @@ export default function NotificationScreen() {
           color={item.status === 'SUCCESS' && item.transactionType !== 'CHARGE' ? '#00D26A' : 'red'}
         />
       </ThemedView>
-      <ThemedView style={{ flex: 1 }}>
+      <ThemedView style={{ flex: 1, backgroundColor: 'transparent', }}>
         <ThemedText style={styles.textKey}>Từ:
           <ThemedText style={styles.textValue}> {item.accountNumber}</ThemedText>
         </ThemedText>
@@ -176,7 +201,7 @@ export default function NotificationScreen() {
         <ThemedText style={styles.textKey}>Nội dung:
           <ThemedText style={styles.textValue}> {`"${item.description}"`}</ThemedText>
         </ThemedText>
-        <ThemedText style={styles.textKey}>{item.accountType === 'LOAN' ? 'Số nợ cuối:' : 'Số dư cuối:'} 
+        <ThemedText style={styles.textKey}>{item.accountType === 'LOAN' ? 'Số nợ cuối:' : 'Số dư cuối:'}
           <ThemedText style={styles.textValue}> {item.balanceAfter} {item.currency}</ThemedText>
         </ThemedText>
         <ThemedText style={styles.textKey}>{item.transactionDate?.split("T")[0] || "N/A"} | Trạng thái: {item.status}</ThemedText>
@@ -185,20 +210,40 @@ export default function NotificationScreen() {
     </ThemedView>
   );
 
-  const renderGeneralItem = ({ item }: { item: any }) => (
-    <ThemedView style={styles.row}>
-      <ThemedView style={styles.iconBox}>
-        <Ionicons name={item.icon} size={24} color={Colors.light.tint} />
+  // Modal state for system notification detail
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [selectedSystemNoti, setSelectedSystemNoti] = React.useState<NotificationSystemType | null>(null);
+
+  // General notification item renderer that supports both DATA_GENERAL and DATA_SYSTEM
+  const renderGeneralItem = ({ item }: { item: any }) => {
+    // If is system notification (fraud/system), show modal on press
+    const isSystem = item.fraudPrediction !== undefined;
+    const icon = item.icon || 'alert-circle-outline';
+    const title = item.title || item.message || item.content || (item.fraudPrediction ? 'Cảnh báo gian lận' : 'Thông báo hệ thống');
+    const date = item.date || item.createdAt || item.time || '';
+
+    const content = (
+      <ThemedView style={styles.row}>
+        <ThemedView style={styles.iconBox}>
+          <Ionicons name={icon} size={24} color={Colors.light.tint} />
+        </ThemedView>
+        <ThemedView style={{ flex: 1, backgroundColor: 'transparent', }}>
+          <ThemedText style={styles.textValue}>{title}</ThemedText>
+          <ThemedText style={styles.textKey}>{date}</ThemedText>
+        </ThemedView>
+        <ThemedText style={styles.link}>Xem thêm</ThemedText>
       </ThemedView>
-      <ThemedView style={{ flex: 1 }}>
-        <ThemedText style={styles.textValue}>{item.title}</ThemedText>
-        <ThemedText style={styles.textKey}>{item.date}</ThemedText>
-      </ThemedView>
-      <TouchableOpacity>
-        <ThemedText style={styles.link}>{item.link}</ThemedText>
-      </TouchableOpacity>
-    </ThemedView>
-  );
+    );
+
+    if (isSystem) {
+      return (
+        <TouchableOpacity onPress={() => { setSelectedSystemNoti(item); setModalVisible(true); }}>
+          {content}
+        </TouchableOpacity>
+      );
+    }
+    return <TouchableOpacity>{content}</TouchableOpacity>;
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -234,16 +279,26 @@ export default function NotificationScreen() {
               contentContainerStyle={{ paddingBottom: 16 }}
               showsVerticalScrollIndicator={false}
               refreshing={refreshing} // hiện ui loading
-              onRefresh={refreshNotifications}
+              onRefresh={refreshNotificationsBalance}
             />
           ) : (
-            <FlatList
-              data={DATA_GENERAL}
-              keyExtractor={item => item.id}
-              renderItem={renderGeneralItem}
-              contentContainerStyle={{ paddingBottom: 16 }}
-              showsVerticalScrollIndicator={false}
-            />
+            <>
+              <FlatList
+                data={[...DATA_SYSTEM, ...DATA_GENERAL]}
+                keyExtractor={item => item.id?.toString?.() || item.id || Math.random().toString()}
+                renderItem={renderGeneralItem}
+                contentContainerStyle={{ paddingBottom: 16 }}
+                showsVerticalScrollIndicator={false}
+                refreshing={refreshing} // hiện ui loading
+                onRefresh={refreshNotificationsSystem}
+              />
+              <NotiModal
+                visible={modalVisible}
+                onClose={() => setModalVisible(false)}
+                notification={selectedSystemNoti}
+                onResponded={() => refreshNotificationsSystem()}
+              />
+            </>
           )}
         </ThemedView>
       </BackgroundView>
@@ -274,7 +329,7 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 15,
-    color: '#222',
+    color: Colors.light.text,
   },
 
   row: {
@@ -285,16 +340,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 12,
     marginBottom: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
   },
   iconBox: {
     width: 32,
     height: 32,
     borderRadius: 8,
-    // backgroundColor: Colors.light.backgroundIcon,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,

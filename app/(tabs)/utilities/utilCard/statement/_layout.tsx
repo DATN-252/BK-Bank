@@ -9,5 +9,5 @@ export default function StatementLayout() {
             <Stack.Screen name="index" />
             <Stack.Screen name="statementDetail" />
         </Stack>
-   );
+    );
 };
