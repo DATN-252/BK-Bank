@@ -21,10 +21,10 @@ export default function LockCardScreen() {
         try {
             // Gọi API khóa/mở khóa thẻ
             if (card.status === "ACTIVE") {
-                // await CustService.postLockCard(card.id);
+                await CustService.postLockCard(card.id);
                 Alert.alert("Thành công", "Đã khóa thẻ!");
             } else {
-                // await CustService.postUnlockCard(card.id);
+                await CustService.postUnlockCard(card.id);
                 Alert.alert("Thành công", "Đã mở khóa thẻ!");
             };
 

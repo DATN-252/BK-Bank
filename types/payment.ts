@@ -23,6 +23,8 @@ export interface PaymentCreditType {
     latitude: number | null;
     longitude: number | null;
     idempotencyKey: string;
+    // branchId: string;
+    // branchName: string;
 };
 
 export interface CheckoutDataType {

@@ -62,7 +62,7 @@ export default function TransactionScreen() {
         encodeTLV("01", "12") +            // point of initiation method (static QR code)
         encodeTLV("26", merchantAccount) +
         encodeTLV("52", "5411") +      // merchant category
-        encodeTLV("53", "840") +       // currency
+        encodeTLV("53", "USD") +       // currency
         encodeTLV("54", "100.00") +    // amount
         encodeTLV("58", "US") +        // country code
         encodeTLV("59", "Apple_STORE") + // merchant name

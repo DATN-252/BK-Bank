@@ -1,4 +1,4 @@
-import axiosClient from './axiosClient';
+import axiosClient, { axiosClientCMS } from './axiosClient';
 
 
 export const AUTH_KEY = 'auth';
@@ -56,13 +56,13 @@ const CustService = {
 
   postLockCard: async (cardId: number) => {
     // Gọi API khóa thẻ
-    const res = await axiosClient.post(`/customer/me/cards/${cardId}/lock`);
+    const res = await axiosClientCMS.post(`/api/cards/${cardId}/lock`);
     return res.data;
   },
 
   postUnlockCard: async (cardId: number) => {
     // Gọi API mở khóa thẻ
-    const res = await axiosClient.post(`/customer/me/cards/${cardId}/unlock`);
+    const res = await axiosClientCMS.post(`/api/cards/${cardId}/unlock`);
     return res.data;
   },
 
