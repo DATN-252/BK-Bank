@@ -40,3 +40,23 @@ export interface transactionStatementType {
     responseCode: string,
     responseMessage: string
 };
+
+export interface paymentCreditResponseType {
+    loanId: string;
+    billingDate: string;
+    paymentOption: "MINIMUM_DUE" | "STATEMENT_BALANCE" | "CUSTOM";
+    paymentSource: "INTERNAL_SAVINGS" | "EXTERNAL_CARD";
+    sourceAccountNumber: string;
+    paymentAmount: number;
+    currency: string;
+    statementStatusBefore: "OPEN"| "CLOSED";
+    statementStatusAfter: "OPEN" | "CLOSED";
+    remainingMinimumDueBefore: number;
+    remainingMinimumDueAfter: number;
+    remainingBalanceBefore: number;
+    remainingBalanceAfter: number;
+    sourceAccountBalanceAfter: number;
+    paymentId: string;
+    paidAt: string;
+    note: string;
+};

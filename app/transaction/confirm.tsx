@@ -1,32 +1,17 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
+import PayService from '@/service/payApi';
+import { TransactionCreditType, TransactionPreviewCreditResponseType } from '@/types/payment';
 import { ImageBackground } from 'expo-image';
 import { Router, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
+import LoadingScreen from './loading';
 
-interface ConfirmDataType {
-    zipCode: string,
-    amount: number,
-    fee: number,
-    cardType: string,
-    bankName: string,
-    maskedCardNumber: string,
-    merchantName: string,
-    executionTime: string,
-    totalAmount: number,
-    cardNetwork: string,
-    merchantId: string,
-    recipientAccount: string,
-    cardholderName: string,
-    recipientName: string,
-    currency: string,
-    billingAddress: string,
-    status: string
-};
 
-const DISPLAY_FIELDS: [keyof ConfirmDataType, string][] = [
+
+const DISPLAY_FIELDS: [keyof TransactionPreviewCreditResponseType, string][] = [
     ['amount', 'Số tiền'],
     ['merchantName', 'Tên bên nhận'],
     ['merchantId', 'Tài khoản bên nhận'],
@@ -39,7 +24,43 @@ const DISPLAY_FIELDS: [keyof ConfirmDataType, string][] = [
 export default function ConfirmTransactionScreen() {
     const router: Router = useRouter();
     let { confirmData } = useLocalSearchParams<{ confirmData: string }>();
-    const responseData = confirmData ? JSON.parse(confirmData) : null;
+    const responseData: any = confirmData ? JSON.parse(confirmData) : null;
+    const [loading, setLoading] = React.useState(false);
+
+    const api = async (dataToSend: TransactionCreditType) => {
+        try {
+            const res = await PayService.paymentCredit(dataToSend);
+            console.log('Review Response:', res);
+
+            if (res.result.approved) {
+                router.replace({
+                    pathname: '/transaction/success',
+                    params: { checkoutData: JSON.stringify(res.result) },
+                });
+            } else {
+                router.replace({
+                    pathname: '/transaction/error',
+                    params: { checkoutData: JSON.stringify(res.result) },
+                });
+            }
+        } catch (err: any) {
+            console.log(err.toJSON?.() || err);
+            if (err?.response?.status === 401) {
+                alert(err?.response?.data?.message || 'Uỷ quyền đã hết hạn. Vui lòng đăng nhập lại.');
+            } else if (err?.response?.status === 400
+                && err?.response?.data?.result.errorCode === 'SUSPECTED_FRAUD') {
+                router.replace({
+                    pathname: '/transaction/error',
+                    params: { checkoutData: JSON.stringify(err?.response?.data?.result) },
+                });
+            }
+            else {
+                console.error('Lỗi khi thực hiện giao dịch (trang confirm): ', err);
+                router.back();
+                alert(err.response?.data?.message || 'Đã có lỗi xảy ra trong quá trình xử lý giao dịch. Vui lòng thử lại sau.');
+            }
+        }
+    };
 
     // Hàm render từng dòng key:value, space-between
     // const responseData =  {
@@ -61,7 +82,7 @@ export default function ConfirmTransactionScreen() {
     //     "billingAddress": "123 A Street, Hanoi",
     //     "status": "VALID"
     // };
-    const renderKeyValueRows = (data: ConfirmDataType) => {
+    const renderKeyValueRows = (data: TransactionPreviewCreditResponseType) => {
         return DISPLAY_FIELDS.map(([key, label], idx) => (
             <ThemedView
                 key={idx}
@@ -83,60 +104,65 @@ export default function ConfirmTransactionScreen() {
     };
 
     return (
-        <ThemedView style={styles.container}>
-            <ImageBackground
-                source={require('@/assets/images/background-receipt.png')}
-                style={styles.content}
-                contentFit="fill"
-            >
-                <ThemedView style={styles.header}>
-                    <ThemedText style={styles.headerText}>Xác nhận chuyển tiền</ThemedText>
-                </ThemedView>
-
-                <ThemedView style={styles.body}>
-                    <ThemedView style={{ flex: 1, width: '90%', marginBottom: 24, gap: '4%' }}>
-                        {renderKeyValueRows(responseData)}
-                    </ThemedView>
-
-                </ThemedView>
-
-                <ThemedView style={styles.footer}>
-                    <TouchableOpacity
-                        style={styles.buttonFooter}
-                        onPress={() => {
-                            const {
-                                zipCode,
-                                fee,
-                                totalAmount,
-                                bankName,
-                                maskedCardNumber,
-                                merchantName,
-                                executionTime,
-                                cardNetwork,
-                                recipientAccount,
-                                cardholderName,
-                                recipientName,
-                                currency,
-                                billingAddress,
-                                status, ...dataToSend } = responseData;
-
-                            dataToSend.amount = responseData.totalAmount;
-                            console.log('Data for execution: ', dataToSend);
-                            router.replace({
-                                pathname: '/transaction/loading',
-                                params: {
-                                    dataToSend: JSON.stringify({
-                                        ...dataToSend,
-                                    }),
-                                },
-                            });
-                        }}
+        <>
+            {loading ?
+                <LoadingScreen />
+                :
+                <ThemedView style={styles.container}>
+                    <ImageBackground
+                        source={require('@/assets/images/background-receipt.png')}
+                        style={styles.content}
+                        contentFit="fill"
                     >
-                        <ThemedText>Tiếp tục</ThemedText>
-                    </TouchableOpacity>
+                        <ThemedView style={styles.header}>
+                            <ThemedText style={styles.headerText}>Xác nhận chuyển tiền</ThemedText>
+                        </ThemedView>
+
+                        <ThemedView style={styles.body}>
+                            <ThemedView style={{ flex: 1, width: '90%', marginBottom: 24, gap: '4%' }}>
+                                {renderKeyValueRows(responseData)}
+                            </ThemedView>
+
+                        </ThemedView>
+
+                        <ThemedView style={styles.footer}>
+                            <TouchableOpacity
+                                style={styles.buttonFooter}
+                                disabled={loading}
+                                onPress={async () => {
+                                    setLoading(true);
+
+                                    const {
+                                        zipCode,
+                                        fee,
+                                        totalAmount,
+                                        bankName,
+                                        maskedCardNumber,
+                                        merchantName,
+                                        executionTime,
+                                        cardNetwork,
+                                        merchantLongitude,
+                                        merchantLatitude,
+                                        merchantAddress,
+                                        recipientAccount,
+                                        cardholderName,
+                                        recipientName,
+                                        currency,
+                                        billingAddress,
+                                        status, ...dataToSend } = responseData;
+
+                                    dataToSend.amount = responseData.totalAmount;
+                                    await api(dataToSend);
+                                    // console.log('Data for execution: ', dataToSend);
+                                }}
+                            >
+                                <ThemedText>Tiếp tục</ThemedText>
+                            </TouchableOpacity>
+                        </ThemedView>
+                    </ImageBackground>
                 </ThemedView>
-            </ImageBackground>
-        </ThemedView>
+            }
+        </>
     );
 }
 

@@ -3,14 +3,14 @@ import { getToken, removeToken } from "../store/localStorage";
 
 const axiosClient = axios.create({
   baseURL: "http://10.0.2.2:8083", // IP máy tính  khi sài Android Emulator
-  timeout: 10000,
+  timeout: 40000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 const axiosClientCMS = axios.create({
   baseURL: "http://10.0.2.2:8082", // IP máy tính  khi sài Android Emulator
-  timeout: 10000,
+  timeout: 40000,
   headers: {
     "Content-Type": "application/json",
   },

@@ -8,8 +8,9 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
-import { PaymentPreviewCreditType } from '@/types/payment';
+import { TransactionPreviewCreditResponseType, TransactionPreviewCreditType } from '@/types/payment';
 import PayService from '@/service/payApi';
+import { responseType } from '@/types/response';
 
 
 const randomIdempotencyKey = () => {
@@ -35,7 +36,7 @@ export default function CreditTransactionScreen() {
   const parsedQrData = qrData ? JSON.parse(qrData) : null;
 
 
-  const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<PaymentPreviewCreditType>({
+  const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<TransactionPreviewCreditType>({
     defaultValues: {
       recipientAccount: parsedQrData?.merchantAccount?.merchantId ?? '',
       currency: parsedQrData?.currency ?? 'USD',
@@ -324,7 +325,7 @@ export default function CreditTransactionScreen() {
                     const { cardNetwork, ...dataToSend } = data;
                     // console.log('Data for confirm: ', dataToSend);
 
-                    const res = await PayService.paymentPreviewCredit(dataToSend);
+                    const res: responseType<TransactionPreviewCreditResponseType> = await PayService.paymentPreviewCredit(dataToSend);
 
                     if (res.result.status === 'VALID') {
                       router.push({

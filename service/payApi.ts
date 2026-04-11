@@ -1,16 +1,16 @@
 import axiosClient from './axiosClient';
-import { PaymentCreditType, PaymentPreviewCreditType } from '@/types/payment';
+import { TransactionCreditType, TransactionPreviewCreditType } from '@/types/payment';
 import { getDeviceInfo } from './infoDevice';
 
 export const AUTH_KEY = 'auth';
 
 const PayService = {
-  paymentPreviewCredit: async (data: PaymentPreviewCreditType) => {
+  paymentPreviewCredit: async (data: TransactionPreviewCreditType) => {
     const res = await axiosClient.post('/payment/preview', data);
     return res.data;
   },
 
-  paymentCredit: async (data: PaymentCreditType) => {
+  paymentCredit: async (data: TransactionCreditType) => {
     const deviceInfo = await getDeviceInfo();
     data.latitude = deviceInfo.lat;
     data.longitude = deviceInfo.lng;

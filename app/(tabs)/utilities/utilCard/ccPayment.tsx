@@ -13,6 +13,7 @@ import { termStatementType } from '@/types/statement';
 
 import { useSelector } from 'react-redux';
 import { ReduxTypes } from '@/store/reduxStore';
+import LoadingScreen from '@/app/transaction/loading';
 
 
 
@@ -55,6 +56,7 @@ export default function CreditCardPaymentScreen() {
             paymentOption: "CUSTOM"
         }
     });
+    const [loading, setLoading] = React.useState(false);
 
     // get info loan
     const loanAccounts = useSelector((state: ReduxTypes['RootState']) => state.loanAcc);
@@ -112,212 +114,221 @@ export default function CreditCardPaymentScreen() {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <ThemedView style={styles.container}>
-                <ThemedView style={styles.content}>
+            {loading ?
+                <LoadingScreen />
+                :
+                <ThemedView style={styles.container}>
+                    <ThemedView style={styles.content}>
 
-                    <ThemedView style={styles.header}>
-                        <ThemedText style={styles.headerText}>Thanh toán qua thẻ quốc tế/tín dụng</ThemedText>
-                    </ThemedView>
+                        <ThemedView style={styles.header}>
+                            <ThemedText style={styles.headerText}>Thanh toán qua thẻ quốc tế/tín dụng</ThemedText>
+                        </ThemedView>
 
-                    <ThemedView style={styles.body}>
-                        <KeyboardAwareScrollView
-                            keyboardShouldPersistTaps="handled"
-                            extraScrollHeight={60}
-                            enableOnAndroid={true}
-                            showsVerticalScrollIndicator={false}
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={{ gap: 8, paddingRight: 2 }} // lỗi gì đó mà input tràn ra ngoài scrollvỉew
-                        >
-                            <ThemedView>
-                                {/* {creditCardErrors.paymentSource ?
+                        <ThemedView style={styles.body}>
+                            <KeyboardAwareScrollView
+                                keyboardShouldPersistTaps="handled"
+                                extraScrollHeight={60}
+                                enableOnAndroid={true}
+                                showsVerticalScrollIndicator={false}
+                                showsHorizontalScrollIndicator={false}
+                                contentContainerStyle={{ gap: 8, paddingRight: 2 }} // lỗi gì đó mà input tràn ra ngoài scrollvỉew
+                            >
+                                <ThemedView>
+                                    {/* {creditCardErrors.paymentSource ?
               <ThemedText style={styles.warning}>{creditCardErrors.paymentSource.message}</ThemedText>
               : 
             } */}
-                                <ThemedText style={styles.bodyText}>Loại tài khoản thanh toán nguồn</ThemedText>
-                                <Controller
-                                    control={control}
-                                    name="paymentSource"
-                                    rules={{ required: '*Loại tài khoản nguồn là bắt buộc!' }}
-                                    render={({ field: { onChange, value } }) => (
-                                        <Dropdown
-                                            data={sourcePaymentOptions}
-                                            labelField="label"
-                                            valueField="value"
-                                            placeholder="-- Chọn --"
-                                            search
-                                            searchPlaceholder="Tìm kiếm..."
-                                            value={value}
-                                            onChange={(item) => onChange(item.value)}
-                                            style={styles.input}
-                                        />
-                                    )}
-                                />
-                            </ThemedView>
+                                    <ThemedText style={styles.bodyText}>Loại tài khoản thanh toán nguồn</ThemedText>
+                                    <Controller
+                                        control={control}
+                                        name="paymentSource"
+                                        rules={{ required: '*Loại tài khoản nguồn là bắt buộc!' }}
+                                        render={({ field: { onChange, value } }) => (
+                                            <Dropdown
+                                                data={sourcePaymentOptions}
+                                                labelField="label"
+                                                valueField="value"
+                                                placeholder="-- Chọn --"
+                                                search
+                                                searchPlaceholder="Tìm kiếm..."
+                                                value={value}
+                                                onChange={(item) => onChange(item.value)}
+                                                style={styles.input}
+                                            />
+                                        )}
+                                    />
+                                </ThemedView>
 
-                            <ThemedView>
-                                {/* {creditCardErrors.cardholderName ?
+                                <ThemedView>
+                                    {/* {creditCardErrors.cardholderName ?
               <ThemedText style={styles.warning}>{creditCardErrors.cardholderName.message}</ThemedText>
               : 
             } */}
-                                <ThemedText style={styles.bodyText}>Tài khoản nguồn</ThemedText>
-                                <Controller
-                                    rules={{ required: '*Tài khoản nguồn là bắt buộc!' }}
-                                    control={control}
-                                    name="sourceAccountNumber"
-                                    render={({ field: { onChange, value } }) => (
-                                        <Dropdown
-                                            data={savingOptions}
-                                            labelField="label"
-                                            valueField="value"
-                                            placeholder="-- Chọn --"
-                                            search
-                                            searchPlaceholder="Tìm kiếm..."
-                                            value={value}
-                                            onChange={(item) => onChange(item.value)}
-                                            style={styles.input}
-                                        />
-                                    )}
-                                />
-                            </ThemedView>
+                                    <ThemedText style={styles.bodyText}>Tài khoản nguồn</ThemedText>
+                                    <Controller
+                                        rules={{ required: '*Tài khoản nguồn là bắt buộc!' }}
+                                        control={control}
+                                        name="sourceAccountNumber"
+                                        render={({ field: { onChange, value } }) => (
+                                            <Dropdown
+                                                data={savingOptions}
+                                                labelField="label"
+                                                valueField="value"
+                                                placeholder="-- Chọn --"
+                                                search
+                                                searchPlaceholder="Tìm kiếm..."
+                                                value={value}
+                                                onChange={(item) => onChange(item.value)}
+                                                style={styles.input}
+                                            />
+                                        )}
+                                    />
+                                </ThemedView>
 
-                            <ThemedView>
-                                {/* {creditCardErrors.loanId ?
+                                <ThemedView>
+                                    {/* {creditCardErrors.loanId ?
                               <ThemedText style={styles.warning}>{creditCardErrors.loanId.message}</ThemedText>
                               : 
                             } */}
-                                <ThemedText style={styles.bodyText}>Tài khoản đích</ThemedText>
-                                <Controller
-                                    control={control}
-                                    name="loanId"
-                                    rules={{ required: '*Tài khoản đích là bắt buộc!' }}
-                                    render={({ field: { onChange, value } }) => (
-                                        <Dropdown
-                                            data={loanOptions}
-                                            labelField="label"
-                                            valueField="value"
-                                            placeholder="-- Chọn --"
-                                            search
-                                            searchPlaceholder="Tìm kiếm..."
-                                            value={value}
-                                            onChange={(item) => onChange(item.value)}
-                                            style={styles.input}
-                                        />
-                                    )}
-                                />
-                            </ThemedView>
+                                    <ThemedText style={styles.bodyText}>Tài khoản đích</ThemedText>
+                                    <Controller
+                                        control={control}
+                                        name="loanId"
+                                        rules={{ required: '*Tài khoản đích là bắt buộc!' }}
+                                        render={({ field: { onChange, value } }) => (
+                                            <Dropdown
+                                                data={loanOptions}
+                                                labelField="label"
+                                                valueField="value"
+                                                placeholder="-- Chọn --"
+                                                search
+                                                searchPlaceholder="Tìm kiếm..."
+                                                value={value}
+                                                onChange={(item) => onChange(item.value)}
+                                                style={styles.input}
+                                            />
+                                        )}
+                                    />
+                                </ThemedView>
 
-                            <ThemedView>
-                                <ThemedText style={styles.bodyText}>Loại thanh toán</ThemedText>
-                                <Controller
-                                    control={control}
-                                    name="paymentOption"
-                                    rules={{ required: '*Loại thanh toán là bắt buộc!' }}
-                                    render={({ field: { onChange, value } }) => (
-                                        <Dropdown
-                                            data={paymentOptions}
-                                            labelField="label"
-                                            valueField="value"
-                                            placeholder="-- Chọn --"
-                                            search
-                                            searchPlaceholder="Tìm kiếm..."
-                                            value={value}
-                                            onChange={(item) => onChange(item.value)}
-                                            style={styles.input}
-                                        />
-                                    )}
-                                />
-                            </ThemedView>
+                                <ThemedView>
+                                    <ThemedText style={styles.bodyText}>Loại thanh toán</ThemedText>
+                                    <Controller
+                                        control={control}
+                                        name="paymentOption"
+                                        rules={{ required: '*Loại thanh toán là bắt buộc!' }}
+                                        render={({ field: { onChange, value } }) => (
+                                            <Dropdown
+                                                data={paymentOptions}
+                                                labelField="label"
+                                                valueField="value"
+                                                placeholder="-- Chọn --"
+                                                search
+                                                searchPlaceholder="Tìm kiếm..."
+                                                value={value}
+                                                onChange={(item) => onChange(item.value)}
+                                                style={styles.input}
+                                            />
+                                        )}
+                                    />
+                                </ThemedView>
 
-                            <ThemedView>
-                                <ThemedText style={styles.bodyText}>Số tiền</ThemedText>
-                                <Controller
-                                    control={control}
-                                    name="amount"
-                                    rules={{ required: '*Số tiền là bắt buộc!' }}
-                                    render={({ field: { onChange, value } }) => (
-                                        <TextInput
-                                            style={styles.input}
-                                            value={value ? value.toString() : ''}
-                                            onChangeText={(text) => {
-                                                setValue('paymentOption', 'CUSTOM');
-                                                onChange(text);
-                                            }}
-                                            placeholder="Nhập số tiền"
-                                            keyboardType="numeric"
-                                        />
-                                    )}
-                                />
-                            </ThemedView>
+                                <ThemedView>
+                                    <ThemedText style={styles.bodyText}>Số tiền</ThemedText>
+                                    <Controller
+                                        control={control}
+                                        name="amount"
+                                        rules={{ required: '*Số tiền là bắt buộc!' }}
+                                        render={({ field: { onChange, value } }) => (
+                                            <TextInput
+                                                style={styles.input}
+                                                value={value ? value.toString() : ''}
+                                                onChangeText={(text) => {
+                                                    setValue('paymentOption', 'CUSTOM');
+                                                    onChange(text);
+                                                }}
+                                                placeholder="Nhập số tiền"
+                                                keyboardType="numeric"
+                                            />
+                                        )}
+                                    />
+                                </ThemedView>
 
-                            <ThemedView>
-                                {/* {creditCardErrors.note ?
+                                <ThemedView>
+                                    {/* {creditCardErrors.note ?
               <ThemedText style={styles.warning}>{creditCardErrors.note.message}</ThemedText>
               : 
             } */}
-                                <ThemedText style={styles.bodyText}>Ghi chú</ThemedText>
-                                <Controller
-                                    control={control}
-                                    name="note"
-                                    render={({ field: { onChange, value } }) => (
-                                        <TextInput
-                                            value={`Thanh toan truoc han, ngay ${getCurrentDate()}`}
-                                            onChange={onChange}
-                                            style={styles.input}
-                                            editable={false}
-                                        />
-                                    )}
-                                />
-                            </ThemedView>
-                        </KeyboardAwareScrollView >
-                    </ThemedView>
+                                    <ThemedText style={styles.bodyText}>Ghi chú</ThemedText>
+                                    <Controller
+                                        control={control}
+                                        name="note"
+                                        render={({ field: { onChange, value } }) => (
+                                            <TextInput
+                                                value={`Thanh toan truoc han, ngay ${getCurrentDate()}`}
+                                                onChange={onChange}
+                                                style={styles.input}
+                                                editable={false}
+                                            />
+                                        )}
+                                    />
+                                </ThemedView>
+                            </KeyboardAwareScrollView >
+                        </ThemedView>
 
-                    <ThemedView style={styles.footer}>
-                        <TouchableOpacity
-                            style={styles.buttonFooter}
-                            onPress={handleSubmit(
-                                async (data) => {
-                                    try {
-                                        console.log('Data ccPayment:', data);
-                                        if (!statement) {
-                                            alert('Vui lòng chọn tài khoản nguồn!');
-                                            return;
-                                        }
-                                        const res = await custApi.postCreditCardPayments(data.loanId, statement?.billingDate, data);
+                        <ThemedView style={styles.footer}>
+                            <TouchableOpacity
+                                style={styles.buttonFooter}
+                                disabled={loading}
+                                onPress={handleSubmit(
+                                    async (data) => {
+                                        try {
+                                            setLoading(true);
+                                            
+                                            // console.log('Data ccPayment:', data);
+                                            if (!statement) {
+                                                alert('Vui lòng chọn tài khoản đích!');
+                                                return;
+                                            }
+                                            const res = await custApi.postCreditCardPayments(data.loanId, statement?.billingDate, data);
 
-                                        if (res.resultCode !== '00') {
-                                            router.push({
-                                                pathname: '/transaction/success',
-                                                params: { checkoutData: JSON.stringify(res.data) }
-                                            });
+                                            if (res.resultCode !== '00') {
+                                                router.replace({
+                                                    pathname: '/utilities/utilCard/success',
+                                                    params: { checkoutData: JSON.stringify(res.result) }
+                                                });
+                                            } else {
+                                                //todo làm lại path, tạm thời như phía dưới do chưa biet kieu tra ve cua api nay
+                                                router.replace({
+                                                    pathname: '/transaction/error',
+                                                    params: { checkoutData: JSON.stringify(res.result) }
+                                                });
+                                            };
                                             reset();
-                                        } else {
-                                            router.push({
-                                                pathname: '/transaction/error',
-                                                params: { checkoutData: JSON.stringify(res.data) }
-                                            });
-                                        };
-
-                                    } catch (err: any) {
-                                        if (err?.response?.status === 401) {
-                                            alert('Thông tin không hợp lệ');
-                                        } else if (!err?.response) {
-                                            alert('Không kết nối được server');
-                                        } else {
-                                            alert('Lỗi khi thanh toán');
+                                        } catch (err: any) {
+                                            if (err?.response?.status === 401) {
+                                                alert(err?.response?.data?.message || 'Uỷ quyền đã hết hạn. Vui lòng đăng nhập lại.');
+                                            } else if (err?.response?.status === 400) {
+                                                alert(err?.response?.data?.message || 'Thông tin không hợp lệ');
+                                            } else if (!err?.response) {
+                                                alert('Không kết nối được server');
+                                            } else {
+                                                alert('Lỗi khi thanh toán');
+                                            }
+                                            console.log('Error in ccPayment:', err);
                                         }
-                                        console.log('Error in ccPayment:', err);
-                                    }
-                                },
-                                (errors) => {
-                                    // ❌ Có lỗi
-                                    alert('Vui lòng nhập đầy đủ thông tin');
-                                })}
-                        >
-                            <ThemedText>Tiếp tục</ThemedText>
-                        </TouchableOpacity>
+                                    },
+                                    (errors) => {
+                                        // ❌ Có lỗi
+                                        alert('Vui lòng nhập đầy đủ thông tin');
+                                    })}
+                            >
+                                <ThemedText>Tiếp tục</ThemedText>
+                            </TouchableOpacity>
+                        </ThemedView>
                     </ThemedView>
                 </ThemedView>
-            </ThemedView>
+            }
         </TouchableWithoutFeedback >
     );
 };

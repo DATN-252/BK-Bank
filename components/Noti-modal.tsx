@@ -3,6 +3,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { NotificationSystemType } from '@/types/noti';
 import CustService from '@/service/custApi';
 
+import { useDispatch } from 'react-redux';
+import { ReduxTypes } from '@/store/reduxStore';
+import { getCards } from '@/redux/reducerCard';
+
+
+
 interface NotiModalProps {
     visible: boolean;
     onClose: () => void;
@@ -16,6 +22,7 @@ const NotiModal: React.FC<NotiModalProps> = ({ visible, onClose, notification, o
     const [loading, setLoading] = React.useState(false);
     const isFraud = notification.fraudPrediction === 'FRAUD';
     const isResponded = notification.customerResponse !== 'NO_RESPONSE';
+    const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
 
     const handleConfirm = async () => {
         setLoading(true);
@@ -36,6 +43,10 @@ const NotiModal: React.FC<NotiModalProps> = ({ visible, onClose, notification, o
             await CustService.postRejectTransaction(notification.id);
             onResponded && onResponded();
             onClose();
+
+            //goi api update redux
+            const cards = await CustService.getCards();
+            dispatch(getCards(cards.result.content));
         } catch (e) {
             alert('Từ chối thất bại!');
         } finally {
@@ -58,7 +69,7 @@ const NotiModal: React.FC<NotiModalProps> = ({ visible, onClose, notification, o
                     <Text style={styles.label}>Trạng thái: <Text style={styles.value}>{notification.status}</Text></Text>
                     <Text style={styles.label}>Phản hồi: <Text style={styles.value}>{notification.customerResponse}</Text></Text>
                     <View style={styles.buttonRow}>
-                        {isFraud && !isResponded && (
+                        {!isResponded && (
                             <>
                                 <TouchableOpacity style={[styles.button, styles.confirm]} onPress={handleConfirm} disabled={loading}>
                                     <Text style={styles.buttonText}>Xác nhận</Text>

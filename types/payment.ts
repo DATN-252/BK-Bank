@@ -1,5 +1,5 @@
 
-export interface PaymentPreviewCreditType {
+export interface TransactionPreviewCreditType {
     recipientAccount: string;
     cardType: string;
     cardNumber: string;
@@ -13,7 +13,33 @@ export interface PaymentPreviewCreditType {
     cardNetwork?: string;
 };
 
-export interface PaymentCreditType {
+export interface TransactionPreviewCreditResponseType {
+    merchantId: string;
+    cardType: string;
+    amount: number;
+    longitude: number;
+    latitude: number;
+    
+    totalAmount: number;
+    zipCode: string;
+    fee: number;
+    bankName: string;
+    maskedCardNumber: string;
+    merchantName: string;
+    executionTime: string;
+    merchantLatitude: number;
+    merchantLongitude: number;
+    cardNetwork: string;
+    recipientAccount: string;
+    cardholderName: string;
+    merchantAddress: string;
+    recipientName: string;
+    currency: string;
+    billingAddress: string;
+    status: "VALID" | "INVALID";
+};
+
+export interface TransactionCreditType {
     merchantId: string;
     cardType: string;
     cardNumber: string;
@@ -23,34 +49,59 @@ export interface PaymentCreditType {
     latitude: number | null;
     longitude: number | null;
     idempotencyKey: string;
-    // branchId: string;
-    // branchName: string;
+
+    // paymentNote?: string;
+    // branchId?: string;
+    // branchName?: string;
 };
 
 export interface CheckoutDataType {
-    approved: boolean;
+    responseMessage: string;
     responseCode: string;
-    paymentId: string;
-    authCode: string;
-    cardType: string;
 
     cardNetwork: string;
-    maskedPan: string;
-    message: string;
-    responseMessage: string;
-    idempotencyKey: string;
-
-    merchantId: string;
-    merchantName: string;
+    cardType: string;
+    latitude: number;
+    longitude: number;
     recipientAccount: string;
     recipientName: string;
-    bankName: string;
 
-    amount: number;
+    merchantAddress: string;
+    merchantLatitude: number;
+    merchantLongitude: number;
+    merchantId: string;
+    merchantName: string;
+
     fee: number;
+    amount: number;
     totalAmount: number;
     currency: string;
     maskedCardNumber: string;
-    transactionTime: string;
+
+    bankName: string;
     transactionId: string;
-}
+    idempotencyKey: string;
+    paymentId: string;
+    transactionTime: string;
+
+    approved: boolean;
+};
+
+export interface CheckoutSuccessDataType extends CheckoutDataType {
+    authCode: string;
+
+    maskedPan: string;
+    accountId: string;
+    accountType: string;
+
+    paymentNote: string;
+    message: string;
+};
+
+export interface CheckoutErrorDataType extends CheckoutDataType {
+    retryable: boolean;
+    errorCode: string;
+    errorTitle: string;
+    httpStatus: number;
+    errorHint: string;
+};

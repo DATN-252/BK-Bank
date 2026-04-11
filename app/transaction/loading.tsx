@@ -1,43 +1,13 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
-import { Router, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import PayService from '@/service/payApi';
+
 
 
 export default function LoadingScreen() {
-    const router: Router = useRouter();
-    let { dataToSend } = useLocalSearchParams<{ dataToSend: string }>();
-    const responseData = dataToSend ? JSON.parse(dataToSend) : null;
-
-    React.useEffect(() => {
-        (async () => {
-            try {
-                const res = await PayService.paymentCredit(responseData);
-                console.log('Review Response:', res);
-
-                if (res.result.approved) {
-                    router.replace({
-                        pathname: '/transaction/success',
-                        params: { checkoutData: JSON.stringify(res.result) },
-                    });
-                } else {
-                    router.replace({
-                        pathname: '/transaction/error',
-                        params: { checkoutData: JSON.stringify(res.result) },
-                    });
-                }
-            } catch (err: any) {
-                console.error('Lỗi khi thực hiện giao dịch: ', err);
-                router.back();
-                alert('Có lỗi xảy ra khi thực hiện giao dịch. Vui lòng thử lại sau.');
-            }
-        })();
-    }, [responseData, router]);
-
 
     return (
         <ThemedView style={styles.container}>
@@ -52,7 +22,7 @@ export default function LoadingScreen() {
             </ThemedView>
         </ThemedView>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {

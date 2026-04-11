@@ -9,7 +9,7 @@ import { StyleSheet, TouchableOpacity } from 'react-native';
 import ViewShot from "react-native-view-shot";
 import * as MediaLibrary from 'expo-media-library';
 import { BackgroundView } from '@/components/background-view';
-import { CheckoutDataType } from '@/types/payment';
+import { CheckoutSuccessDataType } from '@/types/payment';
 
 
 
@@ -19,7 +19,7 @@ export type DisplayField<T> = [
     { isMultiline?: boolean }?
 ];
 
-const fields: DisplayField<CheckoutDataType>[] = [
+const fields: DisplayField<CheckoutSuccessDataType>[] = [
     ['totalAmount', 'Số tiền', { isMultiline: true }],
     ['merchantName', 'Tên bên nhận', { isMultiline: true }],
     ['merchantId', 'Tài khoản bên nhận', { isMultiline: true }],
@@ -59,7 +59,7 @@ const renderKeyValueRows = <T extends object>(
     ));
 };
 
-export const CheckoutTransaction = ({ title, responseData, icon }: { title: string; responseData: CheckoutDataType; icon: { name: string; color: string } }) => {
+export const CheckoutTransaction = ({ title, renderKeyValueRows, icon }: { title: string; renderKeyValueRows: React.ReactNode; icon: { name: string; color: string } }) => {
     const router: Router = useRouter();
     const viewRef = useRef<ViewShot>(null);
     const captureScreen = async () => {
@@ -91,7 +91,7 @@ export const CheckoutTransaction = ({ title, responseData, icon }: { title: stri
                 </ThemedView>
 
                 <ThemedView style={styles.body}>
-                    {renderKeyValueRows(responseData, fields)}
+                    {renderKeyValueRows}
                 </ThemedView>
 
                 <ThemedView style={styles.footer}>
@@ -142,7 +142,7 @@ export const CheckoutTransaction = ({ title, responseData, icon }: { title: stri
                             </ThemedView>
 
                             <ThemedView style={styles.body}>
-                                {renderKeyValueRows(responseData, fields)}
+                                {renderKeyValueRows}
                             </ThemedView>
                         </ImageBackground>
                     </ThemedView>
@@ -169,7 +169,7 @@ export default function SuccessTransactionScreen() {
         <ThemedView style={styles.container}>
             <CheckoutTransaction
                 title="Chuyển khoản thành công"
-                responseData={responseData}
+                renderKeyValueRows={renderKeyValueRows(responseData, fields)}
                 icon={{ name: 'check-circle', color: 'green' }}
             />
         </ThemedView>

@@ -26,6 +26,10 @@ export default function UtilCardLayout() {
           header: headerTransaction("Sao kê tín dụng"),
           contentStyle: styles.container
         }} />
+        {/* <Stack.Screen name="success" options={{
+          header: headerTransaction("Kết quả giao dịch"),
+          contentStyle: styles.container
+        }} /> */}
         {/* <Stack.Screen name="create" /> */}
       </Stack>
     </BackgroundView>

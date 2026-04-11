@@ -56,7 +56,7 @@
           "savePhotosPermission": "Allow $(PRODUCT_NAME) to save photos.",
           "isAccessMediaLocationEnabled": true,
           "granularPermissions": [
-             "photo"
+            "photo"
           ]
         }
       ],
