@@ -56,15 +56,21 @@ const CustService = {
 
   postLockCard: async (cardId: number) => {
     // Gọi API khóa thẻ
-    const res = await axiosClientCMS.post(`/api/cards/${cardId}/lock`);
+    const res = await axiosClient.post(`/customer/me/cards/${cardId}/lock`);
     return res.data;
   },
 
   postUnlockCard: async (cardId: number) => {
     // Gọi API mở khóa thẻ
-    const res = await axiosClientCMS.post(`/api/cards/${cardId}/unlock`);
+    const res = await axiosClient.post(`/customer/me/cards/${cardId}/unlock`);
     return res.data;
   },
+
+  // postCancelCard: async (cardId: number) => {
+  //   // Gọi API hủy thẻ
+  //   const res = await axiosClient.post(`/customer/me/cards/${cardId}/cancel`);
+  //   return res.data;
+  // },
 
   getNotiFraud: async () => {
     const res = await axiosClient.get(`/customer/me/fraud-alerts`);

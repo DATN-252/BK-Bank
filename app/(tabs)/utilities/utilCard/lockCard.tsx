@@ -6,7 +6,7 @@ import React from "react";
 import { Ionicons } from '@expo/vector-icons';
 import CustService from "@/service/custApi";
 import { getCards } from "@/redux/reducerCard";
-import { Colors } from "@/constants/Colors";
+// import { Colors } from "@/constants/Colors";
 
 import { useDispatch, useSelector } from 'react-redux';
 import { ReduxTypes } from '@/store/reduxStore';
@@ -29,8 +29,8 @@ export default function LockCardScreen() {
             };
 
             // update list redux
-            // const cards = await CustService.getCards();
-            // dispatch(getCards(cards.result.content));
+            const cards = await CustService.getCards();
+            dispatch(getCards(cards.result.content));
         } catch (err: any) {
             Alert.alert("Lỗi", err?.message || "Thao tác thất bại");
         };
