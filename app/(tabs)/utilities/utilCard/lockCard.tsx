@@ -6,6 +6,7 @@ import React from "react";
 import { Ionicons } from '@expo/vector-icons';
 import CustService from "@/service/custApi";
 import { getCards } from "@/redux/reducerCard";
+import { useFocusEffect } from '@react-navigation/native';
 // import { Colors } from "@/constants/Colors";
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +17,21 @@ import { ReduxTypes } from '@/store/reduxStore';
 export default function LockCardScreen() {
     const cardInfo = useSelector((state: ReduxTypes['RootState']) => state.cardInfo);
     const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
+
+    const refreshCards = React.useCallback(async () => {
+        try {
+            const cards = await CustService.getCards();
+            dispatch(getCards(cards.result.content));
+        } catch (err: any) {
+            Alert.alert('Lỗi', err?.message || 'Không thể tải danh sách thẻ');
+        }
+    }, [dispatch]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            void refreshCards();
+        }, [refreshCards])
+    );
 
     const handleLockUnlock = async (card: any) => {
         try {
@@ -29,11 +45,31 @@ export default function LockCardScreen() {
             };
 
             // update list redux
-            const cards = await CustService.getCards();
-            dispatch(getCards(cards.result.content));
+            await refreshCards();
         } catch (err: any) {
             Alert.alert("Lỗi", err?.message || "Thao tác thất bại");
         };
+    };
+
+    const handleLockUnlockPress = (card: any) => {
+        const isActive = card.status === 'ACTIVE';
+
+        Alert.alert(
+            isActive ? 'Xác nhận khóa thẻ' : 'Xác nhận mở khóa thẻ',
+            isActive
+                ? 'Bạn chắc chắn muốn khóa thẻ này?'
+                : 'Bạn chắc chắn muốn mở khóa thẻ này?',
+            [
+                { text: 'Huỷ', style: 'cancel' },
+                {
+                    text: isActive ? 'Khóa' : 'Mở khóa',
+                    style: isActive ? 'destructive' : 'default',
+                    onPress: () => {
+                        void handleLockUnlock(card);
+                    },
+                },
+            ]
+        );
     };
 
     const renderCard = ({ item }: { item: any }) => (
@@ -60,7 +96,7 @@ export default function LockCardScreen() {
                 <TouchableOpacity
                     style={[styles.actionBtn, item.status === "ACTIVE" ? styles.buttonLock : styles.buttonUnlock]}
                     activeOpacity={0.85}
-                    onPress={() => handleLockUnlock(item)}
+                    onPress={() => handleLockUnlockPress(item)}
                 >
                     <Ionicons
                         name={item.status === "ACTIVE" ? "lock-closed" : "lock-open"}

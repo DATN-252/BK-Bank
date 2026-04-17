@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import React from 'react';
 import { FlatList, Keyboard, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import NotiModal from '@/components/Noti-modal';
@@ -92,35 +92,35 @@ import { ReduxTypes } from '@/store/reduxStore';
 const DATA_GENERAL = [
   {
     id: '1001',
-    icon: 'gift-outline',
+    icon: 'gift',
     title: 'Khuyến mãi mở thẻ',
     date: '5 Oct 2020',
     link: 'Xem thêm',
   },
   {
     id: '1002',
-    icon: 'settings-outline',
+    icon: 'wrench',
     title: 'Bảo trì hệ thống 20/12',
     date: '5 Oct 2020',
     link: 'Xem thêm',
   },
   {
     id: '1003',
-    icon: 'help-circle-outline',
+    icon: 'credit-card',
     title: 'Hướng dẫn mở số tk',
     date: '5 Oct 2020',
     link: 'Xem thêm',
   },
   {
     id: '1004',
-    icon: 'cloud-upload-outline',
+    icon: 'upload',
     title: 'Nâng cấp hệ thống',
     date: '5 Oct 2020',
     link: 'Xem thêm',
   },
   {
     id: '1005',
-    icon: 'shield-checkmark-outline',
+    icon: 'shield',
     title: 'Yêu cầu bật xác thực 2 lớp',
     date: '5 Oct 2020',
     link: 'Xem thêm',
@@ -130,6 +130,22 @@ const DATA_GENERAL = [
 export default function NotificationScreen() {
   const [search, setSearch] = React.useState('');
   const [tab, setTab] = React.useState<'balance' | 'general'>('balance');
+
+  // để thay dổi nền mỗi transaction
+  const getBalanceRowBackground = (transaction: NotiBalance) => {
+    if (transaction.status === 'SUCCESS') {
+      return transaction.transactionType === 'CHARGE' ? '#FFEDEE' : '#EDFCF2';
+    }
+    return '#faf1cc';
+  };
+
+  const getGeneralRowBackground = (item: NotificationSystemType | (typeof DATA_GENERAL)[number]) => {
+    if ('fraudPrediction' in item && item.customerRespondedAt === null) {
+      return '#FFF8D9';
+    }
+
+    return Colors.light.icon;
+  };
 
   const [refreshing, setRefreshing] = React.useState(false);
   const DATA_BALANCE: NotiBalance[] = useSelector((state: ReduxTypes['RootState']) => state.notification);
@@ -183,12 +199,12 @@ export default function NotificationScreen() {
 
 
   const renderBalanceItem = ({ item }: { item: NotiBalance }) => (
-    <ThemedView style={styles.row}>
+    <ThemedView style={[styles.row, { backgroundColor: getBalanceRowBackground(item) }]}>
       <ThemedView style={styles.iconBox}>
-        <Ionicons
-          name={item.status === 'SUCCESS' ? (item.transactionType !== 'CHARGE' ? 'arrow-up' : 'arrow-down') : 'alert'}
+        <FontAwesome
+          name={item.status === 'SUCCESS' ? (item.transactionType !== 'CHARGE' ? 'arrow-circle-up' : 'arrow-circle-down') : 'exclamation-triangle'}
           size={24}
-          color={item.status === 'SUCCESS' && item.transactionType !== 'CHARGE' ? '#00D26A' : 'red'}
+          color={item.status === 'SUCCESS' ? (item.transactionType !== 'CHARGE' ? '#00D26A' : 'red') : 'orange'}
         />
       </ThemedView>
       <ThemedView style={{ flex: 1, backgroundColor: 'transparent', }}>
@@ -217,15 +233,16 @@ export default function NotificationScreen() {
   // General notification item renderer that supports both DATA_GENERAL and DATA_SYSTEM
   const renderGeneralItem = ({ item }: { item: any }) => {
     // If is system notification (fraud/system), show modal on press
-    const isSystem = item.fraudPrediction !== undefined;
-    const icon = item.icon || 'alert-circle-outline';
+    const isSystem = 'fraudPrediction' in item;
+    const icon = item.icon || 'exclamation-triangle';
+    const color = isSystem ? 'orange' : Colors.light.tint;
     const title = item.title || item.message || item.content || (item.fraudPrediction ? 'Cảnh báo gian lận' : 'Thông báo hệ thống');
     const date = item.date || item.createdAt || item.time || '';
 
     const content = (
-      <ThemedView style={styles.row}>
+      <ThemedView style={[styles.row, { backgroundColor: getGeneralRowBackground(item) }]}>
         <ThemedView style={styles.iconBox}>
-          <Ionicons name={icon} size={24} color={Colors.light.tint} />
+          <FontAwesome name={icon} size={24} color={color} />
         </ThemedView>
         <ThemedView style={{ flex: 1, backgroundColor: 'transparent', }}>
           <ThemedText style={styles.textValue}>{title}</ThemedText>
@@ -252,7 +269,7 @@ export default function NotificationScreen() {
           <ThemedText type='subtitle' style={styles.title}>Thông báo</ThemedText>
 
           <ThemedView style={styles.searchBox}>
-            <Ionicons name="search" size={20} color={Colors.light.icon} style={{ marginRight: 8 }} />
+            <FontAwesome name="search" size={20} color={Colors.light.icon} style={{ marginRight: 8 }} />
             <TextInput
               style={styles.input}
               placeholder={tab === 'balance' ? 'Tìm kiếm giao dịch' : 'Tìm kiếm thông báo'}
@@ -335,7 +352,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.light.icon,
+    backgroundColor: Colors.light.background,
     borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 12,

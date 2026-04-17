@@ -95,7 +95,10 @@ export default function CreditTransactionScreen() {
                       placeholder="Nhập mã cửa hàng"
                       onChangeText={onChange}
                       value={value}
-                      style={styles.input}
+                      style={[
+                        styles.input,
+                        (qrData !== undefined) && { opacity: 0.7 }
+                      ]}
                       editable={qrData === undefined}
                     />
                   )}
@@ -118,10 +121,7 @@ export default function CreditTransactionScreen() {
                       searchPlaceholder="Tìm kiếm..."
                       value={value}
                       onChange={onChange}
-                      style={[
-                        styles.input,
-                        (qrData !== undefined) && { opacity: 0.6 }
-                      ]}
+                      style={styles.input}
                     />
                   )}
                 />
@@ -306,7 +306,10 @@ export default function CreditTransactionScreen() {
                       keyboardType="numeric"
                       onChangeText={onChange}
                       value={value?.toString() ?? ''}
-                      style={styles.input}
+                      style={[
+                        styles.input,
+                        (qrData !== undefined) && { opacity: 0.7 }
+                      ]}
                       editable={parsedQrData?.amount === undefined}
                     />
                   )}

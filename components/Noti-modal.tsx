@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
 import { NotificationSystemType } from '@/types/noti';
 import CustService from '@/service/custApi';
 
 import { useDispatch } from 'react-redux';
 import { ReduxTypes } from '@/store/reduxStore';
 import { getCards } from '@/redux/reducerCard';
+import { ThemedView } from './themed-view';
 
 
 
@@ -17,12 +18,13 @@ interface NotiModalProps {
 }
 
 const NotiModal: React.FC<NotiModalProps> = ({ visible, onClose, notification, onResponded }) => {
-    if (!notification) return null;
-
     const [loading, setLoading] = React.useState(false);
-    const isFraud = notification.fraudPrediction === 'FRAUD';
-    const isResponded = notification.customerResponse !== 'NO_RESPONSE';
+
     const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
+    
+    if (!notification) return null;
+    // const isFraud = notification.fraudPrediction === 'FRAUD';
+    const isResponded = notification.customerResponse !== 'NO_RESPONSE';
 
     const handleConfirm = async () => {
         setLoading(true);
@@ -33,6 +35,7 @@ const NotiModal: React.FC<NotiModalProps> = ({ visible, onClose, notification, o
         } catch (e) {
             alert('Xác nhận thất bại!');
         } finally {
+            alert('Xác nhận thành công!');
             setLoading(false);
         }
     };
@@ -50,8 +53,42 @@ const NotiModal: React.FC<NotiModalProps> = ({ visible, onClose, notification, o
         } catch (e) {
             alert('Từ chối thất bại!');
         } finally {
+            alert('Từ chối thành công!');
             setLoading(false);
         }
+    };
+
+    const handleConfirmPress = () => {
+        Alert.alert(
+            'Xác nhận giao dịch',
+            'Bạn chắc chắn đây là giao dịch của bạn?',
+            [
+                { text: 'Huỷ', style: 'cancel' },
+                {
+                    text: 'Xác nhận',
+                    onPress: () => {
+                        void handleConfirm();
+                    },
+                },
+            ]
+        );
+    };
+
+    const handleRejectPress = () => {
+        Alert.alert(
+            'Từ chối giao dịch',
+            'Bạn chắc chắn muốn từ chối giao dịch này?',
+            [
+                { text: 'Huỷ', style: 'cancel' },
+                {
+                    text: 'Từ chối',
+                    style: 'destructive',
+                    onPress: () => {
+                        void handleReject();
+                    },
+                },
+            ]
+        );
     };
 
     return (
@@ -68,14 +105,19 @@ const NotiModal: React.FC<NotiModalProps> = ({ visible, onClose, notification, o
                     <Text style={styles.label}>Lý do: <Text style={styles.value}>{notification.fraudReason || '-'}</Text></Text>
                     <Text style={styles.label}>Trạng thái: <Text style={styles.value}>{notification.status}</Text></Text>
                     <Text style={styles.label}>Phản hồi: <Text style={styles.value}>{notification.customerResponse}</Text></Text>
+                    {!isResponded && (
+                        <ThemedView style={{ marginTop: 12, marginBottom: -12, alignSelf: 'center' }}>
+                            <Text style={styles.value}>Xác nhận có phải bạn?</Text>
+                        </ThemedView>
+                    )}
                     <View style={styles.buttonRow}>
                         {!isResponded && (
                             <>
-                                <TouchableOpacity style={[styles.button, styles.confirm]} onPress={handleConfirm} disabled={loading}>
-                                    <Text style={styles.buttonText}>Xác nhận</Text>
+                                <TouchableOpacity style={[styles.button, styles.confirm]} onPress={handleConfirmPress} disabled={loading}>
+                                    <Text style={styles.buttonText}>Là tôi</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity style={[styles.button, styles.reject]} onPress={handleReject} disabled={loading}>
-                                    <Text style={styles.buttonText}>Từ chối</Text>
+                                <TouchableOpacity style={[styles.button, styles.reject]} onPress={handleRejectPress} disabled={loading}>
+                                    <Text style={styles.buttonText}>Không phải tôi</Text>
                                 </TouchableOpacity>
                             </>
                         )}

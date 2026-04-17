@@ -35,6 +35,7 @@ const sourcePaymentOptions = [
 const paymentOptions = [
     { label: 'Thanh toán tối thiểu', value: 'MINIMUM_DUE' },
     { label: 'Thanh toán toàn bộ', value: 'STATEMENT_BALANCE' },
+    { label: 'Thanh toán kỳ hạn trước', value: 'STATEMENT_BEFORE' },
     { label: 'Thanh toán tùy chỉnh', value: 'CUSTOM' }
 ];
 
@@ -242,10 +243,10 @@ export default function CreditCardPaymentScreen() {
                                         render={({ field: { onChange, value } }) => (
                                             <TextInput
                                                 style={styles.input}
-                                                value={value ? value.toString() : ''}
+                                                value={value === undefined || value === null ? '' : String(value)}
                                                 onChangeText={(text) => {
                                                     setValue('paymentOption', 'CUSTOM');
-                                                    onChange(text);
+                                                    onChange(text === '' ? undefined : Number(text));
                                                 }}
                                                 placeholder="Nhập số tiền"
                                                 keyboardType="numeric"
@@ -283,15 +284,22 @@ export default function CreditCardPaymentScreen() {
                                 onPress={handleSubmit(
                                     async (data) => {
                                         try {
-                                            setLoading(true);
-                                            
                                             // console.log('Data ccPayment:', data);
                                             if (!statement) {
                                                 alert('Vui lòng chọn tài khoản đích!');
                                                 return;
-                                            }
-                                            const res = await custApi.postCreditCardPayments(data.loanId, statement?.billingDate, data);
+                                            };
 
+                                            // amount = 0
+                                            if (statement.newBalance === 0) {
+                                                alert('Tài khoản không có khoản nợ nào để thanh toán!');
+                                                reset();
+                                                return;
+                                            };
+
+                                            setLoading(true);
+
+                                            const res = await custApi.postCreditCardPayments(data.loanId, statement?.billingDate, data);
                                             if (res.resultCode !== '00') {
                                                 router.replace({
                                                     pathname: '/utilities/utilCard/success',
@@ -316,6 +324,7 @@ export default function CreditCardPaymentScreen() {
                                                 alert('Lỗi khi thanh toán');
                                             }
                                             console.log('Error in ccPayment:', err);
+                                            setLoading(false);
                                         }
                                     },
                                     (errors) => {
