@@ -168,7 +168,7 @@ export default function SuccessTransactionScreen() {
     return (
         <ThemedView style={styles.container}>
             <CheckoutTransaction
-                title="Chuyển khoản thành công"
+                title="GIao dịch thành công"
                 renderKeyValueRows={renderKeyValueRows(responseData, fields)}
                 icon={{ name: 'check-circle', color: 'green' }}
             />

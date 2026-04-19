@@ -63,7 +63,7 @@ export default function ErrorTransactionScreen() {
     return (
         <ThemedView style={styles.container}>
             <CheckoutTransaction
-                title="Chuyển khoản thất bại"
+                title="Giao dịch thất bại"
                 renderKeyValueRows={renderKeyValueRows(responseData, fields)}
                 icon={{ name: 'times-circle', color: 'red' }}
             />

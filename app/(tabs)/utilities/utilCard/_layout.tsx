@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native';
 
 
 
-export default function UtilCardLayout() {
+export default function UtilityCardLayout() {
 
   return (
     <BackgroundView>
@@ -15,7 +15,7 @@ export default function UtilCardLayout() {
           contentStyle: styles.container
         }} />
         <Stack.Screen name="ccPayment" options={{
-          header: headerTransaction("Thanh toán thẻ"),
+          header: headerTransaction("Thanh toán tín dụng"),
           contentStyle: styles.container
         }}/>
         <Stack.Screen name="lockCard" options={{
@@ -26,10 +26,10 @@ export default function UtilCardLayout() {
           header: headerTransaction("Sao kê tín dụng"),
           contentStyle: styles.container
         }} />
-        {/* <Stack.Screen name="success" options={{
-          header: headerTransaction("Kết quả giao dịch"),
+        <Stack.Screen name="success" options={{
+          header: headerTransaction("Kết quả thanh toán"),
           contentStyle: styles.container
-        }} /> */}
+        }} />
         {/* <Stack.Screen name="create" /> */}
       </Stack>
     </BackgroundView>

@@ -69,7 +69,7 @@ const renderKeyValueRows = <T extends object>(
     ));
 };
 
-export const CheckoutPaymentCredit = ({ title, renderKeyValueRows, icon }: { title: string; renderKeyValueRows: React.ReactNode; icon: { name: string; color: string } }) => {
+export const CheckoutCreditPayment = ({ title, renderKeyValueRows, icon }: { title: string; renderKeyValueRows: React.ReactNode; icon: { name: string; color: string } }) => {
     const router: Router = useRouter();
     const viewRef = useRef<ViewShot>(null);
     const captureScreen = async () => {
@@ -162,14 +162,14 @@ export const CheckoutPaymentCredit = ({ title, renderKeyValueRows, icon }: { tit
     );
 };
 
-export default function ErrorTransactionScreen() {
+export default function SuccessCreditPaymentScreen() {
     let { checkoutData } = useLocalSearchParams<{ checkoutData: string }>();
     const responseData = checkoutData ? JSON.parse(checkoutData) : null;
 
     return (
         <ThemedView style={styles.container}>
-            <CheckoutPaymentCredit
-                title="Thanh toán sao kê thành công"
+            <CheckoutCreditPayment
+                title="Thanh toán thành công"
                 renderKeyValueRows={renderKeyValueRows(responseData, fields)}
                 icon={{ name: 'check-circle', color: 'green' }}
             />

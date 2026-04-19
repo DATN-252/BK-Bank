@@ -77,13 +77,13 @@ export default function StatementScreen() {
                 if (err?.response?.status === 401) {
                     alert(err?.response?.data?.message || 'Uỷ quyền đã hết hạn. Vui lòng đăng nhập lại.');
                 } else if (err?.response?.status === 400) {
-                    alert(err?.response?.data?.message || 'Kỳ hạn chưa kết thúc!');
+                    alert(err?.response?.data?.message || 'Kỳ hạn chưa kết thúc!'); 
                 } else if (!err?.response) {
                     alert('Không kết nối được server');
                 } else {
                     alert('Lỗi khi thanh toán');
+                    console.log('Error in ccPayment:', err);
                 }
-                console.log('Error in ccPayment:', err);
             };
             setLoading(false);
         })();

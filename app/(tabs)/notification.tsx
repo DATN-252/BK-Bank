@@ -132,9 +132,14 @@ export default function NotificationScreen() {
   const [tab, setTab] = React.useState<'balance' | 'general'>('balance');
 
   // để thay dổi nền mỗi transaction
+  const getStatusReceiveOrSendMoney = (transactionType: string) => {
+    const validTypes = new Set(['CHARGE', 'WITHDRAWAL']);
+    return validTypes.has(transactionType);
+  };
+
   const getBalanceRowBackground = (transaction: NotiBalance) => {
     if (transaction.status === 'SUCCESS') {
-      return transaction.transactionType === 'CHARGE' ? '#FFEDEE' : '#EDFCF2';
+      return getStatusReceiveOrSendMoney(transaction.transactionType) ? '#FFEDEE' : '#EDFCF2';
     }
     return '#faf1cc';
   };
@@ -198,33 +203,41 @@ export default function NotificationScreen() {
   }, [refreshNotificationsSystem]);
 
 
-  const renderBalanceItem = ({ item }: { item: NotiBalance }) => (
-    <ThemedView style={[styles.row, { backgroundColor: getBalanceRowBackground(item) }]}>
+  const renderBalanceItem = ({ item }: { item: NotiBalance }) => {
+    const transType: boolean = !getStatusReceiveOrSendMoney(item.transactionType);
+
+    return (<ThemedView style={[styles.row, { backgroundColor: getBalanceRowBackground(item) }]}>
       <ThemedView style={styles.iconBox}>
         <FontAwesome
-          name={item.status === 'SUCCESS' ? (item.transactionType !== 'CHARGE' ? 'arrow-circle-up' : 'arrow-circle-down') : 'exclamation-triangle'}
+          name={item.status === 'SUCCESS' ? (transType ? 'arrow-circle-up' : 'arrow-circle-down') : 'exclamation-triangle'}
           size={24}
-          color={item.status === 'SUCCESS' ? (item.transactionType !== 'CHARGE' ? '#00D26A' : 'red') : 'orange'}
+          color={item.status === 'SUCCESS' ? (transType ? '#00D26A' : 'red') : 'orange'}
         />
       </ThemedView>
       <ThemedView style={{ flex: 1, backgroundColor: 'transparent', }}>
-        <ThemedText style={styles.textKey}>Từ:
+        <ThemedText style={styles.textKey}>Thông báo tới:
           <ThemedText style={styles.textValue}> {item.accountNumber}</ThemedText>
         </ThemedText>
-        <ThemedText style={styles.textKey}>Đến:
-          <ThemedText style={styles.textValue}> {item.merchantId}</ThemedText>
+        <ThemedText style={styles.textKey}>Loại tài khoản:
+          <ThemedText style={styles.textValue}> {item.accountType}</ThemedText>
         </ThemedText>
+        {item.merchantId != null && (
+          <ThemedText style={styles.textKey}>Thanh toán đến:
+            <ThemedText style={styles.textValue}> {item.merchantName}</ThemedText>
+          </ThemedText>
+        )}
         <ThemedText style={styles.textKey}>Nội dung:
           <ThemedText style={styles.textValue}> {`"${item.description}"`}</ThemedText>
         </ThemedText>
         <ThemedText style={styles.textKey}>{item.accountType === 'LOAN' ? 'Số nợ cuối:' : 'Số dư cuối:'}
-          <ThemedText style={styles.textValue}> {item.balanceAfter} {item.currency}</ThemedText>
+          <ThemedText style={styles.textValue}> {item.balanceAfter.toFixed(2)} {item.currency}</ThemedText>
         </ThemedText>
         <ThemedText style={styles.textKey}>{item.transactionDate?.split("T")[0] || "N/A"} | Trạng thái: {item.status}</ThemedText>
       </ThemedView>
-      <ThemedText style={[styles.amount, { color: item.transactionType !== 'CHARGE' ? '#00D26A' : 'red' }]}>{item.transactionType !== 'CHARGE' ? "+" + item.amount : "-" + item.amount} {item.currency}</ThemedText>
+      <ThemedText style={[styles.amount, { color: transType ? '#00D26A' : 'red' }]}>{transType ? "+" : "-"}{item.amount} {item.currency}</ThemedText>
     </ThemedView>
-  );
+    );
+  }
 
   // Modal state for system notification detail
   const [modalVisible, setModalVisible] = React.useState(false);

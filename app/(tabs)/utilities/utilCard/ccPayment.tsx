@@ -122,7 +122,7 @@ export default function CreditCardPaymentScreen() {
                     <ThemedView style={styles.content}>
 
                         <ThemedView style={styles.header}>
-                            <ThemedText style={styles.headerText}>Thanh toán qua thẻ quốc tế/tín dụng</ThemedText>
+                            <ThemedText style={styles.headerText}>Vui lòng điền đầy đủ thông tin</ThemedText>
                         </ThemedView>
 
                         <ThemedView style={styles.body}>
@@ -341,7 +341,6 @@ export default function CreditCardPaymentScreen() {
         </TouchableWithoutFeedback >
     );
 };
-
 
 const styles = StyleSheet.create({
     container: {

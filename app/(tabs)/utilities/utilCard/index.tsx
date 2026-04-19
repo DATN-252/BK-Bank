@@ -14,7 +14,7 @@ import { ReduxTypes } from '@/store/reduxStore';
 
 
 
-export default function TransactionScreen() {
+export default function UtilityCardScreen() {
     const router: Router = useRouter();
 
     // get account loan + saving
@@ -42,7 +42,7 @@ export default function TransactionScreen() {
                 <ThemedView style={styles.body}>
                     <TouchableOpacity style={styles.item} onPress={() => router.push('/utilities/utilCard/ccPayment')}>
                         <Image source={require('@/assets/images/icon-bank.png')} style={styles.icon} />
-                        <ThemedText style={styles.bodyText}>Trả nợ thẻ tín dụng</ThemedText>
+                        <ThemedText style={styles.bodyText}>Trả nợ khoản tín dụng</ThemedText>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.item} onPress={() => router.push('/utilities/utilCard/lockCard')}>
                         <Image source={require('@/assets/images/icon-debitcard.png')} style={styles.icon} />
@@ -50,7 +50,7 @@ export default function TransactionScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.item} onPress={() => router.push('/utilities/utilCard/statement')}>
                         <Image source={require('@/assets/images/icon-statement.png')} style={styles.icon} />
-                        <ThemedText style={styles.bodyText}>Sao kê giao dịch</ThemedText>
+                        <ThemedText style={styles.bodyText}>Sao kê tín dụng</ThemedText>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.item}

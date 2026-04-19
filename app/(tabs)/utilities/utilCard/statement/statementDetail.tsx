@@ -7,7 +7,9 @@ import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { FlatList, StyleSheet, ScrollView, TextInput, View } from 'react-native';
 
-export default function StatementDetail() {
+
+
+export default function StatementDetailScreen() {
     const { statementData } = useLocalSearchParams<{ statementData: string }>();
     const [search, setSearch] = React.useState('');
     const statement: statementDetailType | null = React.useMemo(() => {
@@ -23,7 +25,7 @@ export default function StatementDetail() {
         return (
             <ThemedView style={styles.centered}><ThemedText>Không có dữ liệu sao kê.</ThemedText></ThemedView>
         );
-    }
+    };
 
     // Rectangle info box for termStatementType
     const InfoBox = () => (
