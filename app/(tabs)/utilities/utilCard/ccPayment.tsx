@@ -19,11 +19,11 @@ import LoadingScreen from '@/app/transaction/loading';
 
 type CCPaymentForm = {
     paymentOption: string;
-    amount: number;
+    amount?: number;
     paymentSource: string;
-    sourceAccountNumber: string;
-    note: string;
-    loanId: string;
+    sourceAccountNumber?: string;
+    note?: string;
+    loanId?: string;
 };
 
 const sourcePaymentOptions = [
@@ -51,13 +51,31 @@ const getCurrentDate = () => {
 export default function CreditCardPaymentScreen() {
     const router: Router = useRouter();
     const [statement, setStatement] = React.useState<termStatementType>();
+
+    // mặc định note là "Thanh toán trước hạn, ngày dd-mm-yy", nếu ngày hiện tại lớn hơn ngày đến hạn thì note sẽ là "Thanh toán trước hạn, ngày dd-mm-yy"
+    const initialNote = `Thanh toan truoc han, ngay ${getCurrentDate()}`;
     const { control, watch, setValue, handleSubmit, formState: { errors }, reset } = useForm<CCPaymentForm>({
         defaultValues: {
             paymentSource: "INTERNAL_SAVINGS",
-            paymentOption: "CUSTOM"
+            paymentOption: "CUSTOM",
+            amount: undefined,
+            sourceAccountNumber: undefined,
+            loanId: undefined,
+            note: initialNote,
         }
     });
     const [loading, setLoading] = React.useState(false);
+
+    const resetPaymentForm = React.useCallback(() => {
+        reset({
+            // paymentSource: "INTERNAL_SAVINGS",
+            paymentOption: "CUSTOM",
+            amount: undefined,
+            // sourceAccountNumber: undefined,
+            // loanId: undefined,
+            note: initialNote,
+        });
+    }, [initialNote, reset]);
 
     // get info loan
     const loanAccounts = useSelector((state: ReduxTypes['RootState']) => state.loanAcc);
@@ -100,6 +118,16 @@ export default function CreditCardPaymentScreen() {
             } else if (watch('paymentOption') === "STATEMENT_BALANCE") {
                 if (!statement) alert('Thao tác quá nhanh. Vui lòng chọn lại!');
                 setValue("amount", statement?.newBalance ?? 0);
+            } else if (watch('paymentOption') === "STATEMENT_BEFORE") {
+                if (!statement) alert('Thao tác quá nhanh. Vui lòng chọn lại!');
+                if (statement?.totalCharges === undefined || statement?.totalPayments === undefined) 
+                    return alert('Không thể lấy thông tin khoản nợ trước đó. Vui lòng chọn lại!');
+
+                if (statement?.totalCharges >= statement?.totalPayments)
+                    setValue("amount", statement?.previousBalance ?? 0);
+                else
+                    setValue("amount", statement?.newBalance ?? 0);
+                    
             };
         })();
     }, [watch('paymentOption')]);
@@ -107,9 +135,19 @@ export default function CreditCardPaymentScreen() {
     React.useEffect(() => {
         (async () => {
             // chọn loanId trước để lấy số nợ cần trả
-            if (watch('loanId')) {
-                setStatement(await getCurrentStatement(watch('loanId')));
+            const selectedLoanId = watch('loanId');
+            if (selectedLoanId) {
+                setStatement(await getCurrentStatement(selectedLoanId));
             };
+
+            // đổi note thành đúng hạn nếu ngày hiện tại đã vượt quá ngày đến hạn
+            if (!statement) return;
+            const dueDate = new Date(statement?.dueDate);
+            const now = new Date();
+
+            if (dueDate < now) {
+                setValue('note', `Thanh toan dung han, ngay ${getCurrentDate()}`);
+            }
         })();
     }, [watch('loanId')]);
 
@@ -178,7 +216,7 @@ export default function CreditCardPaymentScreen() {
                                                 placeholder="-- Chọn --"
                                                 search
                                                 searchPlaceholder="Tìm kiếm..."
-                                                value={value}
+                                                value={value ?? null}
                                                 onChange={(item) => onChange(item.value)}
                                                 style={styles.input}
                                             />
@@ -204,7 +242,7 @@ export default function CreditCardPaymentScreen() {
                                                 placeholder="-- Chọn --"
                                                 search
                                                 searchPlaceholder="Tìm kiếm..."
-                                                value={value}
+                                                value={value ?? null}
                                                 onChange={(item) => onChange(item.value)}
                                                 style={styles.input}
                                             />
@@ -266,7 +304,7 @@ export default function CreditCardPaymentScreen() {
                                         name="note"
                                         render={({ field: { onChange, value } }) => (
                                             <TextInput
-                                                value={`Thanh toan truoc han, ngay ${getCurrentDate()}`}
+                                                value={value ?? initialNote}
                                                 onChange={onChange}
                                                 style={styles.input}
                                                 editable={false}
@@ -290,14 +328,24 @@ export default function CreditCardPaymentScreen() {
                                                 return;
                                             };
 
+                                            if (!data.loanId) {
+                                                alert('Thiếu tài khoản đích!');
+                                                return;
+                                            }
+
                                             // amount = 0
-                                            if (statement.newBalance === 0) {
-                                                alert('Tài khoản không có khoản nợ nào để thanh toán!');
-                                                reset();
+                                            if (data.amount === 0) {
+                                                if (data.paymentOption === "STATEMENT_BEFORE") 
+                                                    alert('Đã thanh toán kỳ hạn trước. Vui lòng chọn loại thanh toán khác!');
+                                              else 
+                                                    alert('Tài khoản không có khoản nợ nào để thanh toán!');
+                                                resetPaymentForm();
                                                 return;
                                             };
-
+                                            
                                             setLoading(true);
+                                            if (data.paymentOption === "STATEMENT_BEFORE")
+                                                data.paymentOption = "CUSTOM";
 
                                             const res = await custApi.postCreditCardPayments(data.loanId, statement?.billingDate, data);
                                             if (res.resultCode !== '00') {
@@ -312,7 +360,7 @@ export default function CreditCardPaymentScreen() {
                                                     params: { checkoutData: JSON.stringify(res.result) }
                                                 });
                                             };
-                                            reset();
+                                            resetPaymentForm();
                                         } catch (err: any) {
                                             if (err?.response?.status === 401) {
                                                 alert(err?.response?.data?.message || 'Uỷ quyền đã hết hạn. Vui lòng đăng nhập lại.');
