@@ -230,11 +230,11 @@ export default function NotificationScreen() {
           <ThemedText style={styles.textValue}> {`"${item.description}"`}</ThemedText>
         </ThemedText>
         <ThemedText style={styles.textKey}>{item.accountType === 'LOAN' ? 'Số nợ cuối:' : 'Số dư cuối:'}
-          <ThemedText style={styles.textValue}> {item.balanceAfter.toFixed(2)} {item.currency}</ThemedText>
+          <ThemedText style={styles.textValue}> {(item.balanceAfter ?? 0).toFixed(2)} {item.currency}</ThemedText>
         </ThemedText>
         <ThemedText style={styles.textKey}>{item.transactionDate?.split("T")[0] || "N/A"} | Trạng thái: {item.status}</ThemedText>
       </ThemedView>
-      <ThemedText style={[styles.amount, { color: transType ? '#00D26A' : 'red' }]}>{transType ? "+" : "-"}{item.amount} {item.currency}</ThemedText>
+      <ThemedText style={[styles.amount, { color: transType ? '#00D26A' : 'red' }]}>{transType ? "+" : "-"}{(item.amount ?? 0).toFixed(2)} {item.currency}</ThemedText>
     </ThemedView>
     );
   }

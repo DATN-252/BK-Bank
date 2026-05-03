@@ -46,7 +46,7 @@ export default function UtilityCardScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.item} onPress={() => router.push('/utilities/utilCard/lockCard')}>
                         <Image source={require('@/assets/images/icon-debitcard.png')} style={styles.icon} />
-                        <ThemedText style={styles.bodyText}>Khóa/Mở khóa thẻ</ThemedText>
+                        <ThemedText style={styles.bodyText}>Thông tin thẻ</ThemedText>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.item} onPress={() => router.push('/utilities/utilCard/statement')}>
                         <Image source={require('@/assets/images/icon-statement.png')} style={styles.icon} />

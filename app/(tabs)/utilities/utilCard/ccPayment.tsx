@@ -35,7 +35,6 @@ const sourcePaymentOptions = [
 const paymentOptions = [
     { label: 'Thanh toán tối thiểu', value: 'MINIMUM_DUE' },
     { label: 'Thanh toán toàn bộ', value: 'STATEMENT_BALANCE' },
-    { label: 'Thanh toán kỳ hạn trước', value: 'STATEMENT_BEFORE' },
     { label: 'Thanh toán tùy chỉnh', value: 'CUSTOM' }
 ];
 
@@ -120,14 +119,14 @@ export default function CreditCardPaymentScreen() {
                 setValue("amount", statement?.newBalance ?? 0);
             } else if (watch('paymentOption') === "STATEMENT_BEFORE") {
                 if (!statement) alert('Thao tác quá nhanh. Vui lòng chọn lại!');
-                if (statement?.totalCharges === undefined || statement?.totalPayments === undefined) 
+                if (statement?.totalCharges === undefined || statement?.totalPayments === undefined)
                     return alert('Không thể lấy thông tin khoản nợ trước đó. Vui lòng chọn lại!');
 
                 if (statement?.totalCharges >= statement?.totalPayments)
                     setValue("amount", statement?.previousBalance ?? 0);
                 else
                     setValue("amount", statement?.newBalance ?? 0);
-                    
+
             };
         })();
     }, [watch('paymentOption')]);
@@ -192,7 +191,8 @@ export default function CreditCardPaymentScreen() {
                                                 searchPlaceholder="Tìm kiếm..."
                                                 value={value}
                                                 onChange={(item) => onChange(item.value)}
-                                                style={styles.input}
+                                                style={{...styles.input, opacity: 0.6}}
+                                                disable
                                             />
                                         )}
                                     />
@@ -306,7 +306,7 @@ export default function CreditCardPaymentScreen() {
                                             <TextInput
                                                 value={value ?? initialNote}
                                                 onChange={onChange}
-                                                style={styles.input}
+                                                style={{...styles.input, opacity: 0.6}}
                                                 editable={false}
                                             />
                                         )}
@@ -335,14 +335,14 @@ export default function CreditCardPaymentScreen() {
 
                                             // amount = 0
                                             if (data.amount === 0) {
-                                                if (data.paymentOption === "STATEMENT_BEFORE") 
+                                                if (data.paymentOption === "STATEMENT_BEFORE")
                                                     alert('Đã thanh toán kỳ hạn trước. Vui lòng chọn loại thanh toán khác!');
-                                              else 
+                                                else
                                                     alert('Tài khoản không có khoản nợ nào để thanh toán!');
                                                 resetPaymentForm();
                                                 return;
                                             };
-                                            
+
                                             setLoading(true);
                                             if (data.paymentOption === "STATEMENT_BEFORE")
                                                 data.paymentOption = "CUSTOM";

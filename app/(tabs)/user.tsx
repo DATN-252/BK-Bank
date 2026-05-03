@@ -15,6 +15,29 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/redux/reducerAuth';
 import { ReduxTypes } from '@/store/reduxStore';
 
+const maskEmail = (email?: string) => {
+  if (!email) return '';
+
+  const [localPart, domain] = email.split('@');
+  if (!domain) return '***';
+
+  if (localPart.length <= 2) {
+    return `${localPart[0] || '*'}***@${domain}`;
+  }
+
+  return `${localPart.slice(0, 2)}***@${domain}`;
+};
+
+const maskPhoneNumber = (phoneNumber?: string) => {
+  if (!phoneNumber) return '';
+
+  const digitsOnly = phoneNumber.replace(/\D/g, '');
+  if (digitsOnly.length <= 4) return '****';
+
+  const visibleTail = digitsOnly.slice(-4);
+  return `******${visibleTail}`;
+};
+
 
 
 export default function UserScreen() {
@@ -22,6 +45,8 @@ export default function UserScreen() {
 
   const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
   const userInfo = useSelector((state: ReduxTypes['RootState']) => state.userInfo);
+  const maskedEmail = maskEmail(userInfo?.email);
+  const maskedPhoneNumber = maskPhoneNumber(userInfo?.phoneNumber);
 
   const handleLogout = async () => {
     try {
@@ -51,7 +76,23 @@ export default function UserScreen() {
           </ThemedView>
 
           <ThemedText style={styles.name}>{userInfo?.fullName}</ThemedText>
-          <ThemedText style={styles.info}>{userInfo?.email} | {userInfo?.phoneNumber}</ThemedText>
+          <ThemedView style={styles.infoRow}>
+            <ThemedText
+              style={[styles.info, styles.infoEmail]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {maskedEmail}
+            </ThemedText>
+            <ThemedText style={styles.infoSeparator}>|</ThemedText>
+            <ThemedText
+              style={[styles.info, styles.infoPhone]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {maskedPhoneNumber}
+            </ThemedText>
+          </ThemedView>
         </ThemedView>
 
         <ThemedView style={styles.card}>
@@ -153,7 +194,27 @@ const styles = StyleSheet.create({
   info: {
     fontSize: 14,
     color: '#E6EAF3',
+  },
+  infoRow: {
+    backgroundColor: 'transparent',
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
     marginBottom: 4,
+  },
+  infoEmail: {
+    flex: 1,
+    minWidth: 0,
+    textAlign: 'right',
+  },
+  infoPhone: {
+    flex: 1,
+    minWidth: 0,
+  },
+  infoSeparator: {
+    fontSize: 14,
+    color: '#E6EAF3',
+    marginHorizontal: 6,
   },
 
   card: {

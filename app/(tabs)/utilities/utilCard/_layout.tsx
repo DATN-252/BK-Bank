@@ -19,7 +19,7 @@ export default function UtilityCardLayout() {
           contentStyle: styles.container
         }}/>
         <Stack.Screen name="lockCard" options={{
-          header: headerTransaction("Khóa/Mở thẻ"),
+          header: headerTransaction("Thông tin thẻ"),
           contentStyle: styles.container
         }}/>
         <Stack.Screen name="statement" options={{
