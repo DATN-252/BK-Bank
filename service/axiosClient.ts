@@ -46,7 +46,7 @@ axiosClient.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       await removeToken();
-      console.log("Token expired -> logout");
+      // console.log("Token expired -> logout");
     }
 
     return Promise.reject(error);
@@ -57,7 +57,7 @@ axiosClientCMS.interceptors.response.use(
   async (error) => {
     if (error.response?.status === 401) {
       await removeToken();
-      console.log("Token expired -> logout");
+      // console.log("Token expired -> logout");
     }
 
     return Promise.reject(error);

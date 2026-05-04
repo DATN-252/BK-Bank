@@ -68,7 +68,7 @@ export default function LoginScreen() {
 
       router.replace('/home');
     } catch (err: any) {
-      console.error('Login flow error:', err);
+      // console.error('Login flow error:', err);
 
       // phân loại lỗi
       if (err?.response?.status === 401) {
@@ -102,6 +102,7 @@ export default function LoginScreen() {
     }
   };
 
+  // xử lý button back ở screen 2 và 3
   const buttonBack = () => {
     //todo
     resetForgotPassword();
@@ -169,6 +170,9 @@ export default function LoginScreen() {
                         onChangeText={onChange}
                         value={value}
                         style={styles.input}
+                        autoComplete="off"
+                        textContentType="none"
+                        importantForAutofill="no"
                       />
                     )}
                   />
@@ -185,10 +189,13 @@ export default function LoginScreen() {
                         <ThemedView style={styles.inputHaveIcon}>
                           <TextInput
                             placeholder="Tối thiểu 8 ký tự"
-                            secureTextEntry={!showPassword}
                             onChangeText={onChange}
                             value={value}
                             style={{ flex: 1, color: Colors.light.text, fontSize: 17 }}
+                            secureTextEntry={!showPassword}
+                            autoComplete="off"
+                            textContentType="none"
+                            importantForAutofill="no"
                           />
                           {showPassword ?
                             <TouchableOpacity onPress={() => setShowPassword(false)}>
@@ -320,7 +327,11 @@ export default function LoginScreen() {
               {/* set width 80 vì 6 ô otp quá to */}
               <ThemedView style={[styles.containerCenter, { width: '80%' }]}>
                 <ThemedView style={[styles.header, { height: '5%' }]}>
-                  <ThemedText style={styles.textHeader}>Xác thực OTP</ThemedText>
+                  {onForgotPw ?
+                    <ThemedText style={styles.textHeader}>Xác thực OTP</ThemedText>
+                    :
+                    <ThemedText style={styles.textHeader}>Đặt lại mật khẩu</ThemedText>
+                  }
                 </ThemedView>
 
                 {onForgotPw ?

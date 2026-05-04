@@ -30,7 +30,7 @@ export default function ConfirmTransactionScreen() {
     const api = async (dataToSend: TransactionCreditType) => {
         try {
             const res = await PayService.paymentCredit(dataToSend);
-            console.log('Review Response:', res);
+            // console.log('Review Response:', res);
 
             if (res.result.approved) {
                 router.replace({
@@ -44,7 +44,7 @@ export default function ConfirmTransactionScreen() {
                 });
             }
         } catch (err: any) {
-            console.log(err.toJSON?.() || err);
+            // console.log(err.toJSON?.() || err);
             if (err?.response?.status === 401) {
                 alert(err?.response?.data?.message || 'Uỷ quyền đã hết hạn. Vui lòng đăng nhập lại.');
             } else if (err?.response?.status === 400
@@ -55,7 +55,7 @@ export default function ConfirmTransactionScreen() {
                 });
             }
             else {
-                console.error('Lỗi khi thực hiện giao dịch (trang confirm): ', err);
+                // console.error('Lỗi khi thực hiện giao dịch (trang confirm): ', err);
                 router.back();
                 alert(err.response?.data?.message || 'Đã có lỗi xảy ra trong quá trình xử lý giao dịch. Vui lòng thử lại sau.');
             }
@@ -156,7 +156,7 @@ export default function ConfirmTransactionScreen() {
                                     // console.log('Data for execution: ', dataToSend);
                                 }}
                             >
-                                <ThemedText>Tiếp tục</ThemedText>
+                                <ThemedText>Xác nhận</ThemedText>
                             </TouchableOpacity>
                         </ThemedView>
                     </ImageBackground>
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     content: {
-        width: '95%',
+        width: '100%',
         height: '95%',
         borderRadius: 8,
         alignItems: 'center',
@@ -211,13 +211,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         width: '100%',
-        paddingBottom: '5%',
+        paddingBottom: '4%',
     },
     buttonFooter: {
-        width: '85%',
+        width: '75%',
         borderRadius: 5,
         backgroundColor: Colors.light.tabIconSelected,
-        paddingVertical: '1.8%',
+        paddingVertical: '1.5%',
         alignItems: 'center',
         justifyContent: 'center',
     },

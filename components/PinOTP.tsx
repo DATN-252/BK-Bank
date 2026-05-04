@@ -31,13 +31,13 @@ export default function PinOTP({ numberPin, setOnForgotPw }: PinOTPProps) {
 
     const onSubmit = (ArrPin: string[]) => {
         const pin = ArrPin.join('');
-        console.log('PIN entered:', pin);
+        // console.log('PIN entered:', pin);
         //todo verify pin
         if (pin === numberPin.toString().repeat(numberPin)) {
             // handleRegisterSubmit(handleRegister)();
             setOnForgotPw(false);
         } else {
-            Alert.alert("Error", "Invalid OTP!");
+            Alert.alert("Error", "Mã OTP không đúng!");
         }
         setPinArray(Array(numberPin).fill(''));
         refInputs.current[0]?.focus();

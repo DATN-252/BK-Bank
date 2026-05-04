@@ -89,12 +89,13 @@ export default function CreditCardPaymentScreen() {
         value: `${saving.accountNumber}`,
     }));
 
+    // Lấy statement hiện tại của khoản vay để hiển thị số tiền cần thanh toán tương ứng với từng payment option
     const getCurrentStatement = async (loanId: string) => {
         try {
             const res: termStatementType[] = await custApi.getAllTermStatementsbyLoanId(loanId).then((res) => res.result);
             return res[0];
         } catch (err) {
-            console.log('Error fetching current statement:', err);
+            // console.log('Error fetching current statement:', err);
             alert('Lỗi khi lấy thông tin khoản vay');
         }
     };
@@ -335,16 +336,16 @@ export default function CreditCardPaymentScreen() {
 
                                             // amount = 0
                                             if (data.amount === 0) {
-                                                if (data.paymentOption === "STATEMENT_BEFORE")
-                                                    alert('Đã thanh toán kỳ hạn trước. Vui lòng chọn loại thanh toán khác!');
-                                                else
+                                                if (data.paymentOption !== "CUSTOM")
                                                     alert('Tài khoản không có khoản nợ nào để thanh toán!');
+                                                else
+                                                    alert('Số tiền thanh toán không hợp lệ. Vui kiểm tra lại!');
                                                 resetPaymentForm();
                                                 return;
                                             };
 
                                             setLoading(true);
-                                            if (data.paymentOption === "STATEMENT_BEFORE")
+                                            if (data.paymentOption === "STATEMENT_BALANCE")
                                                 data.paymentOption = "CUSTOM";
 
                                             const res = await custApi.postCreditCardPayments(data.loanId, statement?.billingDate, data);
@@ -371,7 +372,7 @@ export default function CreditCardPaymentScreen() {
                                             } else {
                                                 alert('Lỗi khi thanh toán');
                                             }
-                                            console.log('Error in ccPayment:', err);
+                                            // console.log('Error in ccPayment:', err);
                                             setLoading(false);
                                         }
                                     },

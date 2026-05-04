@@ -15,7 +15,7 @@ const PayService = {
     data.latitude = deviceInfo.lat;
     data.longitude = deviceInfo.lng;
 
-    console.log('log infoDevice', data);
+    // console.log('log infoDevice', data);
 
     const res = await axiosClient.post('/payment/credit-card', data);
     return res.data;

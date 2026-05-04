@@ -23,7 +23,7 @@ Notifications.setNotificationHandler({
 // lấy token
 export const registerForPush = async (): Promise<string | null> => {
     if (!Device.isDevice) {
-        console.warn('Nên dùng máy thật');
+        // console.warn('Nên dùng máy thật');
         // return null;
     }
 
@@ -52,7 +52,7 @@ export const registerForPush = async (): Promise<string | null> => {
     }
 
     if (finalStatus !== 'granted') {
-        console.warn('Không có quyền notification');
+        // console.warn('Không có quyền notification');
         return null;
     }
 
@@ -62,7 +62,7 @@ export const registerForPush = async (): Promise<string | null> => {
             Constants.easConfig?.projectId;
 
         if (!projectId) {
-            console.error('Thiếu projectId');
+            // console.error('Thiếu projectId');
             return null;
         }
 
@@ -70,10 +70,10 @@ export const registerForPush = async (): Promise<string | null> => {
             await Notifications.getExpoPushTokenAsync({ projectId })
         ).data;
 
-        console.log('Push Token:', token);
+        // console.log('Push Token:', token);
         return token;
     } catch (err) {
-        console.error('Lỗi lấy token:', err);
+        // console.error('Lỗi lấy token:', err);
         return null;
     }
 };
@@ -97,7 +97,7 @@ const PushNotificationManager = ({ children }: { children: React.ReactNode }) =>
                     ...data,
                     readed: false
                 }));
-                console.log('Received noti:', noti.request.content.data);
+                // console.log('Received noti:', noti.request.content.data);
             });
 
             // khi click notification

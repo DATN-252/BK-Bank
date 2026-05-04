@@ -12,6 +12,10 @@ import { TransactionPreviewCreditResponseType, TransactionPreviewCreditType } fr
 import PayService from '@/service/payApi';
 import { responseType } from '@/types/response';
 
+import { useSelector } from 'react-redux';
+import { ReduxTypes } from '@/store/reduxStore';
+
+
 
 const randomIdempotencyKey = () => {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -30,6 +34,7 @@ const typeCreditCard = [
 
 export default function CreditTransactionScreen() {
   const router: Router = useRouter();
+  const cardInfo = useSelector((state: ReduxTypes['RootState']) => state.cardInfo);
 
   // dữ liệu từ QR, nếu có, sẽ được parse sẵn và gán vào default value của form
   let { qrData } = useLocalSearchParams<{ qrData: string }>();
@@ -324,6 +329,27 @@ export default function CreditTransactionScreen() {
               onPress={handleCreditCardSubmit(
                 async (data) => {
                   try {
+                    // amount < 1 thì không hợp lệ, alert và return
+                    if (data.amount !== undefined && data.amount < 1) {
+                      alert('Số tiền không hợp lệ. Vui lòng nhập số tiền lớn hơn 0.');
+                      resetCreditCard();
+                      return;
+                    };
+
+                    //amout khác số thì alert
+                    if (data.amount !== undefined && isNaN(data.amount)) {
+                      alert('Số tiền không hợp lệ. Vui lòng nhập số tiền hợp lệ.');
+                      resetCreditCard();
+                      return;
+                    }
+
+                    // amount lớn hơn dự nợ của thẻ thì alert
+                    // if (cardInfo && cardInfo[2].creditLimit - cardInfo[2].outstandingBalance < data.amount) {
+                    //   alert('Số tiền thanh toán không được vượt quá hạn mức khả dụng.');
+                    //   resetCreditCard();
+                    //   return;
+                    // }
+
                     // bỏ trường cardType trước khi gửi data, vì backend không cần trường này
                     const { cardNetwork, ...dataToSend } = data;
                     // console.log('Data for confirm: ', dataToSend);
@@ -349,14 +375,14 @@ export default function CreditTransactionScreen() {
                     }
                     else alert('Thông tin không hợp lệ. Vui lòng kiểm tra lại thông tin thẻ hoặc thử thẻ khác.');
                   } catch (err: any) {
+                    console.log('Error in credit card preview: ', err.response);
                     if (err?.response?.status === 401) {
                       alert('Thông tin không hợp lệ');
                     } else if (!err?.response) {
                       alert('Không kết nối được server');
                     } else {
-                      alert('Lỗi khi thanh toán');
+                      alert(err?.response?.data?.message || 'Thông tin không hợp lệ. Vui lòng thử lại.');
                     }
-                    alert('Đã có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại sau.');
                   }
                 },
                 (errors) => {

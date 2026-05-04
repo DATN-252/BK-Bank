@@ -25,7 +25,7 @@ export const requestLocation = async () => {
         // 1. check service bật chưa
         const enabled = await Location.hasServicesEnabledAsync();
         if (!enabled) {
-            console.log('GPS đang tắt');
+            // console.log('GPS đang tắt');
             // alert('GPS đang tắt. Vui lòng bật GPS để tiếp tục thanh toán');
             return null;
         }
@@ -57,7 +57,7 @@ export const requestLocation = async () => {
         });
 
     } catch (err) {
-        console.log('Location error:', err);
+        // console.log('Location error:', err);
         return null;
     }
 };

@@ -16,7 +16,7 @@ export default function StatementDetailScreen() {
         try {
             return JSON.parse(statementData);
         } catch (error) {
-            console.error('Error parsing statement data:', error);
+            // console.error('Error parsing statement data:', error);
             return null;
         }
     }, [statementData]);

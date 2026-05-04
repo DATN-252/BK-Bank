@@ -7,7 +7,7 @@ export const setToken = async (token: string): Promise<void> => {
   try {
     await SecureStore.setItemAsync(ACCESS_TOKEN_KEY, token);
   } catch (err) {
-    console.log('Save token error:', err);
+    // console.log('Save token error:', err);
   }
 };
 
@@ -17,7 +17,7 @@ export const getToken = async (): Promise<string | null> => {
     const token = await SecureStore.getItemAsync(ACCESS_TOKEN_KEY);
     return token;
   } catch (err) {
-    console.log('Get token error:', err);
+    // console.log('Get token error:', err);
     return null;
   }
 };
@@ -27,6 +27,6 @@ export const removeToken = async (): Promise<void> => {
   try {
     await SecureStore.deleteItemAsync(ACCESS_TOKEN_KEY);
   } catch (err) {
-    console.log('Remove token error:', err);
+    // console.log('Remove token error:', err);
   }
 };

@@ -72,6 +72,8 @@ const renderKeyValueRows = <T extends object>(
 export const CheckoutCreditPayment = ({ title, renderKeyValueRows, icon }: { title: string; renderKeyValueRows: React.ReactNode; icon: { name: string; color: string } }) => {
     const router: Router = useRouter();
     const viewRef = useRef<ViewShot>(null);
+
+    // xin quyền upload ảnh lên
     const captureScreen = async () => {
         try {
             const { status } = await MediaLibrary.requestPermissionsAsync(
@@ -85,7 +87,7 @@ export const CheckoutCreditPayment = ({ title, renderKeyValueRows, icon }: { tit
                 if (uri) await MediaLibrary.saveToLibraryAsync(uri);
             }
         } catch (err) {
-            console.log(err);
+            // console.log(err);
         }
     };
     return (

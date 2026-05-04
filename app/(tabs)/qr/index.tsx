@@ -19,6 +19,10 @@ type TLVObject = {
   [tag: string]: string;
 };
 const parseTLV = (str: string): TLVObject => {
+  if (typeof str !== "string") {
+    return {};
+  }
+
   const result: TLVObject = {};
   let i = 0;
 
@@ -103,19 +107,40 @@ export default function QRScreen() {
     // khi dataQR = ''
     if (!dataQR) return;
 
+    // save giá trị trước khi reset
+    const savedDataQR = dataQR;
+
     // mở sau 3s
     setTimeout(() => {
       setScanned(false);
       setDataQR('');
     }, 3000);
 
-    if (!isValidBankQR(dataQR)) {
+    if (!isValidBankQR(savedDataQR)) {
       alert('Mã QR không hợp lệ, yêu cầu chuẩn EMVCo!');
       return;
     }
 
     // xử lý kết quả quét QR
-    const obj = parseTLV(dataQR);
+    const obj = parseTLV(savedDataQR);
+    if (!obj) {
+      alert("QR lỗi / sai format");
+      return;
+    }
+
+    const isCreditCardQR = Boolean(obj["26"]);
+    const isTransferQR = Boolean(obj["38"]);
+
+    if (isTransferQR && !isCreditCardQR) {
+      router.push('/future');
+      return;
+    }
+
+    if (!isCreditCardQR) {
+      alert('Không xác định được loại QR cần xử lý.');
+      return;
+    }
+
     const merchantInfo = parseTLV(obj["26"]);
     const additionalData = parseTLV(obj["62"]);
 
@@ -139,9 +164,8 @@ export default function QRScreen() {
       crc: obj["63"]
     };
 
-    //todo phải xử lý thêm nếu qr là về tk ngân hàng thì push('/transaction/debitCard')
     router.push({
-      pathname: '/transaction',
+      pathname: '/transaction/creditCard',
       params: {
         qrData: JSON.stringify(parsed),
       },
@@ -264,7 +288,7 @@ export default function QRScreen() {
       <QRView />
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   statusBar: {

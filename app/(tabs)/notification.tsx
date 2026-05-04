@@ -137,6 +137,7 @@ export default function NotificationScreen() {
     return validTypes.has(transactionType);
   };
 
+  // để thay dổi nền mỗi transaction
   const getBalanceRowBackground = (transaction: NotiBalance) => {
     if (transaction.status === 'SUCCESS') {
       return getStatusReceiveOrSendMoney(transaction.transactionType) ? '#FFEDEE' : '#EDFCF2';
@@ -144,6 +145,7 @@ export default function NotificationScreen() {
     return '#faf1cc';
   };
 
+  // để thay dổi nền mỗi transaction hệ thống
   const getGeneralRowBackground = (item: NotificationSystemType | (typeof DATA_GENERAL)[number]) => {
     if ('fraudPrediction' in item && item.customerRespondedAt === null) {
       return '#FFF8D9';
@@ -168,7 +170,7 @@ export default function NotificationScreen() {
 
       dispatch(addAllNoti(data.result.content));
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       alert('Lấy thông báo thất bại!');
     } finally {
       setRefreshing(false);
@@ -191,7 +193,7 @@ export default function NotificationScreen() {
       setDATA_SYSTEM(data.result);
       // dispatch(addAllNoti(data.result));
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       alert('Lấy thông báo thất bại!');
     } finally {
       setRefreshing(false);

@@ -15,6 +15,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/redux/reducerAuth';
 import { ReduxTypes } from '@/store/reduxStore';
 
+
+
+// Ẩn phần local của email, chỉ hiển thị 2 ký tự đầu và tên miền
 const maskEmail = (email?: string) => {
   if (!email) return '';
 
@@ -28,6 +31,7 @@ const maskEmail = (email?: string) => {
   return `${localPart.slice(0, 2)}***@${domain}`;
 };
 
+// Ẩn tất cả chữ số của số điện thoại, chỉ hiển thị 4 chữ số cuối
 const maskPhoneNumber = (phoneNumber?: string) => {
   if (!phoneNumber) return '';
 
@@ -48,13 +52,14 @@ export default function UserScreen() {
   const maskedEmail = maskEmail(userInfo?.email);
   const maskedPhoneNumber = maskPhoneNumber(userInfo?.phoneNumber);
 
+  // xử lý đăng xuất
   const handleLogout = async () => {
     try {
       await AuthService.logout();
       dispatch(logout());
       return <Redirect href="/login" />;
     } catch (error) {
-      console.error('Logout failed:', error);
+      // console.error('Logout failed:', error);
     }
   };
 

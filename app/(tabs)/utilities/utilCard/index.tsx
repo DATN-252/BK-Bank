@@ -27,7 +27,7 @@ export default function UtilityCardScreen() {
                 dispatch(setLoanAccount(loanData.result.content));
                 dispatch(setSavingAccount(savingData.result.content));
             } catch (error) {
-                console.error('Error fetching accounts:', error);
+                // console.error('Error fetching accounts:', error);
             }
         })();
     }, []);

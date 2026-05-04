@@ -36,7 +36,7 @@ export default function StatementScreen() {
                 const res = await CustService.getAllTermStatements();
                 setStatements(Array.isArray(res.result) ? res.result : []);
             } catch (err) {
-                console.error('Error fetching statements:', err);
+                // console.error('Error fetching statements:', err);
                 setStatements([]);
             }
             setLoading(false);
@@ -52,7 +52,7 @@ export default function StatementScreen() {
                 const res = await CustService.getAllTermStatementsbyLoanId(loanId);
                 setStatements(Array.isArray(res.result) ? res.result : []);
             } catch (err) {
-                console.error('Error fetching statements:', err);
+                // console.error('Error fetching statements:', err);
                 setStatements([]);
             }
             setLoading(false);
@@ -65,7 +65,7 @@ export default function StatementScreen() {
             setLoading(true);
             try {
                 const res = await CustService.getStatementsbyLoanIdAndBillingDate(loanId, billingDate);
-                console.log('Statement detail:', res.result);
+                // console.log('Statement detail:', res.result);
 
                 router.push({
                     pathname: '/utilities/utilCard/statement/statementDetail',
@@ -82,7 +82,7 @@ export default function StatementScreen() {
                     alert('Không kết nối được server');
                 } else {
                     alert('Lỗi khi thanh toán');
-                    console.log('Error in ccPayment:', err);
+                    // console.log('Error in ccPayment:', err);
                 }
             };
             setLoading(false);
