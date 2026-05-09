@@ -28,20 +28,20 @@ export default function StatementScreen() {
         value: `${loan.accountNumber}`,
     }));
 
-    // Lấy danh sách sao kê
-    React.useEffect(() => {
-        (async () => {
-            setLoading(true);
-            try {
-                const res = await CustService.getAllTermStatements();
-                setStatements(Array.isArray(res.result) ? res.result : []);
-            } catch (err) {
-                // console.error('Error fetching statements:', err);
-                setStatements([]);
-            }
-            setLoading(false);
-        })();
-    }, []);
+    //! Lấy danh sách sao kê, api bị disable nên tạm comment
+    // React.useEffect(() => {
+    //     (async () => {
+    //         setLoading(true);
+    //         try {
+    //             const res = await CustService.getAllTermStatements();
+    //             setStatements(Array.isArray(res.result) ? res.result : []);
+    //         } catch (err) {
+    //             // console.error('Error fetching statements:', err);
+    //             setStatements([]);
+    //         }
+    //         setLoading(false);
+    //     })();
+    // }, []);
 
     const handleSelectLoanId = (loanId: string) => {
         setSelectedLoanId(loanId);
@@ -81,7 +81,7 @@ export default function StatementScreen() {
                 } else if (!err?.response) {
                     alert('Không kết nối được server');
                 } else {
-                    alert('Lỗi khi thanh toán');
+                    alert('Lỗi khi lấy dữ liệu sao kê');
                     // console.log('Error in ccPayment:', err);
                 }
             };

@@ -19,6 +19,9 @@ import { ReduxTypes } from '@/store/reduxStore';
 const images: { [key: string]: ImageSourcePropType } = {
   visa: require('@/assets/images/VISA.png'),
   mastercard: require('@/assets/images/MASTERCARD.png'),
+  jcb: require('@/assets/images/JCB.png'),
+  amex: require('@/assets/images/AMEX.png'),
+  discover: require('@/assets/images/discover.svg'),
   napas: require('@/assets/images/NAPAS.png'),
 };
 

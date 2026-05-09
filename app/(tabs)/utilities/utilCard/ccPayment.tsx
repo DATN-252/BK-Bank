@@ -1,6 +1,6 @@
 import { Router, useRouter } from 'expo-router';
 import React from 'react';
-import { Controller, useForm } from "react-hook-form";
+import { Controller, set, useForm } from "react-hook-form";
 import { Keyboard, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -52,7 +52,7 @@ export default function CreditCardPaymentScreen() {
     const [statement, setStatement] = React.useState<termStatementType>();
 
     // mặc định note là "Thanh toán trước hạn, ngày dd-mm-yy", nếu ngày hiện tại lớn hơn ngày đến hạn thì note sẽ là "Thanh toán trước hạn, ngày dd-mm-yy"
-    const initialNote = `Thanh toan truoc han, ngay ${getCurrentDate()}`;
+    const initialNote = `Ngay ${getCurrentDate()}. Thanh toan truoc han`;
     const { control, watch, setValue, handleSubmit, formState: { errors }, reset } = useForm<CCPaymentForm>({
         defaultValues: {
             paymentSource: "INTERNAL_SAVINGS",
@@ -64,6 +64,7 @@ export default function CreditCardPaymentScreen() {
         }
     });
     const [loading, setLoading] = React.useState(false);
+    const [conflictAlert, setConflictAlert] = React.useState(false);
 
     const resetPaymentForm = React.useCallback(() => {
         reset({
@@ -105,7 +106,10 @@ export default function CreditCardPaymentScreen() {
         (async () => {
             // ktra loanid 
             if (!watch('loanId')) {
-                alert('Vui lòng chọn tài khoản đích trước khi chọn loại thanh toán');
+                if (!conflictAlert) {
+                    alert('Vui lòng chọn tài khoản đích trước khi chọn loại thanh toán');
+                }
+                setConflictAlert(false);
 
                 // trả paymentOption về CUSTOM để người dùng nhập số tiền sau khi đã chọn loanId
                 setValue('paymentOption', 'CUSTOM');
@@ -114,39 +118,39 @@ export default function CreditCardPaymentScreen() {
 
             if (watch('paymentOption') === "MINIMUM_DUE") {
                 if (!statement) alert('Thao tác quá nhanh. Vui lòng chọn lại!');
-                setValue("amount", statement?.minimumDue ?? 0);
+                setValue("amount", statement?.remainingMinimumDue ?? 0);
             } else if (watch('paymentOption') === "STATEMENT_BALANCE") {
                 if (!statement) alert('Thao tác quá nhanh. Vui lòng chọn lại!');
-                setValue("amount", statement?.newBalance ?? 0);
-            } else if (watch('paymentOption') === "STATEMENT_BEFORE") {
-                if (!statement) alert('Thao tác quá nhanh. Vui lòng chọn lại!');
-                if (statement?.totalCharges === undefined || statement?.totalPayments === undefined)
-                    return alert('Không thể lấy thông tin khoản nợ trước đó. Vui lòng chọn lại!');
-
-                if (statement?.totalCharges >= statement?.totalPayments)
-                    setValue("amount", statement?.previousBalance ?? 0);
-                else
-                    setValue("amount", statement?.newBalance ?? 0);
-
+                setValue("amount", statement?.remainingBalance ?? 0);   
             };
         })();
     }, [watch('paymentOption')]);
 
     React.useEffect(() => {
         (async () => {
+            setValue('paymentOption', 'CUSTOM');
+
             // chọn loanId trước để lấy số nợ cần trả
             const selectedLoanId = watch('loanId');
+            let stm: termStatementType | undefined;
             if (selectedLoanId) {
-                setStatement(await getCurrentStatement(selectedLoanId));
+                stm = await getCurrentStatement(selectedLoanId);
+                setStatement(stm);
             };
 
-            // đổi note thành đúng hạn nếu ngày hiện tại đã vượt quá ngày đến hạn
-            if (!statement) return;
-            const dueDate = new Date(statement?.dueDate);
+            // đổi note thành đúng hạn nếu ngày hiện tại đã vượt quá billingDate
+            // thanh toan trễ hạn nếu ngày hiện tại vượt quá dueDate
+            if (!stm) return;
+            const dueDate = new Date(stm?.dueDate);
+            const billingDate = new Date(stm?.billingDate);
             const now = new Date();
 
-            if (dueDate < now) {
-                setValue('note', `Thanh toan dung han, ngay ${getCurrentDate()}`);
+            if (billingDate < now) {
+                if (dueDate < now) {
+                    setValue('note', `Ngay ${getCurrentDate()}. Thanh toan tre han`);
+                } else {
+                    setValue('note', `Ngay ${getCurrentDate()}. Thanh toan dung han`);
+                }
             }
         })();
     }, [watch('loanId')]);
@@ -192,7 +196,7 @@ export default function CreditCardPaymentScreen() {
                                                 searchPlaceholder="Tìm kiếm..."
                                                 value={value}
                                                 onChange={(item) => onChange(item.value)}
-                                                style={{...styles.input, opacity: 0.6}}
+                                                style={{ ...styles.input, opacity: 0.6 }}
                                                 disable
                                             />
                                         )}
@@ -282,7 +286,7 @@ export default function CreditCardPaymentScreen() {
                                         render={({ field: { onChange, value } }) => (
                                             <TextInput
                                                 style={styles.input}
-                                                value={value === undefined || value === null ? '' : String(value)}
+                                                value={value === undefined || value === null? '' : String(value)}
                                                 onChangeText={(text) => {
                                                     setValue('paymentOption', 'CUSTOM');
                                                     onChange(text === '' ? undefined : Number(text));
@@ -307,7 +311,7 @@ export default function CreditCardPaymentScreen() {
                                             <TextInput
                                                 value={value ?? initialNote}
                                                 onChange={onChange}
-                                                style={{...styles.input, opacity: 0.6}}
+                                                style={{ ...styles.input, opacity: 0.6 }}
                                                 editable={false}
                                             />
                                         )}
@@ -336,8 +340,9 @@ export default function CreditCardPaymentScreen() {
 
                                             // amount = 0
                                             if (data.amount === 0) {
+                                                setConflictAlert(true);
                                                 if (data.paymentOption !== "CUSTOM")
-                                                    alert('Tài khoản không có khoản nợ nào để thanh toán!');
+                                                    alert('Khoản nợ này đã được thanh toán!');
                                                 else
                                                     alert('Số tiền thanh toán không hợp lệ. Vui kiểm tra lại!');
                                                 resetPaymentForm();
