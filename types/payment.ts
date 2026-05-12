@@ -11,6 +11,9 @@ export interface TransactionPreviewCreditType {
     zipCode: string;
     amount: number;
     currency: string;
+
+    latitude?: number | null;
+    longitude?: number | null;
 };
 
 export interface TransactionPreviewCreditResponseType {
@@ -19,7 +22,7 @@ export interface TransactionPreviewCreditResponseType {
     amount: number;
     longitude: number;
     latitude: number;
-    
+
     totalAmount: number;
     zipCode: string;
     fee: number;

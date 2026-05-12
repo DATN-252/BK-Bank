@@ -1,9 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { CreditCardType } from '@/types/card';
+import { CardType } from '@/types/card';
 
 const reducerCard = createSlice({
     name: 'infoCard',
-    initialState: [] as CreditCardType[],
+    initialState: [] as CardType[],
     reducers: {
         getCards: (state, action) => {
             return action.payload;

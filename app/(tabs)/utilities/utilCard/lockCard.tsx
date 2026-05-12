@@ -109,8 +109,8 @@ export default function LockCardScreen() {
             </View>
             <View style={styles.infoGrid}>
                 <View style={styles.infoCol}>
-                    <ThemedText style={styles.infoLabel}>Số thẻ</ThemedText>
-                    <ThemedText style={styles.infoValue}>{item.maskedPan}</ThemedText>
+                    <ThemedText style={styles.infoLabel}>Số đuôi thẻ</ThemedText>
+                    <ThemedText style={styles.infoValue}>{item.lastFour}</ThemedText>
                 </View>
                 <View style={styles.infoCol}>
                     <ThemedText style={styles.infoLabel}>Loại</ThemedText>
@@ -124,6 +124,26 @@ export default function LockCardScreen() {
                     <ThemedText style={styles.infoLabel}>Trạng thái</ThemedText>
                     <ThemedText style={[styles.infoValue, { color: item.status === "ACTIVE" ? '#4CD964' : '#FF3B30', fontWeight: 'bold' }]}>{item.status === "ACTIVE" ? "Hoạt động" : "Đã khóa"}</ThemedText>
                 </View>
+
+                {item.cardType === "CREDIT" ?
+                    <>
+                        <View style={styles.infoCol}>
+                            <ThemedText style={styles.infoLabel}>Số dư khả dụng</ThemedText>
+                            <ThemedText style={styles.infoValue}>{item.availableCredit?.toLocaleString()} {item.currency}</ThemedText>
+                        </View>
+                        <View style={styles.infoCol}>
+                            <ThemedText style={styles.infoLabel}>Hạn mức</ThemedText>
+                            <ThemedText style={styles.infoValue}>{item.creditLimit?.toLocaleString()} {item.currency}</ThemedText>
+                        </View>
+                    </>
+                    :
+                    <>
+                        <View style={styles.infoCol}>
+                            <ThemedText style={styles.infoLabel}>Số dư khả dụng</ThemedText>
+                            <ThemedText style={styles.infoValue}>{item.balance?.toLocaleString()} {item.currency}</ThemedText>
+                        </View>
+                    </>
+                }
             </View>
         </LinearGradient>
     );
@@ -224,8 +244,6 @@ const styles = StyleSheet.create({
     infoCol: {
         flex: 1,
         minWidth: 70,
-        marginRight: 8,
-        marginBottom: 2,
     },
     infoLabel: {
         fontSize: 11,

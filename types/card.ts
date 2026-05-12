@@ -1,5 +1,5 @@
 
-interface CardType {
+export interface CardType extends DebitCardType, CreditCardType {
     id: string;
     maskedPan: string;
     network: string;
@@ -17,12 +17,12 @@ interface CardType {
     // bank: string;
 };
 
-export interface DebitCardType extends CardType {
+interface DebitCardType {
     balance: number;
     // pinOTP: string;
 };
 
-export interface CreditCardType extends CardType {
+interface CreditCardType {
     creditLimit: number;
     availableCredit: number;
 };

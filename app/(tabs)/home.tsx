@@ -57,56 +57,57 @@ export default function HomeScreen() {
                 { useNativeDriver: false }
               )}
               renderItem={({ item }) => (
-                <ThemedView style={{ width: screenWidth, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' }}>
-                  <ThemedView style={styles.infoCard}>
-                    <ThemedView style={styles.cardHeader}>
-                      <ThemedText style={{ opacity: 0.6 }}>
-                        {item.cardType === 'CREDIT' ? 'Hạn mức còn lại' : 'Số dư hiện tại'}
+                <TouchableOpacity onPress={() => router.push('/(tabs)/utilities/utilCard/lockCard')}>
+                  <ThemedView style={{ width: screenWidth, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' }}>
+                    <ThemedView style={styles.infoCard}>
+                      <ThemedView style={styles.cardHeader}>
+                        <ThemedText style={{ opacity: 0.6 }}>Số dư khả dụng</ThemedText>
+
+                        {showInfoCard ? (
+                          <TouchableOpacity onPress={() => setShowInfoCard(false)}>
+                            <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
+                          </TouchableOpacity>
+                        ) : (
+                          <TouchableOpacity onPress={() => setShowInfoCard(true)}>
+                            <FontAwesome name="eye" size={24} color={Colors.light.icon} />
+                          </TouchableOpacity>
+                        )}
+                      </ThemedView>
+
+                      <ThemedText
+                        type="title"
+                        style={styles.textHeader}
+                        adjustsFontSizeToFit
+                        numberOfLines={1}
+                      >
+                        {item.status === 'LOCKED' ? 'Thẻ bị khóa'
+                          : (showInfoCard
+                            ? item.cardType === 'CREDIT'
+                              ? (item.availableCredit).toLocaleString() + " " + item.currency
+                              : item.balance.toLocaleString() + " " + item.currency
+                            : "***********")
+                        }
                       </ThemedText>
 
-                      {showInfoCard ? (
-                        <TouchableOpacity onPress={() => setShowInfoCard(false)}>
-                          <FontAwesome name="eye-slash" size={24} color={Colors.light.icon} />
-                        </TouchableOpacity>
-                      ) : (
-                        <TouchableOpacity onPress={() => setShowInfoCard(true)}>
-                          <FontAwesome name="eye" size={24} color={Colors.light.icon} />
-                        </TouchableOpacity>
-                      )}
-                    </ThemedView>
-
-                    <ThemedText
-                      type="title"
-                      style={styles.textHeader}
-                      adjustsFontSizeToFit
-                      numberOfLines={1}
-                    >
-                      {showInfoCard
-                        ? item.cardType === 'CREDIT'
-                          ? (item.creditLimit - item.outstandingBalance).toLocaleString() + " USD"
-                          : item.outstandingBalance.toLocaleString() + " USD"
-                        : "***********"}
-                    </ThemedText>
-
-                    <ThemedText style={styles.textCard}>
-                      {showInfoCard ? item.maskedPan : "**** **** **** ****"}
-                    </ThemedText>
-
-                    <ThemedView style={styles.cardFooter}>
                       <ThemedText style={styles.textCard}>
-                        {showInfoCard
-                          ? item.expirationDate.slice(5).replace("-", "/")
-                          : "**/**"}
+                        {showInfoCard ? item.maskedPan : "**** **** **** ****"}
                       </ThemedText>
 
-                      <Image
-                        source={images[item.network.toLowerCase()]}
-                        style={{ width: '15%', aspectRatio: 1, resizeMode: 'contain' }}
-                      />
-                    </ThemedView>
+                      <ThemedView style={styles.cardFooter}>
+                        <ThemedText style={styles.textCard}>
+                          {showInfoCard
+                            ? item.expirationDate.slice(5).replace("-", "/")
+                            : "**/**"}
+                        </ThemedText>
 
+                        <Image
+                          source={images[item.network.toLowerCase()]}
+                          style={{ width: '15%', aspectRatio: 1, resizeMode: 'contain' }}
+                        />
+                      </ThemedView>
+                    </ThemedView>
                   </ThemedView>
-                </ThemedView>
+                </TouchableOpacity>
               )}
             />
             <Indicator scrollX={scrollXBanner} lengthData={cardInfo.length} key={'banner'} _key={'banner'} sizeItem={screenWidth} />
