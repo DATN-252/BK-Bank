@@ -8,38 +8,31 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
-import { TransactionPreviewCreditResponseType, TransactionPreviewCreditType } from '@/types/payment';
 import PayService from '@/service/payApi';
+import { TransactionPreviewCreditResponseType, TransactionPreviewCreditType } from '@/types/payment';
 import { responseType } from '@/types/response';
 
-import { useSelector } from 'react-redux';
-import { ReduxTypes } from '@/store/reduxStore';
 
 
-
-const randomIdempotencyKey = () => {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
-};
-
+//todo làm (3-D Secure) lớp xác thực thêm cho thanh toán thẻ online
+//bỏ hardcode, lấy data thẻ nào hợp tác với ngân hàng
 const typeCreditCard = [
-  { label: 'Master Card', value: 'SP0001' },
-  { label: 'Master Card (3DS)', value: 'SP0002' },
-  { label: 'Visa Card', value: 'SP0003' },
-  { label: 'Visa Card (3DS)', value: '00020101021138540010A00000072701240006970418011063616631660208QRIBFTTA53037045802VN630485BC' },
-  { label: 'JCB', value: 'SP0004' },
-  { label: 'JCB (3DS)', value: 'SP0005' },
-  { label: 'American Express', value: 'SP0006' },
-  { label: 'American Express (3DS)', value: 'SP0007' },
+  { label: 'Master Card', value: 'MASTERCARD' },
+  // { label: 'Master Card (3DS)', value: 'MASTERCARD(3DS)' },
+  { label: 'Visa Card', value: 'VISA' },
+  // { label: 'Visa Card (3DS)', value: 'VISA(3DS)' },
+  { label: 'JCB', value: 'JCB' },
+  // { label: 'JCB (3DS)', value: 'JCB(3DS)' },
+  { label: 'American Express', value: 'AMEX' },
+  // { label: 'American Express (3DS)', value: 'AMEX(3DS)' },
 ];
 
 export default function CreditTransactionScreen() {
   const router: Router = useRouter();
-  const cardInfo = useSelector((state: ReduxTypes['RootState']) => state.cardInfo);
 
   // dữ liệu từ QR, nếu có, sẽ được parse sẵn và gán vào default value của form
   let { qrData } = useLocalSearchParams<{ qrData: string }>();
   const parsedQrData = qrData ? JSON.parse(qrData) : null;
-
 
   const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<TransactionPreviewCreditType>({
     defaultValues: {
@@ -90,6 +83,10 @@ export default function CreditTransactionScreen() {
               contentContainerStyle={{ gap: 8, paddingRight: 2 }} // lỗi gì đó mà input tràn ra ngoài scrollvỉew
             >
               <ThemedView>
+                {/* {creditCardErrors.recipientAccount ?
+                <ThemedText style={styles.warning}>{creditCardErrors.recipientAccount.message}</ThemedText>
+                : 
+                } */}
                 <ThemedText style={styles.bodyText}>Bên nhận/ Cửa hàng</ThemedText>
                 <Controller
                   control={creditCardControl}
@@ -111,6 +108,10 @@ export default function CreditTransactionScreen() {
               </ThemedView>
 
               <ThemedView>
+                {/* {creditCardErrors.cardNetwork ?
+                <ThemedText style={styles.warning}>{creditCardErrors.cardNetwork.message}</ThemedText>
+                : 
+                } */}
                 <ThemedText style={styles.bodyText}>Loại thẻ</ThemedText>
                 <Controller
                   control={creditCardControl}
@@ -125,7 +126,7 @@ export default function CreditTransactionScreen() {
                       search
                       searchPlaceholder="Tìm kiếm..."
                       value={value}
-                      onChange={onChange}
+                      onChange={(item) => onChange(item.value)}
                       style={styles.input}
                     />
                   )}
@@ -136,12 +137,18 @@ export default function CreditTransactionScreen() {
                 {/* {creditCardErrors.cardNumber ?
               <ThemedText style={styles.warning}>{creditCardErrors.cardNumber.message}</ThemedText>
               : 
-            } */}
+              } */}
                 <ThemedText style={styles.bodyText}>Số thẻ</ThemedText>
                 <Controller
                   control={creditCardControl}
                   name="cardNumber"
-                  rules={{ required: '*Số thẻ là bắt buộc!' }}
+                  rules={{
+                    required: '*Số thẻ là bắt buộc!',
+                    // pattern: {
+                    //   value: /^\d{16,19}$/,
+                    //   message: '*Số thẻ không hợp lệ! Số thẻ phải có từ 16 đến 19 chữ số.'
+                    // }
+                  }}
                   render={({ field: { onChange, value } }) => (
                     <TextInput
                       placeholder="Nhập số thẻ"
@@ -242,7 +249,7 @@ export default function CreditTransactionScreen() {
                   render={({ field: { onChange, value } }) => (
                     <TextInput
                       placeholder="Nhập đầy đủ không dấu"
-                      onChangeText={onChange}
+                      onChangeText={(text) => onChange(text.toUpperCase())}
                       autoCapitalize="characters"
                       value={value}
                       style={styles.input}
@@ -329,33 +336,17 @@ export default function CreditTransactionScreen() {
               onPress={handleCreditCardSubmit(
                 async (data) => {
                   try {
-                    // amount < 1 thì không hợp lệ, alert và return
-                    if (data.amount !== undefined && data.amount < 1) {
-                      alert('Số tiền không hợp lệ. Vui lòng nhập số tiền lớn hơn 0.');
+                    // amount < 1 || amout khác số thì alert
+                    if (data.amount < 1 || isNaN(data.amount)) {
+                      if (data.amount < 1) alert('Số tiền không hợp lệ. Vui lòng nhập số tiền lớn hơn 0!');
+                      else alert('Số tiền không hợp lệ. Vui lòng nhập số tiền hợp lệ!');
+
                       resetCreditCard();
                       return;
                     };
 
-                    //amout khác số thì alert
-                    if (data.amount !== undefined && isNaN(data.amount)) {
-                      alert('Số tiền không hợp lệ. Vui lòng nhập số tiền hợp lệ.');
-                      resetCreditCard();
-                      return;
-                    }
-
-                    // amount lớn hơn dự nợ của thẻ thì alert
-                    // if (cardInfo && cardInfo[2].creditLimit - cardInfo[2].outstandingBalance < data.amount) {
-                    //   alert('Số tiền thanh toán không được vượt quá hạn mức khả dụng.');
-                    //   resetCreditCard();
-                    //   return;
-                    // }
-
-                    // bỏ trường cardType trước khi gửi data, vì backend không cần trường này
-                    const { cardNetwork, ...dataToSend } = data;
-                    // console.log('Data for confirm: ', dataToSend);
-
-                    const res: responseType<TransactionPreviewCreditResponseType> = await PayService.paymentPreviewCredit(dataToSend);
-
+                    console.log('Preview Data: ', data);
+                    const res: responseType<TransactionPreviewCreditResponseType> = await PayService.paymentPreviewCredit(data);
                     if (res.result.status === 'VALID') {
                       router.push({
                         pathname: '/transaction/confirm',
@@ -363,31 +354,29 @@ export default function CreditTransactionScreen() {
                           confirmData: JSON.stringify({
                             ...res.result,
 
-                            // truyền thêm vài trường cần
+                            // truyền thêm vài trường cần thiết
                             cardNumber: data.cardNumber,
                             cvc: data.cvc,
                             expirationDate: data.expirationDate,
-                            idempotencyKey: randomIdempotencyKey(),
                           }),
                         },
                       });
                       resetCreditCard();
                     }
-                    else alert('Thông tin không hợp lệ. Vui lòng kiểm tra lại thông tin thẻ hoặc thử thẻ khác.');
+                    else alert('Thông tin không hợp lệ. Vui lòng kiểm tra lại thông tin thẻ hoặc thử thẻ khác!');
                   } catch (err: any) {
-                    console.log('Error in credit card preview: ', err.response);
+                    // console.log('Error in credit card preview: ', err.response);
                     if (err?.response?.status === 401) {
                       alert('Thông tin không hợp lệ');
                     } else if (!err?.response) {
                       alert('Không kết nối được server');
                     } else {
-                      alert(err?.response?.data?.message || 'Thông tin không hợp lệ. Vui lòng thử lại.');
+                      alert(err?.response?.data?.message || 'Thông tin không hợp lệ. Vui lòng thử lại!');
                     }
                   }
                 },
                 (errors) => {
-                  // ❌ Có lỗi
-                  alert('Vui lòng nhập đầy đủ thông tin');
+                  alert('Vui lòng nhập đầy đủ thông tin!');
                 })}
             >
               <ThemedText>Tiếp tục</ThemedText>

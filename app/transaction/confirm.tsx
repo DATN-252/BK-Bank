@@ -2,14 +2,19 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import PayService from '@/service/payApi';
-import { TransactionCreditType, TransactionPreviewCreditResponseType } from '@/types/payment';
+import { CheckoutDataType, TransactionCreditType, TransactionPreviewCreditResponseType } from '@/types/payment';
 import { ImageBackground } from 'expo-image';
 import { Router, useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 import LoadingScreen from './loading';
+import { responseType } from '@/types/response';
 
 
+
+const randomIdempotencyKey = () => {
+    return Math.random().toString(36).substring(2) + Date.now().toString(36);
+};
 
 const DISPLAY_FIELDS: [keyof TransactionPreviewCreditResponseType, string][] = [
     ['amount', 'Số tiền'],
@@ -29,8 +34,8 @@ export default function ConfirmTransactionScreen() {
 
     const api = async (dataToSend: TransactionCreditType) => {
         try {
-            const res = await PayService.paymentCredit(dataToSend);
-            // console.log('Review Response:', res);
+            const res: responseType<CheckoutDataType> = await PayService.paymentCredit(dataToSend);
+            // console.log('Checkout Transaction:', res.result);
 
             if (res.result.approved) {
                 router.replace({
@@ -63,25 +68,6 @@ export default function ConfirmTransactionScreen() {
     };
 
     // Hàm render từng dòng key:value, space-between
-    // const responseData =  {
-    //     "zipCode": "100000",
-    //     "amount": 90.0,
-    //     "fee": 0,
-    //     "cardType": "CREDIT",
-    //     "bankName": "BKBank Merchant Network",
-    //     "maskedCardNumber": "**** **** **** 1111",
-    //     "merchantName": "Điện lực EVN",
-    //     "executionTime": "2026-03-19 21:18:24",
-    //     "totalAmount": 90.0,
-    //     "cardNetwork": "VISA",
-    //     "merchantId": "SP0001",
-    //     "recipientAccount": "SP0001",
-    //     "cardholderName": "Nguyen Van A",
-    //     "recipientName": "Điện lực EVN",
-    //     "currency": "VND",
-    //     "billingAddress": "123 A Street, Hanoi",
-    //     "status": "VALID"
-    // };
     const renderKeyValueRows = (data: TransactionPreviewCreditResponseType) => {
         return DISPLAY_FIELDS.map(([key, label], idx) => (
             <ThemedView
@@ -119,7 +105,7 @@ export default function ConfirmTransactionScreen() {
                         </ThemedView>
 
                         <ThemedView style={styles.body}>
-                            <ThemedView style={{ flex: 1, width: '90%', marginBottom: 24, gap: '4%' }}>
+                            <ThemedView style={{ flex: 1, width: '92%', marginBottom: 24, gap: '4%' }}>
                                 {renderKeyValueRows(responseData)}
                             </ThemedView>
 
@@ -151,9 +137,12 @@ export default function ConfirmTransactionScreen() {
                                         billingAddress,
                                         status, ...dataToSend } = responseData;
 
-                                    dataToSend.amount = responseData.totalAmount;
-                                    await api(dataToSend);
-                                    // console.log('Data for execution: ', dataToSend);
+                                    await api({
+                                        ...dataToSend,
+                                        amount: totalAmount,
+                                        idempotencyKey: randomIdempotencyKey()
+                                    });
+                                    // console.log('Transaction Confirm: ', dataToSend);
                                 }}
                             >
                                 <ThemedText>Xác nhận</ThemedText>
