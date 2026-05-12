@@ -10,10 +10,21 @@ export interface termStatementType {
     totalCharges: number,
     totalPayments: number,
     minimumDue: number,
+    currentMinimumDue: number,
+    pastDueMinimum: number,
+    totalMinimumDueNow: number,
     newBalance: number,
+    gracePeriodEligible: boolean,
+    interestRateAnnual: number,
+    interestCharged: number,
+    interestAppliedAt: string,
+    lateFeeRate: number,
+    lateFeeFixed: number,
+    lateFeeCharged: number,
+    lateFeeAppliedAt: string,
     availableCredit: number,
     transactionCount: number,
-    statementStatus: "PAID" | "UNPAID" | "OVERDUE",
+    statementStatus: "PAID" | "UNPAID" | "OVERDUE" | "PARTIALLY_PAID",
     paidAmountAfterStatement: number,
     remainingMinimumDue: number,
     remainingBalance: number,
@@ -23,6 +34,14 @@ export interface termStatementType {
 
 export interface statementDetailType extends termStatementType {
     currency: string,
+    statementPeriod: string,
+    creditLimit: number,
+    remainingCurrentMinimumDue: number,
+    remainingPastDueMinimum: number,
+    billingDayOfMonth: number,
+    paymentDueDays: number,
+    minimumPaymentRate: number,
+    minimumPaymentFloor: number,
     items: [
         transactionStatementType
     ]

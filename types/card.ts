@@ -2,15 +2,19 @@
 interface CardType {
     id: string;
     maskedPan: string;
-    expirationDate: string;
-    cardholderName: string;
-    bank: string;
-    accountId: string;
-    status: string;
-    lastFour: string;
-    cardType: string;
     network: string;
+    lastFour: string;
     outstandingBalance: number;
+    expirationDate: string;
+    cardType: string;
+    accountId: string;
+    cardholderName: string;
+
+    linkedAccountNumber: string;
+    status: string;
+    currency: string;
+    accountStatus: string;
+    // bank: string;
 };
 
 export interface DebitCardType extends CardType {
@@ -20,4 +24,5 @@ export interface DebitCardType extends CardType {
 
 export interface CreditCardType extends CardType {
     creditLimit: number;
+    availableCredit: number;
 };

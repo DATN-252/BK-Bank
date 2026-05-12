@@ -2,6 +2,7 @@
 export interface TransactionPreviewCreditType {
     recipientAccount: string;
     cardType: string;
+    cardNetwork: string;
     cardNumber: string;
     cvc: string;
     expirationDate: string;
@@ -10,7 +11,6 @@ export interface TransactionPreviewCreditType {
     zipCode: string;
     amount: number;
     currency: string;
-    cardNetwork?: string;
 };
 
 export interface TransactionPreviewCreditResponseType {
@@ -93,6 +93,7 @@ export interface CheckoutSuccessDataType extends CheckoutDataType {
     maskedPan: string;
     accountId: string;
     accountType: string;
+    linkedAccountNumber: string;
 
     paymentNote: string;
     message: string;

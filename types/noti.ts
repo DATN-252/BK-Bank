@@ -15,6 +15,8 @@ export interface NotificationBalanceType {
     balanceAfter: number;
     merchantId: string;
     merchantName: string;
+    branchId: string;
+    branchName: string;
     location: string;
     latitude: number | null;
     longitude: number | null;

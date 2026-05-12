@@ -2,14 +2,14 @@ import axios from "axios";
 import { getToken, removeToken } from "../store/localStorage";
 
 const axiosClient = axios.create({
-  baseURL: "http://10.0.2.2:8083", // IP máy tính  khi sài Android Emulator
+  baseURL: process.env.EXPO_PUBLIC_LEDGER_URL,
   timeout: 40000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 const axiosClientCMS = axios.create({
-  baseURL: "http://10.0.2.2:8082", // IP máy tính  khi sài Android Emulator
+  baseURL: process.env.EXPO_PUBLIC_CMS_URL,
   timeout: 40000,
   headers: {
     "Content-Type": "application/json",
