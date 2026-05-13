@@ -2,16 +2,17 @@
 import React from 'react';
 import { TouchableOpacity, FlatList, ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
 import CustService from '@/service/custApi';
-import { termStatementType } from '@/types/statement';
+import { statementDetailType, termStatementType } from '@/types/statement';
 import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Router, useRouter } from 'expo-router';
+import { Colors } from '@/constants/Colors';
+import AntDesign from '@expo/vector-icons/build/AntDesign';
+import { responseType } from '@/types/response';
 
 import { useSelector } from 'react-redux';
 import { ReduxTypes } from '@/store/reduxStore';
-import { Colors } from '@/constants/Colors';
-import AntDesign from '@expo/vector-icons/build/AntDesign';
 
 
 
@@ -28,7 +29,7 @@ export default function StatementScreen() {
         value: `${loan.accountNumber}`,
     }));
 
-    //! Lấy danh sách sao kê, api bị disable nên tạm comment
+    //! Lấy danh sách all sao kê của all accountLoan, api bị disable nên tạm comment
     // React.useEffect(() => {
     //     (async () => {
     //         setLoading(true);
@@ -49,8 +50,8 @@ export default function StatementScreen() {
         (async () => {
             setLoading(true);
             try {
-                const res = await CustService.getAllTermStatementsbyLoanId(loanId);
-                setStatements(Array.isArray(res.result) ? res.result : []);
+                const res: responseType<termStatementType[]> = await CustService.getAllTermStatementsbyLoanId(loanId);
+                setStatements(res.result);
             } catch (err) {
                 // console.error('Error fetching statements:', err);
                 setStatements([]);
@@ -64,7 +65,7 @@ export default function StatementScreen() {
         (async () => {
             setLoading(true);
             try {
-                const res = await CustService.getStatementsbyLoanIdAndBillingDate(loanId, billingDate);
+                const res: responseType<statementDetailType> = await CustService.getStatementsbyLoanIdAndBillingDate(loanId, billingDate);
                 // console.log('Statement detail:', res.result);
 
                 router.push({

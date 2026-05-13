@@ -1,11 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/Colors';
 import { statementDetailType, transactionStatementType } from '@/types/statement';
+import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
-import { FlatList, StyleSheet, ScrollView, TextInput, View } from 'react-native';
+import { FlatList, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 
 
@@ -32,21 +32,32 @@ export default function StatementDetailScreen() {
         <ThemedView style={styles.infoBox}>
             <ThemedText type='subtitle' style={styles.infoTitle}>Chi tiết kỳ hạn #{statement.statementId}</ThemedText>
             <ThemedText style={styles.textKey}>Tài khoản: <ThemedText style={styles.textValue}>{statement.accountNumber}</ThemedText></ThemedText>
-            <ThemedText style={styles.textKey}>Kỳ sao kê: <ThemedText style={styles.textValue}>{statement.statementPeriodStart} - {statement.statementPeriodEnd}</ThemedText></ThemedText>
-            <ThemedText style={styles.textKey}>Ngày lập: <ThemedText style={styles.textValue}>{new Date(statement.generatedAt).toISOString().split('T')[0]}</ThemedText></ThemedText>
-            <ThemedText style={styles.textKey}>Ngày đến hạn: <ThemedText style={styles.textValue}>{new Date(statement.dueDate).toISOString().split('T')[0]}</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Kỳ sao kê: <ThemedText style={styles.textValue}>{statement.statementPeriodStart} đến {statement.statementPeriodEnd}</ThemedText></ThemedText>
+            {/* <ThemedText style={styles.textKey}>Ngày lập: <ThemedText style={styles.textValue}>{new Date(statement.generatedAt).toISOString().split('T')[0]}</ThemedText></ThemedText> */}
+            <ThemedText style={styles.textKey}>Hạn thanh toán: <ThemedText style={styles.textValue}>{new Date(statement.dueDate).toISOString().split('T')[0]}</ThemedText></ThemedText>
             <ThemedText style={styles.textKey}>Trạng thái: <ThemedText style={[styles.textValue, { color: statement.statementStatus === 'PAID' ? '#00D26A' : statement.statementStatus === 'OVERDUE' ? 'red' : '#FFA500' }]}>{statement.statementStatus}</ThemedText></ThemedText>
             <ThemedText style={styles.textKey}>Số nợ kỳ trước: <ThemedText style={styles.textValue}>{statement.previousBalance.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
             <ThemedText style={styles.textKey}>Phát sinh: <ThemedText style={styles.textValue}>{statement.totalCharges.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
-            <ThemedText style={styles.textKey}>Thanh toán: <ThemedText style={styles.textValue}>{statement.totalPayments.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
-            <ThemedText style={styles.textKey}>Số nợ mới: <ThemedText style={styles.textValue}>{statement.newBalance.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
-            <ThemedText style={styles.textKey}>Tín dụng còn lại: <ThemedText style={styles.textValue}>{statement.availableCredit.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
-            <ThemedText style={styles.textKey}>Số giao dịch: <ThemedText style={styles.textValue}>{statement.transactionCount}</ThemedText></ThemedText>
-            <ThemedText style={styles.textKey}>Tối thiểu phải trả: <ThemedText style={styles.textValue}>{statement.minimumDue.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Thanh toán trong kỳ: <ThemedText style={styles.textValue}>{statement.totalPayments.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Dư nợ mới: <ThemedText style={styles.textValue}>{statement.newBalance.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
             <ThemedText style={styles.textKey}>Đã trả sau sao kê: <ThemedText style={styles.textValue}>{statement.paidAmountAfterStatement.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
-            <ThemedText style={styles.textKey}>Còn phải trả tối thiểu: <ThemedText style={styles.textValue}>{statement.remainingMinimumDue.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
+            
             <ThemedText style={styles.textKey}>Còn nợ: <ThemedText style={styles.textValue}>{statement.remainingBalance.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
-            {/* <ThemedText style={styles.textKey}>Ngày thanh toán cuối: <ThemedText style={styles.textValue}>{statement.lastPaymentDate}</ThemedText></ThemedText> */}
+            <ThemedText style={styles.textKey}>Tối thiểu phải trả: <ThemedText style={styles.textValue}>{statement.minimumDue.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Còn phải trả tối thiểu: <ThemedText style={styles.textValue}>{statement.remainingMinimumDue.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
+
+            <ThemedText style={styles.textKey}>Tối thiểu của thanh toán tối thiểu: <ThemedText style={styles.textValue}>{statement.minimumPaymentRate.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Lãi suất: <ThemedText style={styles.textValue}>{statement.interestRateAnnual.toLocaleString()}%/năm</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Phí phạt: <ThemedText style={styles.textValue}>{statement.lateFeeRate.toLocaleString()}%</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Phí phạt tối thiểu: <ThemedText style={styles.textValue}>{statement.lateFeeFixed.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
+
+            <ThemedText style={styles.textKey}>Lãi tạm tính: <ThemedText style={styles.textValue}>{statement.interestCharged.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Phí phạt tạm tính: <ThemedText style={styles.textValue}>{statement.lateFeeCharged.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Đủ điều khiện miễn lãi: <ThemedText style={styles.textValue}>{statement.gracePeriodEligible ? 'Có' : 'Không'}</ThemedText></ThemedText>
+
+            <ThemedText style={styles.textKey}>Số dư khả dụng: <ThemedText style={styles.textValue}>{statement.availableCredit.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Số giao dịch: <ThemedText style={styles.textValue}>{statement.transactionCount}</ThemedText></ThemedText>
+            <ThemedText style={styles.textKey}>Hạn mức: <ThemedText style={styles.textValue}>{statement.creditLimit.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
         </ThemedView>
     );
 
@@ -101,7 +112,7 @@ export default function StatementDetailScreen() {
                     <ThemedText style={styles.textKey}>Số nợ sau GD: <ThemedText style={styles.textValue}>{item.balanceAfter.toLocaleString()} {statement.currency}</ThemedText></ThemedText>
                     <ThemedText style={styles.textKey}>Trạng thái: <ThemedText style={[styles.textValue, { color: item.status === 'SUCCESS' ? '#00D26A' : 'red' }]}>{item.status}</ThemedText></ThemedText>
                     <ThemedText style={styles.textKey}>Phản hồi: <ThemedText style={styles.textValue}>{item.responseMessage}</ThemedText></ThemedText>
-                    <ThemedText style={styles.textKey}>{item.transactionDate}</ThemedText>
+                    <ThemedText style={styles.textKey}>{new Date(item.transactionDate).toISOString().split('T')[0]}</ThemedText>
                 </ThemedView>
                 <ThemedText style={[styles.amount, { color: amountColor }]}>{prefix}{item.amount.toLocaleString()} {statement.currency}</ThemedText>
             </ThemedView>

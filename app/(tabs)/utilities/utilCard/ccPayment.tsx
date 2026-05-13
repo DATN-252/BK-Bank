@@ -34,7 +34,7 @@ const sourcePaymentOptions = [
 
 const paymentOptions = [
     { label: 'Thanh toán tối thiểu', value: 'MINIMUM_DUE' },
-    { label: 'Thanh toán toàn bộ', value: 'STATEMENT_BALANCE' },
+    { label: 'Thanh toán toàn bộ sao kê', value: 'STATEMENT_BALANCE' },
     { label: 'Thanh toán tùy chỉnh', value: 'CUSTOM' }
 ];
 
