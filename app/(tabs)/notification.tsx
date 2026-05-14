@@ -198,7 +198,7 @@ export default function NotificationScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, [dispatch]);
+  }, []);
 
   React.useEffect(() => {
     refreshNotificationsSystem();

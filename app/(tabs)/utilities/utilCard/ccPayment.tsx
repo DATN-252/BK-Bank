@@ -1,9 +1,9 @@
 import { Router, useRouter } from 'expo-router';
 import React from 'react';
-import { Controller, set, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Keyboard, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback } from 'react-native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Dropdown } from 'react-native-element-dropdown';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -11,9 +11,9 @@ import { Colors } from '@/constants/Colors';
 import custApi from '@/service/custApi';
 import { termStatementType } from '@/types/statement';
 
-import { useSelector } from 'react-redux';
-import { ReduxTypes } from '@/store/reduxStore';
 import LoadingScreen from '@/app/transaction/loading';
+import { ReduxTypes } from '@/store/reduxStore';
+import { useSelector } from 'react-redux';
 
 
 
@@ -64,9 +64,11 @@ export default function CreditCardPaymentScreen() {
         }
     });
     const [loading, setLoading] = React.useState(false);
-    const [conflictAlert, setConflictAlert] = React.useState(false);
 
     const resetPaymentForm = React.useCallback(() => {
+        setStatement(undefined);
+        setLoading(false);
+
         reset({
             // paymentSource: "INTERNAL_SAVINGS",
             paymentOption: "CUSTOM",
@@ -102,39 +104,39 @@ export default function CreditCardPaymentScreen() {
     };
 
     // Update display amount when payment option or loan ID changes
+    const paymentOption = watch('paymentOption');
+    const loanId = watch('loanId');
     React.useEffect(() => {
-        (async () => {
-            // ktra loanid 
-            if (!watch('loanId')) {
-                if (!conflictAlert) {
-                    alert('Vui lòng chọn tài khoản đích trước khi chọn loại thanh toán');
-                }
-                setConflictAlert(false);
+        // ktra loanid 
+        if (!loanId &&
+            (paymentOption !== 'CUSTOM')) {
+            alert('Vui lòng chọn tài khoản đích trước khi chọn loại thanh toán');
+            setValue('paymentOption', 'CUSTOM');
+            return;
+        };
 
-                // trả paymentOption về CUSTOM để người dùng nhập số tiền sau khi đã chọn loanId
+        if (paymentOption !== "CUSTOM") {
+            if (!statement) {
+                alert('Thao tác quá nhanh. Vui lòng chọn lại!');
                 setValue('paymentOption', 'CUSTOM');
                 return;
             };
 
-            if (watch('paymentOption') === "MINIMUM_DUE") {
-                if (!statement) alert('Thao tác quá nhanh. Vui lòng chọn lại!');
-                setValue("amount", statement?.remainingMinimumDue ?? 0);
-            } else if (watch('paymentOption') === "STATEMENT_BALANCE") {
-                if (!statement) alert('Thao tác quá nhanh. Vui lòng chọn lại!');
-                setValue("amount", statement?.remainingBalance ?? 0);   
-            };
-        })();
-    }, [watch('paymentOption')]);
+            if (paymentOption === "MINIMUM_DUE") setValue("amount", statement?.remainingMinimumDue ?? 0);
+            else setValue("amount", statement?.remainingBalance ?? 0);
+        };
+    }, [paymentOption, loanId, statement, setValue]);
 
+    // để update statement + note theo loanId
     React.useEffect(() => {
         (async () => {
             setValue('paymentOption', 'CUSTOM');
 
             // chọn loanId trước để lấy số nợ cần trả
-            const selectedLoanId = watch('loanId');
+            // dùng stm để nếu sài statement thì sẽ bị lỗi do setState bất đồng bộ
             let stm: termStatementType | undefined;
-            if (selectedLoanId) {
-                stm = await getCurrentStatement(selectedLoanId);
+            if (loanId) {
+                stm = await getCurrentStatement(loanId);
                 setStatement(stm);
             };
 
@@ -153,7 +155,7 @@ export default function CreditCardPaymentScreen() {
                 }
             }
         })();
-    }, [watch('loanId')]);
+    }, [loanId, setValue]);
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -286,7 +288,7 @@ export default function CreditCardPaymentScreen() {
                                         render={({ field: { onChange, value } }) => (
                                             <TextInput
                                                 style={styles.input}
-                                                value={value === undefined || value === null? '' : String(value)}
+                                                value={value === undefined || value === null ? '' : String(value)}
                                                 onChangeText={(text) => {
                                                     setValue('paymentOption', 'CUSTOM');
                                                     onChange(text === '' ? undefined : Number(text));
@@ -329,7 +331,7 @@ export default function CreditCardPaymentScreen() {
                                         try {
                                             // console.log('Data ccPayment:', data);
                                             if (!statement) {
-                                                alert('Vui lòng chọn tài khoản đích!');
+                                                alert('Tài khoản đích không hợp lệ!');
                                                 return;
                                             };
 
@@ -340,7 +342,6 @@ export default function CreditCardPaymentScreen() {
 
                                             // amount = 0
                                             if (data.amount === 0) {
-                                                setConflictAlert(true);
                                                 if (data.paymentOption !== "CUSTOM")
                                                     alert('Khoản nợ này đã được thanh toán!');
                                                 else
@@ -350,10 +351,8 @@ export default function CreditCardPaymentScreen() {
                                             };
 
                                             setLoading(true);
-                                            if (data.paymentOption === "STATEMENT_BALANCE")
-                                                data.paymentOption = "CUSTOM";
-
                                             const res = await custApi.postCreditCardPayments(data.loanId, statement?.billingDate, data);
+
                                             if (res.resultCode !== '00') {
                                                 router.replace({
                                                     pathname: '/utilities/utilCard/success',

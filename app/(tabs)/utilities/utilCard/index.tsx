@@ -30,7 +30,7 @@ export default function UtilityCardScreen() {
                 // console.error('Error fetching accounts:', error);
             }
         })();
-    }, []);
+    }, [dispatch]);
 
     return (
         <ThemedView style={styles.container}>

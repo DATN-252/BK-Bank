@@ -1,8 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Redirect, Stack } from 'expo-router';
+import { Redirect, Stack, useSegments } from 'expo-router';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import PushNotificationManager from '@/components/PushNotificationManager';
-import { useSegments } from 'expo-router';
 
 import { useSelector, Provider } from "react-redux";
 import { store, ReduxTypes } from '@/store/reduxStore';

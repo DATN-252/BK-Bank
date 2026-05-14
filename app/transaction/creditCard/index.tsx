@@ -34,7 +34,7 @@ export default function CreditTransactionScreen() {
   let { qrData } = useLocalSearchParams<{ qrData: string }>();
   const parsedQrData = qrData ? JSON.parse(qrData) : null;
 
-  const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, formState: { errors: creditCardErrors }, reset: resetCreditCard } = useForm<TransactionPreviewCreditType>({
+  const { control: creditCardControl, handleSubmit: handleCreditCardSubmit, reset: resetCreditCard } = useForm<TransactionPreviewCreditType>({
     defaultValues: {
       recipientAccount: parsedQrData?.merchantAccount?.merchantId ?? '',
       currency: parsedQrData?.currency ?? 'USD',
