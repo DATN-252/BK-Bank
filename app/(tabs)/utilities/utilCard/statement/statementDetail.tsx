@@ -36,7 +36,9 @@ export default function StatementDetailScreen() {
             item.merchantId?.toLowerCase().includes(lower) ||
             item.transactionType?.toLowerCase().includes(lower) ||
             item.status?.toLowerCase().includes(lower) ||
-            item.transactionDate?.toLowerCase().includes(lower)
+            item.transactionDate?.toLowerCase().includes(lower) ||
+            item.amount?.toString().toLowerCase().includes(lower) ||
+            item.balanceAfter?.toString().toLowerCase().includes(lower) 
         );
     }, [statement?.items, search]);
 
@@ -81,29 +83,33 @@ export default function StatementDetailScreen() {
 
     // Render item for FlatList
     const renderTransaction = ({ item }: { item: transactionStatementType }) => {
-        // Icon và màu sắc dựa vào transactionType và status
+        // determine whether transaction reduces balance (debit)
+        const getStatusReceiveOrSendMoney = (transactionType: string) => {
+            const debitTypes = new Set(['CHARGE', 'WITHDRAWAL', 'INTEREST', 'LATE_FEE']);
+            return debitTypes.has(transactionType);
+        };
+
         let icon = 'swap-horizontal';
         let iconColor = Colors.light.icon;
         let amountColor = '#000';
         let prefix = '';
+
         if (item.status !== 'SUCCESS') {
             icon = 'alert';
             iconColor = 'red';
             amountColor = 'red';
-        } else if (item.transactionType === 'CHARGE') {
+            prefix = item.amount ? (item.amount > 0 ? '+' : '-') : '';
+        } else if (getStatusReceiveOrSendMoney(item.transactionType)) {
             icon = 'arrow-down';
             iconColor = 'red';
             amountColor = 'red';
             prefix = '-';
-        } else if (item.transactionType === 'PAYMENT' || item.transactionType === 'REFUND') {
-            icon = 'arrow-up';
+        } else {
+            // default to credit-like presentation for other types
+            icon = item.transactionType === 'REVERSAL' ? 'refresh' : 'arrow-up';
             iconColor = '#00D26A';
             amountColor = '#00D26A';
             prefix = '+';
-        } else if (item.transactionType === 'REVERSAL') {
-            icon = 'refresh';
-            iconColor = Colors.light.tint;
-            amountColor = Colors.light.tint;
         }
         return (
             <ThemedView style={styles.row}>
@@ -112,11 +118,12 @@ export default function StatementDetailScreen() {
                 </ThemedView>
                 <ThemedView style={{ flex: 1 }}>
                     <ThemedText style={styles.textKey}>Loại: <ThemedText style={styles.textValue}>{item.transactionType}</ThemedText></ThemedText>
-                    <ThemedText style={styles.textKey}>Bên nhận: 
+                    <ThemedText style={styles.textKey}>Bên nhận:
                         <ThemedText style={styles.textValue}>
-                        {item.transactionType === 'PAYMENT' ?
-                            statement.accountNumber
-                            : item.merchantName + ' (' + item.merchantId + ')'}
+                            {item.transactionType === 'CHARGE' ?
+                                item.merchantName + ' (' + item.merchantId + ')'
+                                : statement.accountNumber
+                            }
                         </ThemedText>
                     </ThemedText>
                     <ThemedText style={styles.textKey}>Dư nợ sau GD: <ThemedText style={styles.textValue}>{item.balanceAfter.toLocaleString()} {currency}</ThemedText></ThemedText>

@@ -131,10 +131,10 @@ export default function NotificationScreen() {
   const [search, setSearch] = React.useState('');
   const [tab, setTab] = React.useState<'balance' | 'general'>('balance');
 
-  // để thay dổi nền mỗi transaction
+  // determine whether transaction reduces balance (debit)
   const getStatusReceiveOrSendMoney = (transactionType: string) => {
-    const validTypes = new Set(['CHARGE', 'WITHDRAWAL']);
-    return validTypes.has(transactionType);
+    const debitTypes = new Set(['CHARGE', 'WITHDRAWAL', 'INTEREST', 'LATE_FEE']);
+    return debitTypes.has(transactionType);
   };
 
   // để thay dổi nền mỗi transaction
@@ -159,6 +159,58 @@ export default function NotificationScreen() {
   // cho viec xoa hoac readed
   const dispatch: ReduxTypes['AppDispatch'] = useDispatch();
 
+  const filteredBalanceData = React.useMemo(() => {
+    if (!search.trim()) {
+      return DATA_BALANCE;
+    }
+
+    const lower = search.toLowerCase();
+
+    return DATA_BALANCE.filter(item =>
+      item.accountNumber?.toLowerCase().includes(lower) ||
+      item.accountType?.toLowerCase().includes(lower) ||
+      item.merchantName?.toLowerCase().includes(lower) ||
+      item.merchantId?.toLowerCase().includes(lower) ||
+      item.description?.toLowerCase().includes(lower) ||
+      item.transactionType?.toLowerCase().includes(lower) ||
+      item.status?.toLowerCase().includes(lower) ||
+      item.transactionDate?.toLowerCase().includes(lower) ||
+      item.amount?.toString().toLowerCase().includes(lower) ||
+      item.balanceAfter?.toString().toLowerCase().includes(lower)
+    );
+  }, [DATA_BALANCE, search]);
+
+  const [DATA_SYSTEM, setDATA_SYSTEM] = React.useState<NotificationSystemType[]>([]);
+
+  const filteredGeneralData = React.useMemo(() => {
+    const mergedData = [...DATA_SYSTEM, ...DATA_GENERAL];
+
+    if (!search.trim()) {
+      return mergedData;
+    }
+
+    const lower = search.toLowerCase();
+
+    return mergedData.filter(item => {
+      const searchableItem = item as Record<string, unknown>;
+      const fields = [
+        'title',
+        'message',
+        'content',
+        'date',
+        'createdAt',
+        'time',
+        'icon',
+        'fraudPrediction',
+      ];
+
+      return fields.some(field => {
+        const value = searchableItem[field];
+        return typeof value === 'string' && value.toLowerCase().includes(lower);
+      });
+    });
+  }, [DATA_SYSTEM, search]);
+
   const refreshNotificationsBalance = React.useCallback(async () => {
     setRefreshing(true);
 
@@ -180,8 +232,7 @@ export default function NotificationScreen() {
   React.useEffect(() => {
     refreshNotificationsBalance();
   }, [refreshNotificationsBalance]);
-
-  const [DATA_SYSTEM, setDATA_SYSTEM] = React.useState<NotificationSystemType[]>([]);
+  
   const refreshNotificationsSystem = React.useCallback(async () => {
     setRefreshing(true);
 
@@ -206,14 +257,14 @@ export default function NotificationScreen() {
 
 
   const renderBalanceItem = ({ item }: { item: NotiBalance }) => {
-    const transType: boolean = !getStatusReceiveOrSendMoney(item.transactionType);
+    const isCredit: boolean = !getStatusReceiveOrSendMoney(item.transactionType);
 
     return (<ThemedView style={[styles.row, { backgroundColor: getBalanceRowBackground(item) }]}>
       <ThemedView style={styles.iconBox}>
         <FontAwesome
-          name={item.status === 'SUCCESS' ? (transType ? 'arrow-circle-up' : 'arrow-circle-down') : 'exclamation-triangle'}
+          name={item.status === 'SUCCESS' ? (isCredit ? 'arrow-circle-up' : 'arrow-circle-down') : 'exclamation-triangle'}
           size={24}
-          color={item.status === 'SUCCESS' ? (transType ? '#00D26A' : 'red') : 'orange'}
+          color={item.status === 'SUCCESS' ? (isCredit ? '#00D26A' : 'red') : 'orange'}
         />
       </ThemedView>
       <ThemedView style={{ flex: 1, backgroundColor: 'transparent', }}>
@@ -236,7 +287,7 @@ export default function NotificationScreen() {
         </ThemedText>
         <ThemedText style={styles.textKey}>{item.transactionDate?.split("T")[0] || "N/A"} | Trạng thái: {item.status}</ThemedText>
       </ThemedView>
-      <ThemedText style={[styles.amount, { color: transType ? '#00D26A' : 'red' }]}>{transType ? "+" : "-"}{(item.amount ?? 0).toFixed(2)} {item.currency}</ThemedText>
+      <ThemedText style={[styles.amount, { color: isCredit ? '#00D26A' : 'red' }]}>{isCredit ? "+" : "-"}{(item.amount ?? 0).toFixed(2)} {item.currency}</ThemedText>
     </ThemedView>
     );
   }
@@ -305,7 +356,7 @@ export default function NotificationScreen() {
 
           {tab === 'balance' ? (
             <FlatList
-              data={DATA_BALANCE}
+              data={filteredBalanceData}
               keyExtractor={(item, index) => item.id?.toString() || index.toString()}
               renderItem={renderBalanceItem}
               contentContainerStyle={{ paddingBottom: 16 }}
@@ -316,7 +367,7 @@ export default function NotificationScreen() {
           ) : (
             <>
               <FlatList
-                data={[...DATA_SYSTEM, ...DATA_GENERAL]}
+                data={filteredGeneralData}
                 keyExtractor={item => item.id?.toString?.() || item.id || Math.random().toString()}
                 renderItem={renderGeneralItem}
                 contentContainerStyle={{ paddingBottom: 16 }}
